@@ -1,10 +1,10 @@
-# Math6321-codes
+# Math710-codes
 
-Codes for in-class collaboration for the course: Numerical Solution of ODEs (MATH 6321) at Southern Methodist University, for the Fall 2023 semester.
+Codes for in-class collaboration for the course: Math 710, Special Topics in Applied Math (Numerical Solution of ODEs) at the University of Maryland Baltimore County, for the Fall 2026 semester.
 
-These codes require a modern Python installation.
+These codes require a modern Python or Matlab installation.
 
-   *Note: the `c++` branch includes implementations of the same solvers, but in C++, and that use the "Armadillo" C++ library (http://arma.sourceforge.net) for vectors, matrices, and linear solvers.*
+   *Note: there is an older `c++` branch that includes implementations of the same solvers, but in C++, and that use the "Armadillo" C++ library (http://arma.sourceforge.net) for vectors, matrices, and linear solvers.*
 
 Codes are grouped according to type:
 
@@ -19,4 +19,4 @@ Codes are grouped according to type:
 * `bvp` -- two-point boundary-value problem solvers.
 
 Daniel R. Reynolds  
-Mathematics @ SMU  
+Mathematics and Statistics @ UMBC  
