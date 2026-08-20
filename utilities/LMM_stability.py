@@ -3,9 +3,8 @@
 # methods.  Includes a "main" that uses this function to plot overlaid stability
 # regions for Adams-Bashforth, Adams-Moulton, and Backwards Differentiation Formulas.
 #
-# D.R. Reynolds
-# Math 6321 @ SMU
-# Fall 2023
+# Daniel R. Reynolds
+# Math & Stat @ UMBC
 
 # general imports
 import numpy as np

@@ -3,9 +3,8 @@
 # methods.  Includes a simple "main" that uses this function to plot the
 # stability region for forward and backward Euler (when posed as RK methods).
 #
-# D.R. Reynolds
-# Math 6321 @ SMU
-# Fall 2023
+# Daniel R. Reynolds
+# Math & Stat @ UMBC
 
 # general imports
 import numpy as np
