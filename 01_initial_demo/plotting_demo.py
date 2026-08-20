@@ -2,9 +2,9 @@
 #
 # Python Plotting Introduction Script
 #
-# D.R. Reynolds
-# Math 6321 @ SMU
-# Fall 2023
+# Daniel R. Reynolds
+# Math @ SMU
+# Math & Stat @ UMBC
 
 # import student code
 import numpy as np

@@ -2,13 +2,12 @@
 #
 # Basic numpy usage demo script
 #
-# D.R. Reynolds
-# Math 6321 @ SMU
-# Fall 2023
+# Daniel R. Reynolds
+# Math @ SMU
+# Math & Stat @ UMBC
 
 # module imports
 import numpy as np
-from GramSchmidt import *
 
 # create a vector of length 5, and write this to screen
 a = np.zeros(5)
@@ -250,30 +249,6 @@ Z = np.array([[1, 2, 3], [4, 5, 6]])
 print(" Z:\n", Z)
 print(" Z':\n", np.transpose(Z))
 
-# check the Gram-Schmidt routine
-print("Testing GramSchmidt, should work")
-X = np.random.random_sample((20,3))
-iret,X = GramSchmidt(X)
-print("  GramSchmidt returned ", iret, ", dot-products are:")
-print("     <X0,X0> = ", np.dot(X[:,0],X[:,0]))
-print("     <X0,X1> = ", np.dot(X[:,0],X[:,1]))
-print("     <X0,X2> = ", np.dot(X[:,0],X[:,2]))
-print("     <X1,X1> = ", np.dot(X[:,1],X[:,1]))
-print("     <X1,X2> = ", np.dot(X[:,1],X[:,2]))
-print("     <X2,X2> = ", np.dot(X[:,2],X[:,2]))
-
-print("Testing GramSchmidt, should fail")
-V = np.random.random_sample((20,3))
-V[:,1] = 2*V[:,0]
-iret,V = GramSchmidt(V);
-print("  GramSchmidt returned ", iret, ", dot-products are:")
-print("     <V0,V0> = ", np.dot(V[:,0],V[:,0]))
-print("     <V0,V1> = ", np.dot(V[:,0],V[:,1]))
-print("     <V0,V2> = ", np.dot(V[:,0],V[:,2]))
-print("     <V1,V1> = ", np.dot(V[:,1],V[:,1]))
-print("     <V1,V2> = ", np.dot(V[:,1],V[:,2]))
-print("     <V2,V2> = ", np.dot(V[:,2],V[:,2]))
-
 print("Testing matrix product, should be: 9 -1 9 -8 11 6")
 A_ = np.eye(6)
 A_[0,3] = 2.0
@@ -285,7 +260,7 @@ xtrue_ = np.linspace(1.0, 6.0, 6)
 b_ = A_@xtrue_
 print("  ", b_)
 
-print("Testing direct linear solver:")
+print("Testing direct linear solver with dense matrix:")
 C_ = 100*np.eye(9) + np.random.random_sample((9,9))
 z_ = np.logspace(-4.0, 4.0, 9)
 b_ = C_@z_
