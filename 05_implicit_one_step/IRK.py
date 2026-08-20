@@ -10,9 +10,9 @@
 # using a fully-implicit Runge--Kutta (IRK) time stepping
 # method.
 #
-# D.R. Reynolds
-# Math 6321 @ SMU
-# Fall 2023
+# Daniel R. Reynolds
+# Math & Stat @ UMBC
+
 import numpy as np
 import sys
 sys.path.append('..')
@@ -33,13 +33,13 @@ class IRK:
         h = (optional) input with stepsize to use for time stepping.
             Note that this MUST be set either here or in the Evolve call.
     """
-    def __init__(self, f, sol, A, b, c, h=0.0):
+    def __init__(self, f, sol, B, h=0.0):
         # required inputs
         self.f = f
         self.sol = sol
-        self.A = A
-        self.b = b
-        self.c = c
+        self.A = B['A']
+        self.b = B['b']
+        self.c = B['c']
 
         # optional inputs
         self.h = h
@@ -47,11 +47,11 @@ class IRK:
         # internal data
         self.steps = 0
         self.nsol = 0
-        self.s = c.size
+        self.s = self.c.size
 
         # check for legal table
-        if ((np.size(c,0) != self.s) or (np.size(A,0) != self.s) or
-            (np.size(A,1) != self.s)):
+        if ((np.size(self.c,0) != self.s) or (np.size(self.A,0) != self.s) or
+            (np.size(self.A,1) != self.s)):
             raise ValueError("IRK ERROR: incompatible Butcher table supplied")
 
     def irk_step(self, t, y, args=()):
@@ -88,7 +88,7 @@ class IRK:
 
         # construct Jacobian solver for this stage
         if (self.sol.solver_type == 'dense'):
-            def J(z,rtol,abstol):
+            def J(z):
                 Jac = np.eye(z.size)
                 for j in range(s):
                     tj = t + self.c[j] * self.h
@@ -103,7 +103,7 @@ class IRK:
                 Jsolve = lambda b: lu_solve((lu, piv), b)
                 return LinearOperator((z.size,z.size), matvec=Jsolve)
         elif (self.sol.solver_type == 'sparse'):
-            def J(z,rtol,abstol):
+            def J(z):
                 Jac = identity(z.size)
                 for j in range(s):
                     tj = t + self.c[j] * self.h
@@ -116,37 +116,6 @@ class IRK:
                 except:
                     raise RuntimeError("Sparse Jacobian factorization failure")
                 Jsolve = lambda b: Jfactored(b)
-                return LinearOperator((z.size,z.size), matvec=Jsolve)
-        elif (self.sol.solver_type == 'gmres'):
-            def J(z,rtol,abstol):
-                def Jv(v):
-                    Jvprod = np.copy(v)
-                    for i in range(s):
-                        ti = t + self.c[i] * self.h
-                        zi = np.array(z[m*i:m*(i+1)])
-                        for j in range(s):
-                            vj = np.array(v[m*j:m*(j+1)])
-                            Jijv = self.sol.f_y(ti, zi, vj, *args)
-                            Jvprod[m*i:m*(i+1)] -= self.h * self.A[i,j] * Jijv
-                    return Jvprod
-                J = LinearOperator((z.size,z.size), matvec=Jv)
-                Jsolve = lambda b: gmres(J, b, tol=rtol, atol=abstol)[0]
-                return LinearOperator((z.size,z.size), matvec=Jsolve)
-        elif (self.sol.solver_type == 'pgmres'):
-            def J(z,rtol,abstol):
-                P = self.sol.prec(t,z,self.h*self.A[0,0],rtol,abstol)
-                def Jv(v):
-                    Jvprod = np.copy(v)
-                    for i in range(s):
-                        ti = t + self.c[i] * self.h
-                        zi = np.array(z[m*i:m*(i+1)])
-                        for j in range(s):
-                            vj = np.array(v[m*j:m*(j+1)])
-                            Jijv = self.sol.f_y(ti, zi, vj, *args)
-                            Jvprod[m*i:m*(i+1)] -= self.h * self.A[i,j] * Jijv
-                    return Jvprod
-                J = LinearOperator((z.size,z.size), matvec=Jv)
-                Jsolve = lambda b: gmres(J, b, tol=rtol, atol=abstol, M=P)[0]
                 return LinearOperator((z.size,z.size), matvec=Jsolve)
         self.sol.linear_solver = J
 
@@ -249,50 +218,52 @@ class IRK:
 
 def RadauIIA2():
     """
-    Usage: A, b, c, p = RadauIIA2()
+    Usage: B = RadauIIA2()
 
     Utility routine to return the O(h^3) RadauIIA 2-stage IRK table.
 
-    Outputs: A holds the Runge--Kutta stage coefficients
-             b holds the Runge--Kutta solution weights
-             c holds the Runge--Kutta abcissae
-             p holds the Runge--Kutta method order
+    Outputs: B['A'] holds the Runge--Kutta stage coefficients
+             B['b'] holds the Runge--Kutta solution weights
+             B['c'] holds the Runge--Kutta abcissae
+             B['p'] holds the Runge--Kutta method order
     """
     A = np.array(((5.0/12.0, -1.0/12.0),
                   (9.0/12.0, 3.0/12.0)))
     b = np.array((0.75, 0.25))
     c = np.array((1.0/3.0, 1.0))
     p = 3
-    return A, b, c, p
+    B = {'A': A, 'b': b, 'c': c, 'p': p}
+    return B
 
 def GaussLegendre2():
     """
-    Usage: A, b, c, p = GaussLegendre2()
+    Usage: B = GaussLegendre2()
 
     Utility routine to return the O(h^4) Gauss-Legendre 2-stage IRK table.
 
-    Outputs: A holds the Runge--Kutta stage coefficients
-             b holds the Runge--Kutta solution weights
-             c holds the Runge--Kutta abcissae
-             p holds the Runge--Kutta method order
+    Outputs: B['A'] holds the Runge--Kutta stage coefficients
+             B['b'] holds the Runge--Kutta solution weights
+             B['c'] holds the Runge--Kutta abcissae
+             B['p'] holds the Runge--Kutta method order
     """
     A = np.array(((0.25, (3.0-2.0*np.sqrt(3.0))/12.0),
                   ((3.0+2.0*np.sqrt(3.0))/12.0, 0.25)))
     b = np.array((0.5, 0.5))
     c = np.array(((3.0 - np.sqrt(3.0))/6.0, (3.0 + np.sqrt(3.0))/6.0))
     p = 4
-    return A, b, c, p
+    B = {'A': A, 'b': b, 'c': c, 'p': p}
+    return B
 
 def RadauIIA3():
     """
-    Usage: A, b, c, p = RadauIIA3()
+    Usage: B = RadauIIA3()
 
     Utility routine to return the O(h^5) RadauIIA 3-stage IRK table.
 
-    Outputs: A holds the Runge--Kutta stage coefficients
-             b holds the Runge--Kutta solution weights
-             c holds the Runge--Kutta abcissae
-             p holds the Runge--Kutta method order
+    Outputs: B['A'] holds the Runge--Kutta stage coefficients
+             B['b'] holds the Runge--Kutta solution weights
+             B['c'] holds the Runge--Kutta abcissae
+             B['p'] holds the Runge--Kutta method order
     """
     A = np.array((( (88.0 - 7.0*np.sqrt(6.0))/360.0,
                     (296.0 - 169.0*np.sqrt(6.0))/1800.0,
@@ -308,18 +279,19 @@ def RadauIIA3():
                   1.0/9.0))
     c = np.array(((4.0 - np.sqrt(6.0))/10.0, (4.0 + np.sqrt(6.0))/10.0, 1.0))
     p = 5
-    return A, b, c, p
+    B = {'A': A, 'b': b, 'c': c, 'p': p}
+    return B
 
 def GaussLegendre3():
     """
-    Usage: A, b, c, p = GaussLegendre3()
+    Usage: B = GaussLegendre3()
 
     Utility routine to return the O(h^6) Gauss-Legendre 3-stage IRK table.
 
-    Outputs: A holds the Runge--Kutta stage coefficients
-             b holds the Runge--Kutta solution weights
-             c holds the Runge--Kutta abcissae
-             p holds the Runge--Kutta method order
+    Outputs: B['A'] holds the Runge--Kutta stage coefficients
+             B['b'] holds the Runge--Kutta solution weights
+             B['c'] holds the Runge--Kutta abcissae
+             B['p'] holds the Runge--Kutta method order
     """
     A = np.array(( (5.0/36.0, 2.0/9.0 - np.sqrt(15.0)/15.0, 5.0/36.0 - np.sqrt(15.0)/30.0),
                    (5.0/36.0 + np.sqrt(15.0)/24.0, 2.0/9.0, 5.0/36.0 - np.sqrt(15.0)/24.0),
@@ -327,18 +299,19 @@ def GaussLegendre3():
     b = np.array((5.0/18.0, 4.0/9.0, 5.0/18.0))
     c = np.array(((5.0 - np.sqrt(15.0))/10.0, 0.5, (5.0 + np.sqrt(15.0))/10.0))
     p = 6
-    return A, b, c, p
+    B = {'A': A, 'b': b, 'c': c, 'p': p}
+    return B
 
 def GaussLegendre6():
     """
-    Usage: A, b, c, p = GaussLegendre6()
+    Usage: B = GaussLegendre6()
 
     Utility routine to return the O(h^12) Gauss-Legendre 6-stage IRK table.
 
-    Outputs: A holds the Runge--Kutta stage coefficients
-             b holds the Runge--Kutta solution weights
-             c holds the Runge--Kutta abcissae
-             p holds the Runge--Kutta method order
+    Outputs: B['A'] holds the Runge--Kutta stage coefficients
+             B['b'] holds the Runge--Kutta solution weights
+             B['c'] holds the Runge--Kutta abcissae
+             B['p'] holds the Runge--Kutta method order
     """
     A = np.array((( 0.042831123094792580851996218950605,
                    -0.014763725997197424643891429014278,
@@ -389,4 +362,5 @@ def GaussLegendre6():
                   0.83060469323313224077054428562406,
                   0.9662347571015760250290327348921))
     p = 12
-    return A, b, c, p
+    B = {'A': A, 'b': b, 'c': c, 'p': p}
+    return B

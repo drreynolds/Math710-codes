@@ -1,16 +1,16 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 #
 # Main routine to test the forward Euler method on a system of ODEs
 #    y' = f(t,y), t in [0,1],
 #    y(0) = y0.
 #
-# D.R. Reynolds
-# Math 6321 @ SMU
-# Fall 2023
+# Daniel R. Reynolds
+# Math & Stat @ UMBC
+
 import numpy as np
 import sys
-sys.path.append('..')
-from shared.ImplicitSolver import *
+sys.path.append('../shared')
+from ImplicitSolver import *
 from DIRK import *
 from IRK import *
 
@@ -95,36 +95,29 @@ def RunTest(stepper, name):
 
 
 # RadauIIA2 tests
-A_, b_, c_, p_ = RadauIIA2()
-RIIA2 = IRK(f, solver, A_, b_, c_)
+RIIA2 = IRK(f, solver, RadauIIA2())
 RunTest(RIIA2, 'RadauIIA-2')
 
 # Alexander3 tests
-A_, b_, c_, p = Alexander3()
-Alex3 = DIRK(f, solver, A_, b_, c_)
+Alex3 = DIRK(f, solver, Alexander3())
 RunTest(Alex3, 'Alexander-3')
 
 # Crouzeix & Raviart tests
-A_, b_, c_, p = CrouzeixRaviart3()
-CR3 = DIRK(f, solver, A_, b_, c_)
+CR3 = DIRK(f, solver, CrouzeixRaviart3())
 RunTest(CR3, 'Crouzeix & Raviart-3')
 
 # Gauss-Legendre-2 tests
-A_, b_, c_, p = GaussLegendre2()
-GL2 = IRK(f, solver, A_, b_, c_)
+GL2 = IRK(f, solver, GaussLegendre2())
 RunTest(GL2, 'Gauss-Legendre-2')
 
 # RadauIIA3 tests
-A_, b_, c_, p = RadauIIA3()
-RIIA3 = IRK(f, solver, A_, b_, c_)
+RIIA3 = IRK(f, solver, RadauIIA3())
 RunTest(RIIA3, 'RadauIIA-3')
 
 # Gauss-Legendre-3 tests
-A_, b_, c_, p = GaussLegendre3()
-GL3 = IRK(f, solver, A_, b_, c_)
+GL3 = IRK(f, solver, GaussLegendre3())
 RunTest(GL3, 'Gauss-Legendre-3')
 
 # Gauss-Legendre-6 tests
-A_, b_, c_, p = GaussLegendre6()
-GL6 = IRK(f, solver, A_, b_, c_)
+GL6 = IRK(f, solver, GaussLegendre6())
 RunTest(GL6, 'Gauss-Legendre-6')

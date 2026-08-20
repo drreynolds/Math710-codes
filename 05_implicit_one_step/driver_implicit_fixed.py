@@ -1,17 +1,19 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 #
 # Main routine to test various DIRK and IRK methods on the
 # scalar-valued ODE problem
 #    y' = lambda*y + (1-lambda)*cos(t) - (1+lambda)*sin(t), t in [0,5],
 #    y(0) = 1.
 #
-# D.R. Reynolds
-# Math 6321 @ SMU
-# Fall 2023
+# Daniel R. Reynolds
+# Math & Stat @ UMBC
+
 import numpy as np
 import sys
-sys.path.append('..')
-from shared.ImplicitSolver import *
+sys.path.append('../shared')
+from ImplicitSolver import *
+sys.path.append('../03_simple_implicit')
+from BackwardEuler import *
 from DIRK import *
 from IRK import *
 
@@ -32,15 +34,9 @@ def f(t,y,lam):
 def J(t,y,lam):
     """ Jacobian (in dense matrix format) of the right-hand side function, J(t,y) = df/dy """
     return np.array( [ [lam] ] )
-def Jv(t,y,v,lam):
-    """ Jacobian-vector-product of the right-hand side function, J(t,y) = (df/dy)@v """
-    return np.array( [lam*v[0]] )
 
 # construct implicit solver
-if (iterative):
-    solver = ImplicitSolver(Jv, solver_type='gmres', maxiter=20, rtol=1e-9, atol=1e-12)
-else:
-    solver = ImplicitSolver(J, solver_type='dense', maxiter=20, rtol=1e-9, atol=1e-12, Jfreq=2)
+solver = ImplicitSolver(J, solver_type='dense', maxiter=20, rtol=1e-9, atol=1e-12, Jfreq=2)
 
 # shared testing data
 Nout = 6   # includes initial condition
@@ -80,37 +76,38 @@ def RunTest(stepper, name):
 
 
 
-# RadauIIA2 tests
-A, b, c, p = RadauIIA2()
-RIIA2 = IRK(f, solver, A, b, c)
-RunTest(RIIA2, 'RadauIIA-2')
+# Backward Euler tests
+BE = BackwardEuler(f, solver)
+RunTest(BE, 'Backward Euler')
 
 # Alexander3 tests
-A, b, c, p = Alexander3()
-Alex3 = DIRK(f, solver, A, b, c)
+Alex3 = DIRK(f, solver, Alexander3())
 RunTest(Alex3, 'Alexander-3')
 
 # Crouzeix & Raviart tests
-A, b, c, p = CrouzeixRaviart3()
-CR3 = DIRK(f, solver, A, b, c)
+CR3 = DIRK(f, solver, CrouzeixRaviart3())
 RunTest(CR3, 'Crouzeix & Raviart-3')
 
+# SDIRK5 tests
+SD5 = DIRK(f, solver, SDIRK5())
+RunTest(SD5, 'SDIRK5')
+
+# RadauIIA2 tests
+RIIA2 = IRK(f, solver, RadauIIA2())
+RunTest(RIIA2, 'RadauIIA-2')
+
 # Gauss-Legendre-2 tests
-A, b, c, p = GaussLegendre2()
-GL2 = IRK(f, solver, A, b, c)
+GL2 = IRK(f, solver, GaussLegendre2())
 RunTest(GL2, 'Gauss-Legendre-2')
 
 # RadauIIA3 tests
-A, b, c, p = RadauIIA3()
-RIIA3 = IRK(f, solver, A, b, c)
+RIIA3 = IRK(f, solver, RadauIIA3())
 RunTest(RIIA3, 'RadauIIA-3')
 
 # Gauss-Legendre-3 tests
-A, b, c, p = GaussLegendre3()
-GL3 = IRK(f, solver, A, b, c)
+GL3 = IRK(f, solver, GaussLegendre3())
 RunTest(GL3, 'Gauss-Legendre-3')
 
 # Gauss-Legendre-6 tests
-A, b, c, p = GaussLegendre6()
-GL6 = IRK(f, solver, A, b, c)
+GL6 = IRK(f, solver, GaussLegendre6())
 RunTest(GL6, 'Gauss-Legendre-6')
