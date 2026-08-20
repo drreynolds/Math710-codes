@@ -4,7 +4,7 @@ Codes for in-class collaboration for the course: Math 710, Special Topics in App
 
 These codes require a modern Python or Matlab installation.
 
-   *Note: there is an older `c++` branch that includes implementations of the same solvers, but in C++, and that use the "Armadillo" C++ library (http://arma.sourceforge.net) for vectors, matrices, and linear solvers.*
+   *Note: there is an older `c++` branch that includes implementations of a subset of these solvers, but in C++, and that use the "Armadillo" C++ library (http://arma.sourceforge.net) for vectors, matrices, and linear solvers.*
 
 Codes are grouped according to type:
 
@@ -17,6 +17,14 @@ Codes are grouped according to type:
 * `implicit_one_step` -- higher-order implicit, one-step, ODE integration methods, containing the `DIRK` and `IRK` classes.
 * `linear_multistep` -- higher-order explicit and implicit multi-step ODE integration methods, containing the classes `ExplicitLMM` and `ImplicitLMM`.
 * `bvp` -- two-point boundary-value problem solvers.
+
+## Installing Python dependencies
+
+To install the Python packages that are used by the codes in this repository, run the following from the Linux/MacOS command line, or the Anaconda Prompt/Terminal in Windows, from the folder containing this repository:
+
+```bash
+pip install -r python_requirements.txt
+```
 
 Daniel R. Reynolds  
 Mathematics and Statistics @ UMBC  
