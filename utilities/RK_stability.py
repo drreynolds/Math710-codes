@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 # Function to generate and plot the linear stability regions for Runge--Kutta
 # methods.  Includes a simple "main" that uses this function to plot the
 # stability region for forward and backward Euler (when posed as RK methods).
@@ -9,13 +9,16 @@
 # general imports
 import numpy as np
 import matplotlib.pyplot as plt
+from ERK import ERK4
+from DIRK import CrouzeixRaviart3
 
-def RK_stability(A, b, box, N=1000):
-    ''' Usage: X,Y = RK_stability(A, b, box, N)
+def RK_stability(B, box, N=1000):
+    ''' Usage: X,Y = RK_stability(B, box, N)
 
         Inputs:
-          A is a Butcher table matrix
-          b is a Butcher table gluing coefficients
+          B is a Butcher table, with components:
+             B['A'] -- the Butcher table matrix
+             B['b'] -- the solution coefficients
           box = [xl, xr, yl, yr] is the bounding box for the sub-region
               of the complex plane in which to perform the test
           N is optional, specifying how many sample sub-region points to use
@@ -34,6 +37,8 @@ def RK_stability(A, b, box, N=1000):
     import numpy as np
 
     # extract the components of the Butcher table
+    A = B['A']
+    b = B['b']
     s = len(b)
     e = np.ones(s)
     I = np.diag(e)
@@ -78,19 +83,31 @@ if __name__ == '__main__':
     A = np.zeros((1,1))
     b = np.zeros(1)
     b[0] = 1.0
+    B = {'A': A, 'b': b}
     box = [-3.0, 1.0, -2.0, 2.0]
-    (x,y) = RK_stability(A, b, box, 100)
+    (x,y) = RK_stability(B, box, 100)
     plt.title('Forward Euler stability region (shaded = stable)')
-    plt.savefig('FE_stability.pdf')
+    plt.savefig('FE_stability.png')
+
+    box = [-5.0, 1.0, -3.0, 3.0]
+    (x,y) = RK_stability(ERK4(), box, 100)
+    plt.title('ERK4 stability region (shaded = stable)')
+    plt.savefig('RK4_stability.png')
 
     A = np.zeros((1,1))
     A[0,0] = 1.0
     b = np.zeros(1)
     b[0] = 1.0
+    B = {'A': A, 'b': b}
     box = [-1.0, 3.0, -2.0, 2.0]
-    (x,y) = RK_stability(A, b, box, 100)
+    (x,y) = RK_stability(B, box, 100)
     plt.title('Backward Euler stability region (shaded = stable)')
-    plt.savefig('BE_stability.pdf')
+    plt.savefig('BE_stability.png')
+
+    box = [-10.0, 10.0, -10.0, 10.0]
+    (x,y) = RK_stability(CrouzeixRaviart3(), box, 100)
+    plt.title('CrouzeixRaviart3 stability region (shaded = stable)')
+    plt.savefig('CR3_stability.png')
 
     plt.show()
 
