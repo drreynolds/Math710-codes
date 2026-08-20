@@ -1,9 +1,8 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 #
 # Python Plotting Introduction Script
 #
 # Daniel R. Reynolds
-# Math @ SMU
 # Math & Stat @ UMBC
 
 # import student code

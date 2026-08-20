@@ -1,9 +1,8 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 #
 # Basic numpy usage demo script
 #
 # Daniel R. Reynolds
-# Math @ SMU
 # Math & Stat @ UMBC
 
 # module imports
