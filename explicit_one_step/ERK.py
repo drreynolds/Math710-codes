@@ -8,30 +8,28 @@
 #      y' = f(t,y),  t in [t0, Tf],  y(t0) = y0
 # using an explicit Runge--Kutta (ERK) time stepping method.
 #
-# D.R. Reynolds
-# Math 6321 @ SMU
-# Fall 2023
+# Daniel R. Reynolds
+# Math & Stat @ UMBC
+
 import numpy as np
 
 class ERK:
     """
     Fixed stepsize explicit Runge--Kutta class
 
-    The four required arguments when constructing an ERK object are a
+    The two required arguments when constructing an ERK object are a
     function for the IVP right-hand side, and a Butcher table:
         f = ODE RHS function with calling syntax f(t,y).
-        A = Runge--Kutta stage coefficients (s*s matrix)
-        b = Runge--Kutta solution weights (s array)
-        c = Runge--Kutta abcissae (s array).
-        h = (optional) input with stepsize to use for time stepping.
+        B = Explicit Runge--Kutta Butcher table.
+        h = (optional) input with requested stepsize to use for time stepping.
             Note that this MUST be set either here or in the Evolve call.
     """
-    def __init__(self, f, A, b, c, h=0.0):
+    def __init__(self, f, B, h=0.0):
         # required inputs
         self.f = f
-        self.A = A
-        self.b = b
-        self.c = c
+        self.A = B['A']
+        self.b = B['b']
+        self.c = B['c']
 
         # optional inputs
         self.h = h
@@ -39,18 +37,18 @@ class ERK:
         # internal data
         self.steps = 0
         self.nrhs = 0
-        self.s = c.size
+        self.s = self.c.size
 
         # check for legal table
-        if ((np.size(b,0) != self.s) or (np.size(A,0) != self.s) or
-            (np.size(A,1) != self.s) or (np.linalg.norm(A - np.tril(A,-1), np.inf) > 1e-14)):
+        if ((np.size(self.b,0) != self.s) or (np.size(self.A,0) != self.s) or
+            (np.size(self.A,1) != self.s) or (np.linalg.norm(self.A - np.tril(self.A,-1), np.inf) > 1e-14)):
             raise ValueError("ERK ERROR: incompatible Butcher table supplied")
 
-    def erk_step(self, t, y, args=()):
+    def erk_step(self, t, y, h, args=()):
         """
-        Usage: t, y, success = erk_step(t, y, args)
+        Usage: t, y, success = erk_step(t, y, h, args)
 
-        Utility routine to take a single explicit RK time step,
+        Utility routine to take a single explicit RK time step of size h,
         where the inputs (t,y) are overwritten by the updated versions.
         args is used for optional parameters of the RHS.
         If success==True then the step succeeded; otherwise it failed.
@@ -62,16 +60,20 @@ class ERK:
         for i in range(1,self.s):
             self.z = np.copy(y)
             for j in range(i):
-                self.z += self.h * self.A[i,j] * self.k[j,:]
-            self.k[i,:] = self.f(t + self.c[i] * self.h, self.z, *args)
+                self.z += h * self.A[i,j] * self.k[j,:]
+            self.k[i,:] = self.f(t + self.c[i] * h, self.z, *args)
             self.nrhs += 1
 
         # update time step solution and tcur
         for i in range(self.s):
-            y += self.h * self.b[i] * self.k[i,:]
-        t += self.h
+            y += h * self.b[i] * self.k[i,:]
+        t += h
         self.steps += 1
         return t, y, True
+
+    def update_rhs(self, f):
+        """ Updates the RHS function (cannot change vector dimensions) """
+        self.f = f
 
     def reset(self):
         """ Resets the accumulated number of steps """
@@ -114,12 +116,6 @@ class ERK:
         if (self.h == 0.0):
             raise ValueError("ERROR: ERK::Evolve called without specifying a nonzero step size")
 
-        # verify that tspan values are separated by multiples of h
-        for n in range(tspan.size-1):
-            hn = tspan[n+1]-tspan[n]
-            if (abs(round(hn/self.h) - (hn/self.h)) > 100*np.sqrt(np.finfo(h).eps)*abs(self.h)):
-                raise ValueError("input values in tspan (%e,%e) are not separated by a multiple of h = %e" % (tspan[n],tspan[n+1],h))
-
         # initialize output, and set first entry corresponding to initial condition
         y = y0.copy()
         Y = np.zeros((tspan.size, y0.size))
@@ -132,8 +128,9 @@ class ERK:
         # loop over desired output times
         for iout in range(1,tspan.size):
 
-            # determine how many internal steps are required
-            N = int(round((tspan[iout]-tspan[iout-1])/self.h))
+            # determine how many internal steps are required, and the actual step size to use
+            N = int(np.ceil((tspan[iout]-tspan[iout-1])/self.h))
+            h = (tspan[iout]-tspan[iout-1]) / N
 
             # reset "current" t that will be evolved internally
             t = tspan[iout-1]
@@ -142,7 +139,7 @@ class ERK:
             for n in range(N):
 
                 # perform explicit Runge--Kutta update
-                t, y, success = self.erk_step(t, y, args)
+                t, y, success = self.erk_step(t, y, h, args)
                 if (not success):
                     print("erk error in time step at t =", t)
                     return Y, False
@@ -153,70 +150,91 @@ class ERK:
         # return with "success" flag
         return Y, True
 
+def ERK1():
+    """
+    Usage: B = ERK1()
+
+    Utility routine to return the ERK table corresponding to forward Euler, posed as an ERK method.
+
+    Outputs: B['A'] holds the Runge--Kutta stage coefficients
+             B['b'] holds the Runge--Kutta solution weights
+             B['c'] holds the Runge--Kutta abcissae
+             B['p'] holds the Runge--Kutta method order
+    """
+    A = np.array((((0.0,),)))
+    b = np.array((1.0,))
+    c = np.array((0.0,))
+    p = 1
+    B = {'A': A, 'b':b, 'c':c, 'p': p}
+    return B
+
 def Heun():
     """
-    Usage: A, b, c, p = Heun()
+    Usage: B = Heun()
 
     Utility routine to return the ERK table corresponding to Heun's method.
 
-    Outputs: A holds the Runge--Kutta stage coefficients
-             b holds the Runge--Kutta solution weights
-             c holds the Runge--Kutta abcissae
-             p holds the Runge--Kutta method order
+    Outputs: B['A'] holds the Runge--Kutta stage coefficients
+             B['b'] holds the Runge--Kutta solution weights
+             B['c'] holds the Runge--Kutta abcissae
+             B['p'] holds the Runge--Kutta method order
     """
     A = np.array(((0.0, 0.0), (1.0, 0.0)))
     b = np.array((0.5, 0.5))
     c = np.array((0.0, 1.0))
     p = 2
-    return A, b, c, p
+    B = {'A': A, 'b':b, 'c':c, 'p': p}
+    return B
 
 def ERK2():
     """
-    Usage: A, b, c, p = ERK2()
+    Usage: B = ERK2()
 
     Utility routine to return the ERK table corresponding
     to the standard 2nd-order ERK method.
 
-    Outputs: A holds the Runge--Kutta stage coefficients
-             b holds the Runge--Kutta solution weights
-             c holds the Runge--Kutta abcissae
-             p holds the Runge--Kutta method order
+    Outputs: B['A'] holds the Runge--Kutta stage coefficients
+             B['b'] holds the Runge--Kutta solution weights
+             B['c'] holds the Runge--Kutta abcissae
+             B['p'] holds the Runge--Kutta method order
     """
     A = np.array(((0.0, 0.0), (0.5, 0.0)))
     b = np.array((0.0, 1.0))
     c = np.array((0.0, 0.5))
     p = 2
-    return A, b, c, p
+    B = {'A': A, 'b':b, 'c':c, 'p': p}
+    return B
 
 def ERK3():
     """
-    Usage: A, b, c, p = ERK3()
+    Usage: B = ERK3()
 
     Utility routine to return the ERK table corresponding
     to the standard 3rd-order ERK method.
 
-    Outputs: A holds the Runge--Kutta stage coefficients
-             b holds the Runge--Kutta solution weights
-             c holds the Runge--Kutta abcissae
-             p holds the Runge--Kutta method order
+    Outputs: B['A'] holds the Runge--Kutta stage coefficients
+             B['b'] holds the Runge--Kutta solution weights
+             B['c'] holds the Runge--Kutta abcissae
+             B['p'] holds the Runge--Kutta method order
     """
     A = np.array(((0.0, 0.0, 0.0), (2.0/3.0, 0.0, 0.0), (0.0, 2.0/3.0, 0.0)))
     b = np.array((0.25, 3.0/8.0, 3.0/8.0))
     c = np.array((0.0, 2.0/3.0, 2.0/3.0))
     p = 3
-    return A, b, c, p
+    B = {'A': A, 'b':b, 'c':c, 'p': p}
+    return B
 
 def ERK4():
     """
-    Usage: A, b, c, p = ERK4()
+    Usage: B = ERK4()
 
     Utility routine to return the ERK table corresponding
     to the standard 4th-order ERK method.
 
-    Outputs: A holds the Runge--Kutta stage coefficients
-             b holds the Runge--Kutta solution weights
-             c holds the Runge--Kutta abcissae
-             p holds the Runge--Kutta method order
+    Outputs: B['A'] holds the Runge--Kutta stage coefficients
+             B['b'] holds the Runge--Kutta solution weights
+             B['c'] holds the Runge--Kutta abcissae
+             B['p'] holds the Runge--Kutta method order
     """
     A = np.array(((0.0, 0.0, 0.0, 0.0),
                   (0.5, 0.0, 0.0, 0.0),
@@ -225,4 +243,5 @@ def ERK4():
     b = np.array((1.0/6.0, 1.0/3.0, 1.0/3.0, 1.0/6.0))
     c = np.array((0.0, 0.5, 0.5, 1.0))
     p = 4
-    return A, b, c, p
+    B = {'A': A, 'b':b, 'c':c, 'p': p}
+    return B
