@@ -1,13 +1,12 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 #
 # Main routine to test the forward Euler method for Dahlquist test problem
 #     y' = lambda*y, t in [0,0.5],
 #     y(0) = 1,
 # for lambda = -100, h in {0.005, 0.01, 0.02, 0.04}
 #
-# D.R. Reynolds
-# Math 6321 @ SMU
-# Fall 2023
+# Daniel R. Reynolds
+# Math & Stat @ UMBC
 
 import numpy as np
 from ForwardEuler import *

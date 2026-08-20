@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 #
 # Main routine to test the forward Euler method on two scalar-valued ODE problems
 #    y' = -y, t in [0,5],
@@ -7,9 +7,8 @@
 #    y' = (y+t^2-2)/(t+1), t in [0,5],
 #    y(0) = 2.
 #
-# D.R. Reynolds
-# Math 6321 @ SMU
-# Fall 2023
+# Daniel R. Reynolds
+# Math & Stat @ UMBC
 
 import numpy as np
 from ForwardEuler import *

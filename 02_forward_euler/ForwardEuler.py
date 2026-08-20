@@ -7,7 +7,6 @@
 # using the forward Euler (explicit Euler) time stepping method.
 #
 # Daniel R. Reynolds
-# Math @ SMU
 # Math & Stat @ UMBC
 
 import numpy as np

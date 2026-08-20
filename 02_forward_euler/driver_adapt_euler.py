@@ -1,12 +1,11 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 #
 # Main routine to test adaptive forward Euler method on the scalar-valued ODE problem
 #    y' = -exp(-t)*y, t in [0,5],
 #    y(0) = 1.
 #
-# D.R. Reynolds
-# Math 6321 @ SMU
-# Fall 2023
+# Daniel R. Reynolds
+# Math & Stat @ UMBC
 
 import numpy as np
 from AdaptEuler import *

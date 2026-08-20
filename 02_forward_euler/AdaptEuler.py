@@ -6,9 +6,8 @@
 #      y' = f(t,y),  t in [t0, Tf],  y(t0) = y0
 # using the forward Euler (explicit Euler) time stepping method.
 #
-# D.R. Reynolds
-# Math 6321 @ SMU
-# Fall 2023
+# Daniel R. Reynolds
+# Math & Stat @ UMBC
 import numpy as np
 
 class AdaptEuler:
