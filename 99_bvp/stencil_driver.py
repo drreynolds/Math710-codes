@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 #
 # Main routine to run a stencil-based finite-difference method for solution of a
 # second-order, scalar-valued BVP:
@@ -12,9 +12,8 @@
 # This driver attempts to solve the problem using a second-order, stencil-based
 # finite-difference approximation.
 #
-# D.R. Reynolds
-# Math 6321 @ SMU
-# Fall 2023
+# Daniel R. Reynolds
+# Math & Stat @ UMBC
 
 import sys
 import numpy as np

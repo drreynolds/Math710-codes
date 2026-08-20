@@ -17,9 +17,9 @@
 # and the stiffness may be adjusted using the real-valued
 # parameter lam<0
 #
-# D.R. Reynolds
-# Math 6321 @ SMU
-# Fall 2023
+# Daniel R. Reynolds
+# Math & Stat @ UMBC
+
 import numpy as np
 
 class BVP:

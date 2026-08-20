@@ -1,9 +1,9 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 #
 # fd_maker.py
 #
 # Daniel R. Reynolds
-# SMU Mathematics
+# Math & Stat @ UMBC
 
 def fd_maker(stencil, deriv):
     """

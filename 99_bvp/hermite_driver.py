@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 #
 # Main routine to run a piecewise Hermite finite-difference method
 # for solution of a second-order, scalar-valued BVP:
@@ -9,9 +9,8 @@
 # where the problem has stiffness that may be adjusted using
 # the real-valued parameter lambda<0 [read from the command line]
 #
-# D.R. Reynolds
-# Math 6321 @ SMU
-# Fall 2023
+# Daniel R. Reynolds
+# Math & Stat @ UMBC
 
 import sys
 import numpy as np
