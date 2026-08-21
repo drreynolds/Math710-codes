@@ -26,5 +26,16 @@ To install the Python packages that are used by the codes in this repository, ru
 pip install -r python_requirements.txt
 ```
 
+## Branch workflow for teaching
+
+This repository is intended to support separate language-specific teaching branches:
+
+- `main` keeps the Python implementation.
+- `matlab` is used for an in-place MATLAB implementation using the same folder structure.
+
+For the MATLAB branch, the existing section folders are reused directly, and Python files are ported section-by-section to MATLAB scripts/functions in place. This keeps the course organization consistent across languages while allowing the branches to remain fully independent.
+
+See the migration checklist in `MATLAB_PORT_CHECKLIST.md` for the phased conversion plan.
+
 Daniel R. Reynolds  
 Mathematics and Statistics @ UMBC  

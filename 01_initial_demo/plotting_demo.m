@@ -1,7 +1,10 @@
 function plotting_demo(N)
 % MATLAB Plotting Introduction Script
-
-    % get problem size from input argument, otherwise set to 201
+%
+% Daniel R. Reynolds
+% Math & Stat @ UMBC
+%
+    % get optional inputs, otherwise use default values
     if nargin < 1 || isempty(N)
         N = 201;
     end
@@ -17,6 +20,7 @@ function plotting_demo(N)
     end
 
     % plot similarly to Matlab/Python version
+    % create plots for visual diagnostics
     figure(1);
     plot(x, T);
     xlabel('x');
