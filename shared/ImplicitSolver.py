@@ -22,7 +22,7 @@ class ImplicitSolver:
         Jfreq    = frequency for reconstructing Jacobian solver (i.e., f_y is called every
                    Jfreq iterations)
     """
-    def __init__(self, f_y, solver_type, p_setup=0, maxiter=10, rtol=1e-3, atol=0.0, Jfreq=1):
+    def __init__(self, f_y, solver_type, maxiter=10, rtol=1e-3, atol=0.0, Jfreq=1):
 
         # required inputs
         self.f_y = f_y
