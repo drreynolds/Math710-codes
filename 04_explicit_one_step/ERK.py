@@ -161,7 +161,7 @@ def ERK1():
              B['c'] holds the Runge--Kutta abcissae
              B['p'] holds the Runge--Kutta method order
     """
-    A = np.array((((0.0,),)))
+    A = np.array(((0.0,),), dtype=float)
     b = np.array((1.0,))
     c = np.array((0.0,))
     p = 1
@@ -179,7 +179,10 @@ def Heun():
              B['c'] holds the Runge--Kutta abcissae
              B['p'] holds the Runge--Kutta method order
     """
-    A = np.array(((0.0, 0.0), (1.0, 0.0)))
+    A = np.array((
+        (0.0, 0.0),
+        (1.0, 0.0)
+    ), dtype=float)
     b = np.array((0.5, 0.5))
     c = np.array((0.0, 1.0))
     p = 2
@@ -198,7 +201,10 @@ def ERK2():
              B['c'] holds the Runge--Kutta abcissae
              B['p'] holds the Runge--Kutta method order
     """
-    A = np.array(((0.0, 0.0), (0.5, 0.0)))
+    A = np.array((
+        (0.0, 0.0),
+        (0.5, 0.0)
+    ), dtype=float)
     b = np.array((0.0, 1.0))
     c = np.array((0.0, 0.5))
     p = 2
@@ -217,7 +223,11 @@ def ERK3():
              B['c'] holds the Runge--Kutta abcissae
              B['p'] holds the Runge--Kutta method order
     """
-    A = np.array(((0.0, 0.0, 0.0), (2.0/3.0, 0.0, 0.0), (0.0, 2.0/3.0, 0.0)))
+    A = np.array((
+        (0.0, 0.0, 0.0),
+        (2.0/3.0, 0.0, 0.0),
+        (0.0, 2.0/3.0, 0.0)
+    ), dtype=float)
     b = np.array((0.25, 3.0/8.0, 3.0/8.0))
     c = np.array((0.0, 2.0/3.0, 2.0/3.0))
     p = 3
@@ -236,12 +246,381 @@ def ERK4():
              B['c'] holds the Runge--Kutta abcissae
              B['p'] holds the Runge--Kutta method order
     """
-    A = np.array(((0.0, 0.0, 0.0, 0.0),
-                  (0.5, 0.0, 0.0, 0.0),
-                  (0.0, 0.5, 0.0, 0.0),
-                  (0.0, 0.0, 1.0, 0.0)))
+    A = np.array((
+        (0.0, 0.0, 0.0, 0.0),
+        (0.5, 0.0, 0.0, 0.0),
+        (0.0, 0.5, 0.0, 0.0),
+        (0.0, 0.0, 1.0, 0.0)
+    ), dtype=float)
     b = np.array((1.0/6.0, 1.0/3.0, 1.0/3.0, 1.0/6.0))
     c = np.array((0.0, 0.5, 0.5, 1.0))
     p = 4
+    B = {'A': A, 'b':b, 'c':c, 'p': p}
+    return B
+
+# Additional non-embedded explicit Runge--Kutta tables.
+
+def ERK11():
+    """Utility routine to return the ERK table ERK-1-1."""
+    A = np.array(((0,),), dtype=float)
+    b = np.array((1,), dtype=float)
+    c = np.array((0,), dtype=float)
+    p = 1
+    B = {'A': A, 'b':b, 'c':c, 'p': p}
+    return B
+
+def Ascher232ERK():
+    """Utility routine to return the ERK table Ascher(2,3,2)-ERK."""
+    A = np.array((
+        (0, 0, 0),
+        (0.29289321881345243, 0, 0),
+        (-0.94280904158206347, 1.9428090415820636, 0)
+    ), dtype=float)
+    b = np.array((0, 0.70710678118654757, 0.29289321881345243), dtype=float)
+    c = np.array((0, 0.29289321881345243, 1), dtype=float)
+    p = 2
+    B = {'A': A, 'b':b, 'c':c, 'p': p}
+    return B
+
+def ERK22():
+    """Utility routine to return the ERK table ERK-2-2."""
+    A = np.array((
+        (0, 0),
+        (0.66666666666666663, 0)
+    ), dtype=float)
+    b = np.array((0.25, 0.75), dtype=float)
+    c = np.array((0, 0.66666666666666663), dtype=float)
+    p = 2
+    B = {'A': A, 'b':b, 'c':c, 'p': p}
+    return B
+
+def LobattoIII22IRK():
+    """Utility routine to return the ERK table LobattoIII-2-2-IRK."""
+    A = np.array((
+        (0, 0),
+        (1, 0)
+    ), dtype=float)
+    b = np.array((0.5, 0.5), dtype=float)
+    c = np.array((0, 1), dtype=float)
+    p = 2
+    B = {'A': A, 'b':b, 'c':c, 'p': p}
+    return B
+
+def SSP222ERK():
+    """Utility routine to return the ERK table SSP2(2,2,2)-ERK."""
+    A = np.array((
+        (0, 0),
+        (1, 0)
+    ), dtype=float)
+    b = np.array((0.5, 0.5), dtype=float)
+    c = np.array((0, 1), dtype=float)
+    p = 2
+    B = {'A': A, 'b':b, 'c':c, 'p': p}
+    return B
+
+def SSP2332Lpm1ERK():
+    """Utility routine to return the ERK table SSP2(3,3,2)-lpm1-ERK."""
+    A = np.array((
+        (0, 0, 0),
+        (0.5, 0, 0),
+        (0.5, 0.5, 0)
+    ), dtype=float)
+    b = np.array((0.33333333333333331, 0.33333333333333331, 0.33333333333333331), dtype=float)
+    c = np.array((0, 0.5, 1), dtype=float)
+    p = 2
+    B = {'A': A, 'b':b, 'c':c, 'p': p}
+    return B
+
+def SSP2332Lpm2ERK():
+    """Utility routine to return the ERK table SSP2(3,3,2)-lpm2-ERK."""
+    A = np.array((
+        (0, 0, 0),
+        (0.5, 0, 0),
+        (0.5, 0.5, 0)
+    ), dtype=float)
+    b = np.array((0.33333333333333331, 0.33333333333333331, 0.33333333333333331), dtype=float)
+    c = np.array((0, 0.5, 1), dtype=float)
+    p = 2
+    B = {'A': A, 'b':b, 'c':c, 'p': p}
+    return B
+
+def SSP2332LpumERK():
+    """Utility routine to return the ERK table SSP2(3,3,2)-lpum-ERK."""
+    A = np.array((
+        (0, 0, 0),
+        (0.5, 0, 0),
+        (0.5, 0.5, 0)
+    ), dtype=float)
+    b = np.array((0.33333333333333331, 0.33333333333333331, 0.33333333333333331), dtype=float)
+    c = np.array((0, 0.5, 1), dtype=float)
+    p = 2
+    B = {'A': A, 'b':b, 'c':c, 'p': p}
+    return B
+
+def SSP2332aERK():
+    """Utility routine to return the ERK table SSP2(3,3,2)-a-ERK."""
+    A = np.array((
+        (0, 0, 0),
+        (0.5, 0, 0),
+        (0.5, 0.5, 0)
+    ), dtype=float)
+    b = np.array((0.33333333333333331, 0.33333333333333331, 0.33333333333333331), dtype=float)
+    c = np.array((0, 0.5, 1), dtype=float)
+    p = 2
+    B = {'A': A, 'b':b, 'c':c, 'p': p}
+    return B
+
+def SSP2332bERK():
+    """Utility routine to return the ERK table SSP2(3,3,2)-b-ERK."""
+    A = np.array((
+        (0, 0, 0),
+        (0.5, 0, 0),
+        (0.5, 0.5, 0)
+    ), dtype=float)
+    b = np.array((0.33333333333333331, 0.33333333333333331, 0.33333333333333331), dtype=float)
+    c = np.array((0, 0.5, 1), dtype=float)
+    p = 2
+    B = {'A': A, 'b':b, 'c':c, 'p': p}
+    return B
+
+def DBM53ERK():
+    """Utility routine to return the ERK table DBM-5-3-ERK."""
+    A = np.array((
+        (0, 0, 0, 0, 0),
+        (0.10306208811591838, 0, 0, 0, 0),
+        (-0.94124866143519892, 1.6626399742527356, 0, 0, 0),
+        (-1.3670975201437765, 1.3815852911016873, 1.2673234025619065, 0, 0),
+        (-0.81287582068772446, 0.8122373906050574, 0.90644429603699306, 0.094194134045674116, 0)
+    ), dtype=float)
+    b = np.array((0.87795339639076675, -0.72692641526151547, 0.75204137157372719, -0.2289802940041509, 0.32591194130117246), dtype=float)
+    c = np.array((0, 0.1030620881159184, 0.72139131281753666, 1.2818111735198174, 1), dtype=float)
+    p = 3
+    B = {'A': A, 'b':b, 'c':c, 'p': p}
+    return B
+
+def Ascher233ERK():
+    """Utility routine to return the ERK table Ascher(2,3,3)-ERK."""
+    A = np.array((
+        (0, 0, 0),
+        (0.78867513459481275, 0, 0),
+        (-0.21132486540518725, 0.42264973081037449, 0)
+    ), dtype=float)
+    b = np.array((0, 0.5, 0.5), dtype=float)
+    c = np.array((0, 0.78867513459481275, 0.21132486540518725), dtype=float)
+    p = 3
+    B = {'A': A, 'b':b, 'c':c, 'p': p}
+    return B
+
+def Ascher343ERK():
+    """Utility routine to return the ERK table Ascher(3,4,3)-ERK."""
+    A = np.array((
+        (0, 0, 0, 0),
+        (0.435866521508459, 0, 0, 0),
+        (0.3212788860286272, 0.39665437472560205, 0, 0),
+        (-0.10585829607187969, 0.55292914803593984, 0.55292914803593984, 0)
+    ), dtype=float)
+    b = np.array((0, 1.2084966491760101, -0.64436317068446924, 0.435866521508459), dtype=float)
+    c = np.array((0, 0.435866521508459, 0.71793326075422947, 1), dtype=float)
+    p = 3
+    B = {'A': A, 'b':b, 'c':c, 'p': p}
+    return B
+
+def Ascher443ERK():
+    """Utility routine to return the ERK table Ascher(4,4,3)-ERK."""
+    A = np.array((
+        (0, 0, 0, 0, 0),
+        (0.5, 0, 0, 0, 0),
+        (0.61111111111111116, 0.055555555555555552, 0, 0, 0),
+        (0.83333333333333337, -0.83333333333333337, 0.5, 0, 0),
+        (0.25, 1.75, 0.75, -1.75, 0)
+    ), dtype=float)
+    b = np.array((0.25, 1.75, 0.75, -1.75, 0), dtype=float)
+    c = np.array((0, 0.5, 0.66666666666666663, 0.5, 1), dtype=float)
+    p = 3
+    B = {'A': A, 'b':b, 'c':c, 'p': p}
+    return B
+
+def KnothWolkeERK():
+    """Utility routine to return the ERK table Knoth-Wolke-ERK."""
+    A = np.array((
+        (0, 0, 0),
+        (0.33333333333333331, 0, 0),
+        (-0.1875, 0.9375, 0)
+    ), dtype=float)
+    b = np.array((0.16666666666666666, 0.29999999999999999, 0.53333333333333333), dtype=float)
+    c = np.array((0, 0.33333333333333331, 0.75), dtype=float)
+    p = 3
+    B = {'A': A, 'b':b, 'c':c, 'p': p}
+    return B
+
+def Cooper4ERK():
+    """Utility routine to return the ERK table Cooper4-ERK."""
+    A = np.array((
+        (0, 0, 0, 0),
+        (0.66666666666666663, 0, 0, 0),
+        (0.16666666666666666, 0.5, 0, 0),
+        (0.25, 0.25, 0.5, 0)
+    ), dtype=float)
+    b = np.array((0.25, 0.25, 0.5, 0), dtype=float)
+    c = np.array((0, 0.66666666666666663, 0.66666666666666663, 1), dtype=float)
+    p = 3
+    B = {'A': A, 'b':b, 'c':c, 'p': p}
+    return B
+
+def SSP3332ERK():
+    """Utility routine to return the ERK table SSP3(3,3,2)-ERK."""
+    A = np.array((
+        (0, 0, 0),
+        (1, 0, 0),
+        (0.25, 0.25, 0)
+    ), dtype=float)
+    b = np.array((0.16666666666666666, 0.16666666666666666, 0.66666666666666663), dtype=float)
+    c = np.array((0, 1, 0.5), dtype=float)
+    p = 3
+    B = {'A': A, 'b':b, 'c':c, 'p': p}
+    return B
+
+def SSP3333ERK():
+    """Utility routine to return the ERK table SSP3(3,3,3)-ERK."""
+    A = np.array((
+        (0, 0, 0),
+        (1, 0, 0),
+        (0.25, 0.25, 0)
+    ), dtype=float)
+    b = np.array((0.16666666666666666, 0.16666666666666666, 0.66666666666666663), dtype=float)
+    c = np.array((0, 1, 0.5), dtype=float)
+    p = 3
+    B = {'A': A, 'b':b, 'c':c, 'p': p}
+    return B
+
+def SSP3433ERK():
+    """Utility routine to return the ERK table SSP3(4,3,3)-ERK."""
+    A = np.array((
+        (0, 0, 0, 0),
+        (0, 0, 0, 0),
+        (0, 1, 0, 0),
+        (0, 0.25, 0.25, 0)
+    ), dtype=float)
+    b = np.array((0, 0.16666666666666666, 0.16666666666666666, 0.66666666666666663), dtype=float)
+    c = np.array((0, 0, 1, 0.5), dtype=float)
+    p = 3
+    B = {'A': A, 'b':b, 'c':c, 'p': p}
+    return B
+
+def ThreeEighthRuleERK():
+    """Utility routine to return the ERK table 3/8-Rule-ERK."""
+    A = np.array((
+        (0, 0, 0, 0),
+        (0.33333333333333331, 0, 0, 0),
+        (-0.33333333333333331, 1, 0, 0),
+        (1, -1, 1, 0)
+    ), dtype=float)
+    b = np.array((0.125, 0.375, 0.375, 0.125), dtype=float)
+    c = np.array((0, 0.33333333333333331, 0.66666666666666663, 1), dtype=float)
+    p = 4
+    B = {'A': A, 'b':b, 'c':c, 'p': p}
+    return B
+
+def ERK44():
+    """Utility routine to return the ERK table ERK-4-4."""
+    A = np.array((
+        (0, 0, 0, 0),
+        (0.5, 0, 0, 0),
+        (0, 0.5, 0, 0),
+        (0, 0, 1, 0)
+    ), dtype=float)
+    b = np.array((0.16666666666666666, 0.33333333333333331, 0.33333333333333331, 0.16666666666666666), dtype=float)
+    c = np.array((0, 0.5, 0.5, 1), dtype=float)
+    p = 4
+    B = {'A': A, 'b':b, 'c':c, 'p': p}
+    return B
+
+def Cooper6ERK():
+    """Utility routine to return the ERK table Cooper6-ERK."""
+    A = np.array((
+        (0, 0, 0, 0, 0, 0),
+        (0.5, 0, 0, 0, 0, 0),
+        (0.25, 0.25, 0, 0, 0, 0),
+        (0.25, 0.25, 0, 0, 0, 0),
+        (0, -1, 0, 2, 0, 0),
+        (0.16666666666666666, 0, 0, 0.66666666666666663, 0.16666666666666666, 0)
+    ), dtype=float)
+    b = np.array((0.16666666666666666, 0, 0, 0.66666666666666663, 0.16666666666666666, 0), dtype=float)
+    c = np.array((0, 0.5, 0.5, 0.5, 1, 1), dtype=float)
+    p = 5
+    B = {'A': A, 'b':b, 'c':c, 'p': p}
+    return B
+
+def Butcher76ERK():
+    """Utility routine to return the ERK table Butcher-7-6-ERK."""
+    A = np.array((
+        (0, 0, 0, 0, 0, 0, 0),
+        (0.33333333333333331, 0, 0, 0, 0, 0, 0),
+        (0, 0.66666666666666663, 0, 0, 0, 0, 0),
+        (0.083333333333333329, 0.33333333333333331, -0.083333333333333329, 0, 0, 0, 0),
+        (0.52083333333333337, -2.2916666666666665, 0.72916666666666663, 1.875, 0, 0, 0),
+        (0.14999999999999999, -0.45833333333333331, -0.125, 0.5, 0.10000000000000001, 0, 0),
+        (-1.0038461538461538, 2.5384615384615383, 0.27564102564102566, -3.0256410256410255, 0.1641025641025641, 2.0512820512820511, 0)
+    ), dtype=float)
+    b = np.array((0.065000000000000002, 0, 0.27500000000000002, 0.27500000000000002, 0.16, 0.16, 0.065000000000000002), dtype=float)
+    c = np.array((0, 0.33333333333333331, 0.66666666666666663, 0.33333333333333331, 0.83333333333333337, 0.16666666666666666, 1), dtype=float)
+    p = 6
+    B = {'A': A, 'b':b, 'c':c, 'p': p}
+    return B
+
+def Butcher76bERK():
+    """Utility routine to return the ERK table Butcher-7-6b-ERK."""
+    A = np.array((
+        (0, 0, 0, 0, 0, 0, 0),
+        (0.40000000000000002, 0, 0, 0, 0, 0, 0),
+        (0, 0.80000000000000004, 0, 0, 0, 0, 0),
+        (0.11591220850480109, 0.15089163237311384, -0.044581618655692733, 0, 0, 0, 0),
+        (-0.065185185185185179, -0.6518518518518519, 0.21652421652421652, 1.0338461538461539, 0, 0, 0),
+        (0.19811320754716982, 0, -0.15239477503628446, -0.47024673439767778, 0.42452830188679247, 0, 0),
+        (-0.51747532894736847, -1.4473684210526316, 0.33574772267206476, 0.071735829959514164, 1.489514802631579, 1.067845394736842, 0)
+    ), dtype=float)
+    b = np.array((0, 0, 0.27544070512820512, 0.32187009419152274, 0.26905293367346939, 0.069010416666666671, 0.064625850340136057), dtype=float)
+    c = np.array((0, 0.40000000000000002, 0.80000000000000004, 0.22222222222222221, 0.53333333333333333, 0, 1), dtype=float)
+    p = 6
+    B = {'A': A, 'b':b, 'c':c, 'p': p}
+    return B
+
+def Butcher97ERK():
+    """Utility routine to return the ERK table Butcher-9-7-ERK."""
+    A = np.array((
+        (0, 0, 0, 0, 0, 0, 0, 0, 0),
+        (0.16666666666666666, 0, 0, 0, 0, 0, 0, 0, 0),
+        (0, 0.33333333333333331, 0, 0, 0, 0, 0, 0, 0),
+        (0.125, 0, 0.375, 0, 0, 0, 0, 0, 0),
+        (0.11119459053343352, 0, 0.11269722013523667, -0.042073628850488355, 0, 0, 0, 0, 0),
+        (-1.6625514403292181, 0, -6.2962962962962967, 2.3656672545561435, 6.2598471487360374, 0, 0, 0, 0),
+        (1.0270720533111204, 0, 3.620991253644315, -1.1409531742726244, -3.0885345391801033, 0.43856726364014992, 0, 0, 0),
+        (0.032467532467532464, 0, 0, 0.17810760667903525, -0.08904042386185243, -0.16436688311688311, 0.042832167832167832, 0, 0),
+        (-3.53125, 0, -8.8636363636363633, 4.5714285714285712, 8.2039620535714288, -1.423828125, 0.73082386363636365, 1.3125, 0)
+    ), dtype=float)
+    b = np.array((0, 0, 0, 0.30476190476190479, 0.28165080001017501, 0.094921875000000003, 0.22445245726495727, 0.05347222222222222, 0.040740740740740744), dtype=float)
+    c = np.array((0, 0.16666666666666666, 0.33333333333333331, 0.5, 0.18181818181818182, 0.66666666666666663, 0.8571428571428571, 0, 1), dtype=float)
+    p = 7
+    B = {'A': A, 'b':b, 'c':c, 'p': p}
+    return B
+
+def CooperVerner118ERK():
+    """Utility routine to return the ERK table CooperVerner-11-8-ERK."""
+    A = np.array((
+        (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
+        (0.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
+        (0.25, 0.25, 0, 0, 0, 0, 0, 0, 0, 0, 0),
+        (0.14285714285714285, -0.21171150086599511, 0.89618119336284074, 0, 0, 0, 0, 0, 0, 0, 0),
+        (0.18550685351137902, 0, 0.57667147269560881, 0.065148509147000641, 0, 0, 0, 0, 0, 0, 0),
+        (0.1996369936449133, 0, 0.37729376930432884, -0.46345538964060623, 0.38652462669136406, 0, 0, 0, 0, 0, 0),
+        (0.1289862929772419, 0, -0.033025511314484911, -0.34970528631774239, 0.32851721314173604, 0.097900456159259519, 0, 0, 0, 0, 0),
+        (0.071428571428571425, 0, 0, 0, 0.0020021659931149178, -0.011868683886786038, 0.1111111111111111, 0, 0, 0, 0),
+        (0.03125, 0, 0, 0, -0.0090869611008205595, 0.15277777777777779, -0.63254616069590974, 0.95760534401895248, 0, 0, 0),
+        (0.071428571428571425, 0, 0, 0, 0.1111111111111111, -0.63793135018526459, 2.0310831391668618, -1.8108630829377543, 1.0624984467704632, 0, 0),
+        (0, 0, 0, 0, -0.55122056307272915, 2.4513804324169666, -7.1649515532313819, 7.5538404421202712, -2.2291582101947447, 0.94010945196161799, 0)
+    ), dtype=float)
+    b = np.array((0.050000000000000003, 0, 0, 0, 0, 0, 0, 0.2722222222222222, 0.35555555555555557, 0.2722222222222222, 0.050000000000000003), dtype=float)
+    c = np.array((0, 0.5, 0.5, 0.82732683535398854, 0.82732683535398854, 0.5, 0.17267316464601143, 0.17267316464601143, 0.5, 0.82732683535398854, 1), dtype=float)
+    p = 8
     B = {'A': A, 'b':b, 'c':c, 'p': p}
     return B
