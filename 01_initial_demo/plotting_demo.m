@@ -19,7 +19,6 @@ function plotting_demo(N)
         T(:,j) = cos((2*j-1) * acos(x));
     end
 
-    % plot similarly to Matlab/Python version
     % create plots for visual diagnostics
     figure(1);
     plot(x, T);

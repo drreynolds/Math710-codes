@@ -1,12 +1,11 @@
-function numpy_demo()
-% Basic numpy usage demo script
+% Basic numerics demo script
 %
 % Daniel R. Reynolds
 % Math & Stat @ UMBC
 %
 % initial setup
 %
- a = zeros(1, 5);
+a = zeros(1, 5);
 fprintf('writing array of zeros: ');
 disp(a);
 
@@ -35,12 +34,12 @@ end
 
 % save/load test
 fprintf('writing/reading this same vector to/from the file a_data.txt\n');
-writeArray(a.', 'a_data.txt');
+writematrix(a, 'a_data.txt');
 
 tol = 2e-15;
 read_test1a = rand(3,4);
-writeArray(read_test1a, 'tmp.txt');
-read_test1b = readArray('tmp.txt');
+writematrix(read_test1a, 'tmp.txt');
+read_test1b = readmatrix('tmp.txt');
 read_test1_error = read_test1a - read_test1b;
 if norm(read_test1_error, inf) < tol
     fprintf('  save/load test 1 passed\n');
@@ -88,13 +87,9 @@ c = c - 2.0;
 fprintf('   '); disp(c);
 
 fprintf('Testing scalar multiply, should be 0, 5, 10, 15, 20\n');
-ashallow = c;
 a = c;
 c = 5.0 * c;
 fprintf('   '); disp(c);
-
-fprintf('Testing shallow copy (numeric arrays copy by value in MATLAB):\n');
-fprintf('   '); disp(ashallow);
 
 fprintf('Testing vector multiply, should be 0, -1, -2, -3, -4\n');
 b = -ones(size(b));
@@ -171,20 +166,5 @@ A_(5,6) = 1.0;
 xtrue_ = linspace(1.0, 6.0, 6).';
 b_ = A_ * xtrue_;
 fprintf('   '); disp(b_.');
-end
 
-function writeArray(A, filename)
-    if exist('writematrix', 'file')
-        writematrix(A, filename, 'Delimiter', 'tab');
-    else
-        dlmwrite(filename, A, 'delimiter', '\t', 'precision', 17);
-    end
-end
-
-function A = readArray(filename)
-    if exist('readmatrix', 'file')
-        A = readmatrix(filename);
-    else
-        A = dlmread(filename, '\t');
-    end
-end
+% end of script
