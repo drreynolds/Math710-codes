@@ -54,7 +54,6 @@ Ytrue = np.zeros((Nout,N))
 for i in range(Nout):
     Ytrue[i,:] = ytrue(tspan[i])
 
-
 # time steps to try
 hvals = np.array([0.04, 0.02, 0.01, 0.005, 0.0025, 0.00125])
 errs = np.zeros(hvals.size)

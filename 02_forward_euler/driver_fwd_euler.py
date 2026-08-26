@@ -17,7 +17,7 @@ from ForwardEuler import *
 t0 = 0.0
 tf = 5.0
 
-# problem-definining functions and initial conditions
+# problem-definining functions
 def f1(t,y):
     """ ODE RHS function """
     return -y
