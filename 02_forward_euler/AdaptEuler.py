@@ -93,11 +93,10 @@ class AdaptEuler:
         t = tspan[0]
 
         # check for legal time span
-        for n in range(N):
-            if (tspan[n+1] < tspan[n]):
-                raise ValueError("AdaptEuler::Evolve illegal tspan")
+        if (not (np.all(np.diff(tspan) >= 0) or np.all(np.diff(tspan) <= 0))):
+            raise ValueError("AdaptEuler::Evolve illegal tspan")
 
-        # initialize error weight vector, and check for legal tolerances
+        # initialize error weight vector
         self.w = self.error_weight(y, self.w)
 
         # estimate initial step size if not provided by user
@@ -122,7 +121,7 @@ class AdaptEuler:
                     return Y, False
 
                 # bound internal time step to not exceed next output time
-                self.h = min(self.h, tspan[iout]-t)
+                self.h = min(abs(self.h), abs(tspan[iout] - t)) * np.sign(self.h)
 
                 # initialize two solution approximations to current solution
                 y1 = y.copy()
@@ -143,7 +142,7 @@ class AdaptEuler:
                 # compute error estimate success factor
                 self.error_norm = max(np.linalg.norm(self.yerr*self.w, np.inf), 1.e-8)
 
-                # estimate step size growth/reduction factor based on this error estimate
+                # compute error estimate success factor
                 eta = self.safety * self.error_norm**(-1.0/(self.p+1))  # step size growth factor
                 eta = min(eta, self.growth)                             # limit maximum growth
 

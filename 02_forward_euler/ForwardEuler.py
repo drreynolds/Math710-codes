@@ -17,13 +17,14 @@ class ForwardEuler:
 
     The one required argument when constructing a ForwardEuler object
     is a function for the IVP right-hand side:
-        f = ODE RHS function with calling syntax f(t,y).
+        f = ODE RHS function with calling syntax f(t,y,*args).
         h = (optional) input with requested stepsize to use for time stepping.
             Note that this MUST be set either here or in the Evolve call.
     """
     def __init__(self, f, h=0.0):
         # required inputs
         self.f = f
+        # optional inputs
         self.h = h
         # internal data
         self.steps = 0
@@ -95,7 +96,7 @@ class ForwardEuler:
             N = int(np.ceil((tspan[iout]-tspan[iout-1])/self.h))
             h = (tspan[iout]-tspan[iout-1]) / N
 
-            # reset "current" (t,y) that will be evolved internally
+            # reset "current" t that will be evolved internally
             t = tspan[iout-1]
 
             # iterate over internal time steps to reach next output
@@ -107,7 +108,7 @@ class ForwardEuler:
                     print("forward_euler error in time step at t =", t)
                     return Y, False
 
-            # store current results in output arrays
+            # store current results in output matrix
             Y[iout,:] = y.copy()
 
         # return with "success" flag

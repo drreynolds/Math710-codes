@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Main routine to test the forward Euler method for Dahlquist test problem
+# Main routine to test the forward Euler method for the Dahlquist test problem
 #     y' = lambda*y, t in [0,0.5],
 #     y(0) = 1,
 # for lambda = -100, h in {0.005, 0.01, 0.02, 0.04}
@@ -18,14 +18,10 @@ lam = -100.0
 
 # problem-defining functions
 def ytrue(t):
-    """
-    Generates a numpy array containing the true solution to the IVP at a given input t.
-    """
+    """ True solution """
     return np.array([np.exp(lam*t)])
 def f(t,y):
-    """
-    Right-hand side function, f(t,y), for the Dahlquist IVP
-    """
+    """ ODE RHS function """
     return (lam*y)
 
 # shared testing data
