@@ -10,15 +10,13 @@ classdef ForwardEuler < handle
     % Daniel R. Reynolds
     % Math & Stat @ UMBC
     %
-    % Fixed stepsize forward Euler class
-    %
     % The one required argument when constructing a ForwardEuler object
     % is a function for the IVP right-hand side:
-    %     f = ODE RHS function with calling syntax f(t,y).
+    %     f = ODE RHS function with calling syntax f(t,y,<args>).
     %     h = (optional) input with requested stepsize to use for time stepping.
     %         Note that this MUST be set either here or in the Evolve call.
 
-    % Stored problem data, method coefficients, temporary vectors, and run statistics.
+    % Stored problem data and run statistics.
     properties
         f
         h = 0.0
@@ -28,7 +26,7 @@ classdef ForwardEuler < handle
     methods
         function self = ForwardEuler(f, h)
             if nargin < 1
-                error('ForwardEuler requires an RHS function handle f(t,y,...)');
+                error('ForwardEuler requires an RHS function handle f(t,y,args)');
             end
             % required inputs
             self.f = f;
@@ -49,8 +47,7 @@ classdef ForwardEuler < handle
             if nargin < 5
                 args = {};
             end
-            rhs = self.f(t, y, args{:});
-            y = y + h * rhs;
+            y = y + h * self.f(t, y, args{:});
             t = t + h;
             self.steps = self.steps + 1;
             success = true;
@@ -63,8 +60,6 @@ classdef ForwardEuler < handle
 
         function reset(self)
             % Resets the accumulated number of steps
-
-            % reset accumulated statistics
             self.steps = 0;
         end
 
@@ -85,7 +80,7 @@ classdef ForwardEuler < handle
             %          h optionally holds the requested step size (if it is not
             %              provided then the stored value will be used)
             %          args holds optional equation parameters used when evaluating
-            %              the RHS.
+            %              the RHS.  This should be a cell array, e.g., {alpha,beta}.
             % Outputs: Y holds the computed solution at all tspan values,
             %              [y(t0), y(t1), ..., y(tf)]
             %          success = true if the solver traversed the interval,
@@ -105,7 +100,8 @@ classdef ForwardEuler < handle
             if h ~= 0.0
                 self.h = h;
             end
-            % require a nonzero stepsize before evolving
+
+            % raise error if step size was never set
             if self.h == 0.0
                 error('ForwardEuler:Evolve called without specifying a nonzero step size');
             end
@@ -113,37 +109,31 @@ classdef ForwardEuler < handle
             % Initialize output storage, with the first row holding the initial condition.
             tspan = tspan(:);
             y = y0(:);
-            nout = numel(tspan);
-            m = numel(y);
-
-            Y = zeros(nout, m);
+            Y = zeros(numel(tspan), numel(y));
             Y(1, :) = y.';
 
             % iterate over output times, filling the solution history
-            for iout = 2:nout
-                dt = tspan(iout) - tspan(iout - 1);
-                if dt < 0
-                    error('ForwardEuler:Evolve requires nondecreasing tspan');
-                end
+            for iout = 2:numel(tspan)
 
-                % Choose enough internal steps that no step exceeds the requested size.
-                N = ceil(dt / self.h);
-                if N < 1
-                    N = 1;
-                end
-                hcur = dt / N;
+                % determine how many internal steps are required, and the actual step size to use
+                N = max(1, ceil((tspan(iout)-tspan(iout-1)) / self.h));
+                h = (tspan(iout)-tspan(iout-1)) / N;
+
+                % reset "current" t that will be evolved internally
                 t = tspan(iout - 1);
 
-                % March internally until the next requested output time is reached.
+                % iterate over internal time steps to reach next output
                 for n = 1:N
-                    [t, y, success] = self.forward_euler_step(t, y, hcur, args);
+
+                    % perform forward Euler update
+                    [t, y, success] = self.forward_euler_step(t, y, h, args);
                     if ~success
                         fprintf('forward_euler error in time step at t = %g\n', t);
                         return;
                     end
                 end
 
-                % Store the current solution as one row in the output history.
+                % store current results in output matrix
                 Y(iout, :) = y.';
             end
 
