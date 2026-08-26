@@ -10,17 +10,15 @@ classdef AdaptEuler < handle
     % Daniel R. Reynolds
     % Math & Stat @ UMBC
     %
-    % Adaptive forward Euler class
-    %
     % The two required arguments when constructing an AdaptEuler object
     % are a function for the IVP right-hand side, and a template vector
     % with the same shape and type as the IVP solution vector:
-    %   f = ODE RHS function with calling syntax f(t,y).
-    %   y = MATLAB array with m entries.
+    %   f = ODE RHS function with calling syntax f(t,y,<args>).
+    %   y = column vector with m entries.
     %
     % Other optional inputs focus on specific adaptivity options:
     %   rtol    = relative solution tolerance (scalar, >= 1e-12)
-    %   atol    = absolute solution tolerance (scalar or MATLAB array with m entries, all >=0)
+    %   atol    = absolute solution tolerance (scalar or column vector with m entries, all >=0)
     %   maxit   = maximum allowed number of internal steps
     %   bias    = error bias factor
     %   growth  = maximum stepsize growth factor
@@ -37,15 +35,16 @@ classdef AdaptEuler < handle
     end
 
     methods
-        function self = AdaptEuler(f, yTemplate, rtol, atol, maxit, bias, growth, safety, hmin)
+        function self = AdaptEuler(f, y, rtol, atol, maxit, bias, growth, safety, hmin)
             if nargin < 2
                 error('AdaptEuler requires f and a template solution vector y.');
             end
 
-            y = yTemplate(:);
-
-            % Store the RHS and overwrite default adaptivity controls when supplied.
+            % required inputs
             self.f = f;
+            y = y(:);  % ensure this is a column vector
+
+            % optional inputs
             if nargin >= 3 && ~isempty(rtol), self.rtol = rtol; end
             if nargin >= 4 && ~isempty(atol), self.atol = atol; end
             if nargin >= 5 && ~isempty(maxit), self.maxit = maxit; end
@@ -59,16 +58,14 @@ classdef AdaptEuler < handle
                 self.atol = self.atol(:);
             end
 
-            % Allocate work vectors and initialize run statistics.
+            % allocate work vectors
             self.w = ones(numel(y),1);
             self.yerr = zeros(numel(y),1);
         end
 
         function w = error_weight(self, y)
             % Error weight vector utility routine
-
-            y = y(:);
-            w = self.bias ./ (self.atol + self.rtol*abs(y));
+            w = self.bias ./ (self.atol + self.rtol*abs(y(:)));
         end
 
         function [Y, success] = Evolve(self, tspan, y0, h, args)
@@ -82,7 +79,7 @@ classdef AdaptEuler < handle
             %          y holds the initial condition, y(t0)
             %          h optionally holds the requested initial step size
             %          args holds optional equation parameters used when evaluating
-            %              the RHS.
+            %              the RHS.  This must be a cell array, e.g., {alpha,beta}
             % Outputs: Y holds the computed solution at all tspan values,
             %              [y(t0), y(t1), ..., y(tf)]
             %          success = true if the solver traversed the interval,
@@ -95,88 +92,99 @@ classdef AdaptEuler < handle
                 args = {};
             end
             if ~iscell(args)
-                error('AdaptEuler:Evolve args must be a cell array, e.g., {alpha}.');
+                error('AdaptEuler:Evolve args must be a cell array, e.g., {alpha,beta}.');
             end
 
-            % Store the requested initial step size; zero means estimate it below.
+            % store input step size
             self.h = h;
 
-            y0 = y0(:);
-            % Initialize output storage, with the first row holding the initial condition.
-            tspan = tspan(:);
+            % store sizes
             m = numel(y0);
             N = numel(tspan)-1;
 
-            y = y0;
+            % initialize output
+            tspan = tspan(:);  % ensure this is a column vector
+            y = y0(:);
             Y = zeros(N+1, m);
             Y(1,:) = y.';
 
+            % set current time value
             t = tspan(1);
 
-            % Reject decreasing output times before any steps are attempted.
-            for n = 1:N
-                if tspan(n+1) < tspan(n)
-                    error('AdaptEuler:Evolve illegal tspan');
-                end
+            % check for legal time span
+            if ~(all(diff(tspan) >= 0) || all(diff(tspan) <= 0))
+                error('AdaptEuler:Evolve illegal tspan');
             end
 
-            % set error weights for the initial solution
+            % initialize error weight vector
             self.w = self.error_weight(y);
 
-            % require a nonzero stepsize before evolving
-            % estimate an initial stepsize if one was not supplied
+            % estimate initial step size if not provided by user
             if self.h == 0.0
-                % Estimate h from the weighted RHS norm at the initial condition.
+                % get ||y'(t0)||
                 fn = self.f(t, y, args{:});
+
+                % estimate initial h value via linearization, safety factor
                 self.error_norm = max(norm(fn(:).*self.w, inf), 1e-8);
                 self.h = max(self.hmin, self.safety/self.error_norm);
             end
 
-            % iterate over output times, filling the solution history
+            % iterate over output times
             for iout = 2:(N+1)
-                % Take as many adaptive internal steps as needed to hit this output time.
+
+                % loop over internal steps to reach desired output time
                 while (tspan(iout)-t) > sqrt(eps*tspan(iout))
+
+                    % enforce maxit -- if we've exceeded attempts, return with failure
                     if (self.steps + self.fails) > self.maxit
                         fprintf('AdaptEuler: reached maximum iterations, returning with failure\n');
                         success = false;
                         return;
                     end
 
-                    % Do not step beyond the next requested output time.
-                    self.h = min(self.h, tspan(iout)-t);
+                    % bound internal time step to not exceed next output time
+                    self.h = min(abs(self.h), abs(tspan(iout)-t)) * sign(self.h);
 
-                    % Compare one full Euler step against two half Euler steps.
+                    % initialize two solution approximations to current solution
                     y1 = y;
                     y2 = y;
 
+                    % get RHS at this time, perform full/half step updates
                     fn = self.f(t, y, args{:});
                     y1 = y1 + self.h*fn(:);
                     y2 = y2 + (0.5*self.h)*fn(:);
 
+                    % get RHS at half-step, perform half step update
                     fn = self.f(t+0.5*self.h, y2, args{:});
                     y2 = y2 + (0.5*self.h)*fn(:);
 
-                    % The difference between the two approximations estimates local error.
+                    % compute error estimate
                     self.yerr = y2 - y1;
+
+                    % compute error estimate success factor
                     self.error_norm = max(norm(self.yerr.*self.w, inf), 1e-8);
 
-                    % compute the next stepsize factor
-                    eta = self.safety * self.error_norm^(-1.0/(self.p+1));
-                    eta = min(eta, self.growth);
+                    % compute error estimate success factor
+                    eta = self.safety * self.error_norm^(-1.0/(self.p+1));  % step size growth factor
+                    eta = min(eta, self.growth);                            % limit maximum growth
 
-                    % successful step: update solution and prepare the next trial
-                    if self.error_norm < self.ONEPSM
+                    % check error
+                    if self.error_norm < self.ONEPSM    % successful step
+
+                        % update current time, solution, error weights, work counter, and upcoming stepsize
                         t = t + self.h;
                         y = 2.0*y2 - y1;
                         self.w = self.error_weight(y);
                         self.steps = self.steps + 1;
                         self.h = self.h * eta;
-                    % failed step: reduce the stepsize and retry
-                    else
+
+                    else                                % failed step
                         self.fails = self.fails + 1;
-                        if self.h > self.hmin
+
+                        % adjust step size, enforcing minimum and returning with failure if needed
+                        if self.h > self.hmin           % failure, but reduction possible
                             self.h = max(self.h * eta, self.hmin);
-                        else
+                        else                            % failed with no reduction possible
                             fprintf('AdaptEuler: error test failed at h=hmin, returning with failure\n');
                             success = false;
                             return;
@@ -226,10 +234,6 @@ classdef AdaptEuler < handle
             self.hmin = hmin;
         end
 
-        function update_rhs(self, f)
-            self.f = f;
-        end
-
         function out = get_error_weight(self)
             % Returns the current error weight vector
             out = self.w;
@@ -262,7 +266,6 @@ classdef AdaptEuler < handle
 
         function reset(self)
             % Resets the solver statistics
-
             self.fails = 0;
             self.steps = 0;
         end

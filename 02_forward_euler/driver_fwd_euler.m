@@ -1,5 +1,4 @@
-function driver_fwd_euler()
-% Main routine to test the forward Euler method on two scalar-valued ODE problems
+% Script to test the forward Euler method on two scalar-valued ODE problems
 %    y' = -y, t in [0,5],
 %    y(0) = 1.
 % and
@@ -8,13 +7,24 @@ function driver_fwd_euler()
 %
 % Daniel R. Reynolds
 % Math & Stat @ UMBC
-%
+
+% problem time interval
 t0 = 0.0;
 tf = 5.0;
 
+% problem-definining functions
+%   ODE RHS function
+f1 = @(t,y) -y;
+%   Analytical solution
+ytrue1 = @(t) exp(-t);
+
+%   ODE RHS function (with parameters)
+f2 = @(t,y,alpha,beta) (alpha*y + t*t - 2.0*beta)/(t+1);
+%   Analytical solution
+ytrue2 = @(t) t*t + 2.0*t + 2.0 - 2.0*(t+1.0)*log(t+1.0);
+
 % shared testing data
 Nout = 6;   % includes initial condition
-% set output times for the experiment
 tspan = linspace(t0, tf, Nout);
 
 % create true solution results
@@ -26,26 +36,22 @@ for i = 1:Nout
 end
 
 % time steps to try
-% set requested time step sizes for convergence tests
 hvals = [0.5, 0.05, 0.005, 0.0005, 0.00005];
-% store errors for convergence-rate estimates
 errs = zeros(size(hvals));
 
 % problem 1: loop over time step sizes; call stepper and compute errors
 fprintf('\nProblem 1:\n');
-FE1 = ForwardEuler(@f1);
+FE1 = ForwardEuler(f1);
 for idx = 1:numel(hvals)
     h = hvals(idx);
 
+    % set initial condition and call stepper
     y0 = Y1true(1,:).';
     fprintf('  h = %.6g:\n', h);
     FE1.reset();
     [Y, success] = FE1.Evolve(tspan, y0, h);
-    if ~success
-        fprintf('    solve failed at this step size\n');
-        continue;
-    end
 
+    % output solution, errors, and overall error
     Yerr = abs(Y - Y1true);
     errs(idx) = norm(Yerr, inf);
     for i = 1:Nout
@@ -59,23 +65,21 @@ fprintf('estimated order: max = %.4f,  avg = %.4f\n', max(orders), mean(orders))
 
 % problem 2: loop over time step sizes; call stepper and compute errors
 fprintf('\nProblem 2:\n');
-FE2 = ForwardEuler(@f2);
+FE2 = ForwardEuler(f2);
 for idx = 1:numel(hvals)
     h = hvals(idx);
 
+    % set initial condition and call stepper
     y0 = Y2true(1,:).';
     fprintf('  h = %.6g:\n', h);
     FE2.reset();
     alpha = 1.0;
     beta = 1.0;
-    % ForwardEuler expands this cell array as extra RHS arguments, so f2
-    % receives alpha and beta after (t,y).
+    % Here when calling our rhs (f2) we have two parameters alpha and beta.
+    % We must pack these into a cell array; the solver will unpack these to provide to f2 following t and y.
     [Y, success] = FE2.Evolve(tspan, y0, h, {alpha, beta});
-    if ~success
-        fprintf('    solve failed at this step size\n');
-        continue;
-    end
 
+    % output solution, errors, and overall error
     Yerr = abs(Y - Y2true);
     errs(idx) = norm(Yerr, inf);
     for i = 1:Nout
@@ -86,29 +90,4 @@ for idx = 1:numel(hvals)
 end
 orders = log(errs(1:end-2)./errs(2:end-1))./log(hvals(1:end-2)./hvals(2:end-1));
 fprintf('estimated order: max = %.4f,  avg = %.4f\n', max(orders), mean(orders));
-end
 
-
-function val = f1(~, y)
-    % ODE RHS function
-
-    val = -y;
-end
-
-function val = ytrue1(t)
-    % Analytical solution
-
-    val = exp(-t);
-end
-
-function val = f2(t, y, alpha, beta)
-    % ODE RHS function (with parameters alpha and beta)
-
-    val = (alpha*y(1) + t*t - 2.0*beta)/(t+1.0);
-end
-
-function val = ytrue2(t)
-    % Analytical solution
-
-    val = t*t + 2.0*t + 2.0 - 2.0*(t+1.0)*log(t+1.0);
-end
