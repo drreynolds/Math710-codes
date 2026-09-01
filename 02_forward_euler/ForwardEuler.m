@@ -3,18 +3,21 @@ classdef ForwardEuler < handle
     %
     % Fixed-stepsize forward Euler stepper class implementation file.
     %
+    % Note that in the "classdef" line above, we specify that this is 
+    % a "handle class" rather than Matlab's default "value class".  
+    % This means that when we pass a ForwardEuler object to a function, 
+    % the function will receive a reference to the original object 
+    % rather than a copy of it.  This is important because we want to 
+    % be able to update the statistics stored within this object, and 
+    % for more complicated clases, we want to avoid repeated memory 
+    % allocation/deallocation of class objects.
+    %
     % Class to perform fixed-stepsize time evolution of the IVP
     %      y' = f(t,y),  t in [t0, Tf],  y(t0) = y0
     % using the forward Euler (explicit Euler) time stepping method.
     %
     % Daniel R. Reynolds
     % Math & Stat @ UMBC
-    %
-    % The one required argument when constructing a ForwardEuler object
-    % is a function for the IVP right-hand side:
-    %     f = ODE RHS function with calling syntax f(t,y,<args>).
-    %     h = (optional) input with requested stepsize to use for time stepping.
-    %         Note that this MUST be set either here or in the Evolve call.
 
     % Stored problem data and run statistics.
     properties
@@ -25,6 +28,12 @@ classdef ForwardEuler < handle
 
     methods
         function self = ForwardEuler(f, h)
+            % The one required argument when constructing a ForwardEuler object
+            % is a function for the IVP right-hand side:
+            %     f = ODE RHS function with calling syntax f(t,y,<args>).
+            %     h = (optional) input with requested stepsize to use for time stepping.
+            %         Note that this MUST be set either here or in the Evolve call.
+
             if nargin < 1
                 error('ForwardEuler requires an RHS function handle f(t,y,args)');
             end
