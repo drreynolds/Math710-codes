@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
 # Main routine to test the forward Euler method for the Dahlquist test problem
-#     y' = lambda*y, t in [0,0.5],
+#     y' = lambda*y, t in [0,0.4],
 #     y(0) = 1,
 # for lambda = -100, h in {0.005, 0.01, 0.02, 0.04}
 #
