@@ -1,129 +1,119 @@
 #!/usr/bin/env python
 #
-# Script that demonstrates order reduction of various implicit methods on the nonlinear Kvaerno
-# Prothero and Robinson problem:
-#    [u]' = [ G  e ] [(-1+u^2-r)/(2u)] + [      r'(t)/(2u)        ]
-#    [v]    [ e -1 ] [(-2+v^2-s)/(2v)]   [ s'(t)/(2*sqrt(2+s(t))) ]
-# where r(t) = 0.5*cos(t),  s(t) = cos(w*t),  0 < t < 5.
-# This problem has analytical solution given by
-#    u(t) = sqrt(1+r(t)),  v(t) = sqrt(2+s(t)).
+# Main routine to demonstrate order reduction of fixed-step DIRK methods on
+# the linear Prothero--Robinson ODE from Ketcheson, Seibold, Shirokoff, and
+# Zhou (2020), Sect. 4.1:
 #
-# We use the parameters:
-#   e = inter-variable coupling strength (0.5)
-#   G = stiffness at slow time scale (varies)
-#   w = variable time-scale separation factor (10)
+#   u' = lambda*(u - phi(t)) + phi'(t),  phi(t) = sin(t + pi/4),  t in [0,10].
 #
 # Daniel R. Reynolds
 # Math & Stat @ UMBC
-
-### FILL THIS IN -- THE CURRENT SCRIPT IS JUST A PLACEHOLDER OF THE CORRECT PHYSICAL PROBLEM, BUT DOES NOT YET RUN THE DESIRED TESTS.
 
 import numpy as np
 import matplotlib.pyplot as plt
 import sys
 sys.path.append('../shared')
 from ImplicitSolver import *
-from AdaptDIRK import *
-sys.path.append('../04_explicit_one_step')
-from AdaptERK import *
+from DIRK import *
 
-# KPR problem parameters
-Tf = 5
-Nt = 50
-tvals = np.linspace(0, Tf, Nt+1)
-e = 0.5
-w = 10
-G = [-1, -10, -100, -1000, -10000]  # stiffness values to test
+# problem time interval and parameters
+t0 = 0.0
+tf = 10.0
 
-# KPR component functions
-def r(t):
-    return 0.5*np.cos(t)
-def s(t):
-    return np.cos(w*t)
-def rdot(t):
-    return -0.5*np.sin(t)
-def sdot(t):
-    return -w*np.sin(w*t)
-
-# KPR true solution functions
-def utrue(t):
-    return np.sqrt(1+r(t))
-def vtrue(t):
-    return np.sqrt(2+s(t))
+# problem-defining functions
 def ytrue(t):
-    return np.array((utrue(t), vtrue(t)))
+    """Generates a numpy array containing the true solution to the IVP."""
+    return np.array([np.sin(t + np.pi/4.0)])
 
-# initial condition
-Y0 = ytrue(0)
+def f(t, y, lam):
+    """Right-hand side function for the linear Prothero--Robinson problem."""
+    return np.array([lam*(y[0] - ytrue(t)[0]) + np.cos(t + np.pi/4.0)])
 
-# true solution at each output time
-Ytrue = np.zeros((2,Nt+1))
-for i in range(Nt+1):
-  Ytrue[:,i] = ytrue(tvals[i])
+def J(t, y, lam):
+    """Jacobian of the right-hand side function."""
+    return np.array([[lam]])
 
-# loop over stiffness values
-for g in G:
-    print("\nKPR problem with G = %i\n" % (g))
+# shared testing data.  Each h is tf/N for an integer N, so the DIRK solver
+# uses exactly the h value plotted below.
+y0 = ytrue(t0)
+tspan = np.array([t0, tf])
+lambdas = -10.0**np.arange(1, 5)
+hvals = tf / (10 * 2**np.arange(0, 11, 2))
 
-    # KPR right-hand side function
-    def f(t, y):
-        u = y[0]
-        v = y[1]
-        return (np.array([[g, e], [e, -1]])
-                @ np.array([(-1 + u**2 - r(t)) / (2 * u),
-                            (-2 + v**2 - s(t)) / (2 * v)])
-                + np.array([rdot(t) / (2 * u), sdot(t) / (2 * np.sqrt(2 + s(t)))]))
+# short utility function to add log-log reference lines for slopes 1 through order.
+def AddTrendLines(ax, order):
+    """Add short log-log reference lines for slopes 1 through order."""
+    htrend = np.array([hvals[-1], hvals[-3]])
+    hratio = htrend[1] / htrend[0]
+    ymin, ymax = ax.get_ylim()
+    logymin = np.log10(ymin)
+    logymax = np.log10(ymax)
+    upper_start = logymax - order*np.log10(hratio)
+    logystarts = np.linspace(logymin + 0.1, upper_start - 0.1, order)
+    trend_colors = plt.cm.Dark2(np.linspace(0.0, 1.0, order))
 
-    # KPR Jacobian function
-    def J(t, y):
-        u = y[0]
-        v = y[1]
-        return np.array([[g/2 + (g*(1+r(t))+rdot(t))/(2*u**2),
-                             e/2+e*(2+s(t))/(2*v**2)],
-                         [e/2+e*(1+r(t))/(2*u**2), -1/2 - (2+s(t))/(2*v**2)]])
+    for slope, (logystart, color) in enumerate(zip(logystarts, trend_colors), start=1):
+        ytrend = 10.0**logystart * (htrend / htrend[0])**slope
+        ax.loglog(htrend, ytrend, '--', color=color, linewidth=1.5,
+                  label='slope %i' % slope)
 
-    solver = ImplicitSolver(J, solver_type='dense', maxiter=20,
-                            rtol=1e-9, atol=1e-12, Jfreq=3)
+# test runner function
+def RunTest(stepper, name, order, wso):
 
-    # tolerances
-    rtol = 1.e-3
-    atol = 1.e-11
+    print("\n", name, " tests:", sep='')
+    fig, ax = plt.subplots(figsize=(6.0, 5.5))
 
-    # create adaptive ERK and DIRK solvers
-    E32 = AdaptERK(f, Y0, ERK32(), rtol=rtol, atol=atol, save_step_hist=True)
-    D32 = AdaptDIRK(f, Y0, solver, ESDIRK32(), rtol=rtol, atol=atol, save_step_hist=True)
+    # loop over stiffness values
+    for ilam, lam in enumerate(lambdas):
 
-    # run adaptive solvers
-    print("Adaptive ERK32 solver:")
-    Y_E32, success = E32.Evolve(tvals, Y0)
-    step_hist_E32 = E32.get_step_history()
-    err_E32 = np.linalg.norm(Y_E32 - np.transpose(Ytrue), 1)
-    print("  steps = %5i  fails = %2i, error = %.2e\n" %
-      (E32.get_num_steps(), E32.get_num_error_failures(), err_E32))
+        errs = np.zeros(hvals.size)
+        print("  lambda = ", lam, ":", sep='')
+        for idx, h in enumerate(hvals):
+            print("    h = %.5e:" % (h), sep='', end='')
+            stepper.reset()
+            stepper.sol.reset()
+            # The comma is required so that args is an iterable, not a float.
+            Y, success = stepper.Evolve(tspan, y0, h, args=(lam,))
+            if (not success):
+                raise RuntimeError("DIRK solve failed for lambda=%g, h=%g" % (lam, h))
+            errs[idx] = np.linalg.norm(Y[-1,:] - ytrue(tf), np.inf)
+            print("  solves = %5i  Niters = %6i  NJevals = %5i  abserr = %8.2e" %
+                  (stepper.get_num_solves(), stepper.sol.get_total_iters(),
+                   stepper.sol.get_total_setups(), errs[idx]))
 
-    print("Adaptive DIRK32 solver:")
-    Y_D32, success = D32.Evolve(tvals, Y0)
-    step_hist_D32 = D32.get_step_history()
-    err_D32 = np.linalg.norm(Y_D32 - np.transpose(Ytrue), 1)
-    print("  steps = %5i  fails = %2i, error = %.2e\n" %
-      (D32.get_num_steps(), D32.get_num_error_failures(), err_D32))
-    solver.reset()
+        ax.loglog(hvals, errs, '-o', markersize=4,
+                  label=r'$\lambda=-10^{%i}$' % (ilam+1))
 
-    # create plots for adaptive runs
-    plt.figure()
-    plt.plot(step_hist_E32['t'], step_hist_E32['h'], 'r-', label='ERK32')
-    plt.plot(step_hist_D32['t'], step_hist_D32['h'], 'b-', label='DIRK32')
-    for i in range(len(step_hist_E32['t'])):
-        if (step_hist_E32['err'][i] > 1.0):
-            plt.plot(step_hist_E32['t'][i], step_hist_E32['h'][i], 'rx')
-    for i in range(len(step_hist_D32['t'])):
-        if (step_hist_D32['err'][i] > 1.0):
-            plt.plot(step_hist_D32['t'][i], step_hist_D32['h'][i], 'bx')
-    plt.xlabel('$t$')
-    plt.ylabel('$h$')
-    plt.title('Adaptive step history, G = %i' % (g))
-    plt.legend()
-    fname = 'adaptive_steps_G%i.png' % (g)
-    plt.savefig(fname)
+    AddTrendLines(ax, order)
+    ax.set_xlabel(r'$h$')
+    ax.set_ylabel(r'error')
+    ax.set_title('%s (order %i, WSO %i)' % (name, order, wso))
+    ax.grid(True, which='major', linestyle=':', linewidth=0.7)
+    ax.legend(loc='best')
+    fig.tight_layout()
+    filename = 'order_reduction_%s.png' % name
+    fig.savefig(filename)
+    print("  saved", filename)
+
+
+# Shared nonlinear solver; RunTest resets its statistics before each solve.
+solver = ImplicitSolver(J, solver_type='dense', maxiter=8,
+                        rtol=1e-12, atol=1e-14, Jfreq=1)
+
+# The first three are conventional order >= 3 DIRK methods; the final three
+# are the high-WSO methods published in Sect. 3 of the paper.
+Alex3 = DIRK(f, solver, Alexander3())
+SD45 = DIRK(f, solver, SDIRK45L1SA())
+C6 = DIRK(f, solver, Cooper6ESDIRK())
+D32 = DIRK(f, solver, WSO32())
+D33 = DIRK(f, solver, WSO33())
+D43 = DIRK(f, solver, WSO43())
+
+RunTest(Alex3, 'Alexander3', 3, 1)
+RunTest(SD45, 'SDIRK45L1SA', 4, 1)
+RunTest(C6, 'Cooper6ESDIRK', 5, 1)
+RunTest(D32, 'WSO32', 3, 2)
+RunTest(D33, 'WSO33', 3, 3)
+RunTest(D43, 'WSO43', 4, 3)
 
 plt.show()

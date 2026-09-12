@@ -565,3 +565,65 @@ def Cooper6ESDIRK():
     p = 5
     B = {'A': A, 'b': b, 'c': c, 'p': p}
     return B
+
+
+def WSO32():
+    """Return the 4-stage, third-order, WSO-2 L-stable DIRK method.
+
+    Coefficients are from Ketcheson, Seibold, Shirokoff, and Zhou (2020),
+    ``DIRK Schemes with High Weak Stage Order'', Sect. 3,
+    doi:10.1007/978-3-030-39647-3_36.
+    """
+    A = np.array((
+        (0.01900072890, 0.0, 0.0, 0.0),
+        (0.40434605601, 0.38435717512, 0.0, 0.0),
+        (0.06487908412, -0.16389640295, 0.51545231222, 0.0),
+        (0.02343549374, -0.41207877888, 0.96661161281, 0.42203167233)
+    ), dtype=float)
+    b = A[-1, :].copy()
+    c = A @ np.ones(4)
+    p = 3
+    B = {'A': A, 'b': b, 'c': c, 'p': p}
+    return B
+
+
+def WSO33():
+    """Return the 4-stage, third-order, WSO-3 L-stable DIRK method.
+
+    Coefficients are from Ketcheson, Seibold, Shirokoff, and Zhou (2020),
+    ``DIRK Schemes with High Weak Stage Order'', Sect. 3,
+    doi:10.1007/978-3-030-39647-3_36.
+    """
+    A = np.array((
+        (0.13756543551, 0.0, 0.0, 0.0),
+        (0.56695122794, 0.23483888782, 0.0, 0.0),
+        (-1.08354072813, 2.96618223864, 0.44915521951, 0.0),
+        (0.59761291500, -0.43420997584, -0.05305815322, 0.88965521406)
+    ), dtype=float)
+    b = A[-1, :].copy()
+    c = A @ np.ones(4)
+    p = 3
+    B = {'A': A, 'b': b, 'c': c, 'p': p}
+    return B
+
+
+def WSO43():
+    """Return the 6-stage, fourth-order, WSO-3 L-stable DIRK method.
+
+    Coefficients are from Ketcheson, Seibold, Shirokoff, and Zhou (2020),
+    ``DIRK Schemes with High Weak Stage Order'', Sect. 3,
+    doi:10.1007/978-3-030-39647-3_36.
+    """
+    A = np.array((
+        (0.079672377876931, 0.0, 0.0, 0.0, 0.0, 0.0),
+        (0.328355391763968, 0.136009256546967, 0.0, 0.0, 0.0, 0.0),
+        (-0.650772774016417, 1.742859063495349, 0.256472952467792, 0.0, 0.0, 0.0),
+        (-0.714580550967259, 1.793745752775934, -0.078254785672497, 0.311753794172585, 0.0, 0.0),
+        (-1.120092779092918, 1.983452339867353, 3.117393885836001, -3.761930177913743, 0.770646024799205, 0.0),
+        (0.214823667785537, 0.536367363903245, 0.154488125726409, -0.217748592703941, 0.072226422925896, 0.239843012362853)
+    ), dtype=float)
+    b = A[-1, :].copy()
+    c = A @ np.ones(6)
+    p = 4
+    B = {'A': A, 'b': b, 'c': c, 'p': p}
+    return B
