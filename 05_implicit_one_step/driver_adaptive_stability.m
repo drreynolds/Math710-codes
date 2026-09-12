@@ -1,4 +1,3 @@
-function driver_adaptive_stability(quickMode, doPlots)
 % Script that runs various adaptive methods on the nonlinear Kvaerno
 % Prothero and Robinson problem:
 %    [u]' = [ G  e ] [(-1+u^2-r)/(2u)] + [      r'(t)/(2u)        ]
@@ -22,14 +21,6 @@ here = fileparts(mfilename('fullpath'));
 addpath(fullfile(here, '..', 'shared'));
 addpath(fullfile(here, '..', '04_explicit_one_step'));
 
-% get optional inputs, otherwise use default values
-if nargin < 1 || isempty(quickMode)
-    quickMode = false;
-end
-if nargin < 2 || isempty(doPlots)
-    doPlots = true;
-end
-
 Tf = 5;
 Nt = 50;
 tvals = linspace(0, Tf, Nt+1).';
@@ -38,14 +29,21 @@ w = 10;
 % Vary G to study stiffness while keeping the fast oscillation frequency fixed.
 Gvals = [-1, -10, -100, -1000, -10000];
 
-if quickMode
-    Gvals = [-1, -100, -1000];
-end
+% problem-defining functions
+r = @(t) 0.5*cos(t);
+s = @(t, w) cos(w*t);
+rdot = @(t) -0.5*sin(t);
+sdot = @(t, w) -w*sin(w*t);
+utrue = @(t) sqrt(1 + r(t));
+vtrue = @(t, w) sqrt(2 + s(t, w));
+ytrue = @(t, w) [utrue(t(:)), vtrue(t(:), w)];
+f = @(t, y, G) [G, epsilon; epsilon, -1] * [(-1 + y(1)^2 - r(t)) / (2*y(1)); ...
+                                            (-2 + y(2)^2 - s(t, w)) / (2*y(2))] ...
+                + [rdot(t)/(2*y(1)); sdot(t, w)/(2*sqrt(2+s(t, w)))];
+J = @(t, y, G) [G/2 + (G*(1+r(t))+rdot(t))/(2*y(1)^2), epsilon/2 + epsilon*(2+s(t, w))/(2*y(2)^2); ...
+                epsilon/2 + epsilon*(1+r(t))/(2*y(1)^2), -1/2 - (2+s(t, w))/(2*y(2)^2)];
 
-if doPlots
-    % create plots for visual diagnostics
-    figure(1);
-end
+figure(1);
 
 for ig = 1:numel(Gvals)
     G = Gvals(ig);
@@ -58,12 +56,12 @@ for ig = 1:numel(Gvals)
     rtol = 1e-3;
     atol = 1e-11;
     % Build fresh explicit and implicit adaptive steppers for this stiffness value.
-    solver = ImplicitSolver(@(t,y) J(t, y, G, epsilon, w), 20, 1e-9, 1e-12, 3);
-    E32 = AdaptERK(@(t,y) f(t, y, G, epsilon, w), Y0, AdaptERK.ERK32(), rtol, atol, [], [], [], [], [], true);
-    D32 = AdaptDIRK(@(t,y) f(t, y, G, epsilon, w), Y0, solver, AdaptDIRK.ESDIRK32(), rtol, atol, [], [], [], [], [], true);
+    solver = ImplicitSolver(J, 20, 1e-9, 1e-12, 3);
+    E32 = AdaptERK(f, Y0, AdaptERK.ERK32(), rtol, atol, [], [], [], [], [], true);
+    D32 = AdaptDIRK(f, Y0, solver, AdaptDIRK.ESDIRK32(), rtol, atol, [], [], [], [], [], true);
 
     fprintf('Adaptive ERK32 solver:\n');
-    [Y_E32, success] = E32.Evolve(tvals, Y0);
+    [Y_E32, success] = E32.Evolve(tvals, Y0, 0, {G});
     if ~success
         fprintf('  solve failed\n');
     end
@@ -73,7 +71,7 @@ for ig = 1:numel(Gvals)
         E32.get_num_steps(), E32.get_num_error_failures(), err_E32);
 
     fprintf('Adaptive DIRK32 solver:\n');
-    [Y_D32, success] = D32.Evolve(tvals, Y0);
+    [Y_D32, success] = D32.Evolve(tvals, Y0, 0, {G});
     if ~success
         fprintf('  solve failed\n');
     end
@@ -82,78 +80,22 @@ for ig = 1:numel(Gvals)
     fprintf('  steps = %5d  fails = %2d, solves = %5d, error = %.2e\n\n', ...
         D32.get_num_steps(), D32.get_num_error_failures(), D32.get_num_solves(), err_D32);
 
-    if doPlots
-        figure();
-        plot(step_hist_E32.t, step_hist_E32.h, 'r-', 'DisplayName', 'ERK32');
-        hold on;
-        plot(step_hist_D32.t, step_hist_D32.h, 'b-', 'DisplayName', 'DIRK32');
-        plotFailures(step_hist_E32, 'rx');
-        plotFailures(step_hist_D32, 'bx');
-        hold off;
-        xlabel('t');
-        ylabel('h');
-        title(sprintf('Adaptive step history, G = %d', G));
-        legend('Location', 'best');
-        saveas(gcf, sprintf('adaptive_steps_G%d.png', G));
-    end
-end
-end
-
-function val = r(t)
-    val = 0.5*cos(t);
-end
-
-function val = s(t, w)
-    val = cos(w*t);
-end
-
-function val = rdot(t)
-    val = -0.5*sin(t);
-end
-
-function val = sdot(t, w)
-    val = -w*sin(w*t);
-end
-
-function val = utrue(t)
-    val = sqrt(1 + r(t));
-end
-
-function val = vtrue(t, w)
-    val = sqrt(2 + s(t, w));
-end
-
-function val = ytrue(t, w)
-    % Return one column vector for scalar t, or one row per time for vector t.
-    if isscalar(t)
-        val = [utrue(t); vtrue(t, w)];
-    else
-        val = [utrue(t(:)), vtrue(t(:), w)];
-    end
-end
-
-function val = f(t, y, G, epsilon, w)
-    % Combine the stiff algebraic residual with the forcing that makes ytrue exact.
-    u = y(1);
-    v = y(2);
-    Mat = [G, epsilon; epsilon, -1];
-    alg = [(-1 + u^2 - r(t)) / (2*u); ...
-           (-2 + v^2 - s(t, w)) / (2*v)];
-    forcing = [rdot(t)/(2*u); sdot(t, w)/(2*sqrt(2+s(t, w)))];
-    val = Mat*alg + forcing;
-end
-
-function val = J(t, y, G, epsilon, w)
-    u = y(1);
-    v = y(2);
-    val = [G/2 + (G*(1+r(t))+rdot(t))/(2*u^2), epsilon/2 + epsilon*(2+s(t, w))/(2*v^2); ...
-           epsilon/2 + epsilon*(1+r(t))/(2*u^2), -1/2 - (2+s(t, w))/(2*v^2)];
-end
-
-function plotFailures(step_hist, marker)
-    % Mark rejected steps on top of each adaptive step-size history.
-    idx = step_hist.err > 1.0;
+    figure();
+    plot(step_hist_E32.t, step_hist_E32.h, 'r-', 'DisplayName', 'ERK32');
+    hold on;
+    plot(step_hist_D32.t, step_hist_D32.h, 'b-', 'DisplayName', 'DIRK32');
+    idx = step_hist_E32.err > 1.0;
     if any(idx)
-        plot(step_hist.t(idx), step_hist.h(idx), marker, 'HandleVisibility', 'off');
+        plot(step_hist_E32.t(idx), step_hist_E32.h(idx), 'rx', 'HandleVisibility', 'off');
     end
+    idx = step_hist_D32.err > 1.0;
+    if any(idx)
+        plot(step_hist_D32.t(idx), step_hist_D32.h(idx), 'bx', 'HandleVisibility', 'off');
+    end
+    hold off;
+    xlabel('t');
+    ylabel('h');
+    title(sprintf('Adaptive step history, G = %d', G));
+    legend('Location', 'best');
+    saveas(gcf, sprintf('adaptive_steps_G%d.png', G));
 end

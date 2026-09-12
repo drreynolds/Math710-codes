@@ -12,6 +12,12 @@ t0 = 0.0;
 tf = 0.6;
 lam = -70.0;
 
+% problem-defining functions
+ytrue = @(t) exp(lam*t);
+f = @(t, y) lam*y(:);
+f_t = @(t, y) 0.0;
+f_y = @(t, y) lam;
+
 Nout = 6;    % includes initial condition
 % set output times for the experiment
 tspan = linspace(t0, tf, Nout).';
@@ -21,45 +27,21 @@ hvals = [0.01, 0.02, 0.03, 0.04];
 % Compute the analytical solution at the same output times as the methods.
 Ytrue = zeros(Nout, 1);
 for i = 1:Nout
-    Ytrue(i,:) = ytrue(tspan(i), lam);
+    Ytrue(i,:) = ytrue(tspan(i));
 end
 
 % Compare stability behavior for methods with progressively larger stable regions.
-FE = ERK(@(t,y) f(t, y, lam), ERK.ERK1());
+FE = ERK(f, ERK.ERK1());
 fprintf('\nForward Euler:\n');
 run_stepper(FE, hvals, Ytrue, tspan);
 
-T2 = Taylor2(@(t,y) f(t, y, lam), @(t,y) f_t(t, y), @(t,y) f_y(t, y, lam));
+T2 = Taylor2(f, f_t, f_y);
 fprintf('\n2nd order Taylor:\n');
 run_stepper(T2, hvals, Ytrue, tspan);
 
-RK4 = ERK(@(t,y) f(t, y, lam), ERK.ERK4());
+RK4 = ERK(f, ERK.ERK4());
 fprintf('\n4th order explicit Runge-Kutta:\n');
 run_stepper(RK4, hvals, Ytrue, tspan);
-end
-
-function val = ytrue(t, lam)
-    % Analytical solution
-
-    val = exp(lam*t);
-end
-
-function val = f(~, y, lam)
-    % ODE RHS function
-
-    val = lam*y(:);
-end
-
-function val = f_t(~, ~)
-    % t-derivative of ODE RHS function
-
-    val = 0.0;
-end
-
-function val = f_y(~, ~, lam)
-    % y-derivative of ODE RHS function
-
-    val = lam;
 end
 
 function run_stepper(stepper, hvals, Ytrue, tspan)
@@ -85,7 +67,7 @@ function run_stepper(stepper, hvals, Ytrue, tspan)
         for i = 1:numel(tspan)
             text = sprintf('    y(%.3f) = %9.6f   |error| = %.2e', tspan(i), Y(i,1), Yerr(i,1));
             if Yerr(i,1) > 1.0
-                fprintf('** %s **\n', text);
+                fprintf('%s ** failure **\n', text);
             else
                 fprintf('%s\n', text);
             end

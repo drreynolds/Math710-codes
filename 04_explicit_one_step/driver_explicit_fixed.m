@@ -7,6 +7,12 @@ function driver_explicit_fixed()
 t0 = 0.0;
 tf = 1.0;
 
+% problem-defining functions
+f = @(t, y) -y(:)*exp(-t);
+f_t = @(t, y) y(:)*exp(-t);
+f_y = @(t, y) -exp(-t);
+ytrue = @(t) exp(exp(-t)-1.0);
+
 % shared testing data
 Nout = 3;   % includes initial condition
 % set output times for the experiment
@@ -24,54 +30,30 @@ hvals = [0.5, 0.1, 0.05, 0.01, 0.005, 0.001, 0.0005];
 
 % Each call to run_stepper reuses this problem and reports the observed order.
 fprintf('\nERK1:\n');
-FE = ERK(@f, ERK.ERK1());
+FE = ERK(f, ERK.ERK1());
 run_stepper(FE, hvals, Ytrue, tspan);
 
 fprintf('\nTaylor2:\n');
-T2 = Taylor2(@f, @f_t, @f_y);
+T2 = Taylor2(f, f_t, f_y);
 run_stepper(T2, hvals, Ytrue, tspan);
 
 fprintf('\nHeun:\n');
-H = ERK(@f, ERK.Heun());
+H = ERK(f, ERK.Heun());
 run_stepper(H, hvals, Ytrue, tspan);
 
 fprintf('\nERK2:\n');
-E2 = ERK(@f, ERK.ERK2());
+E2 = ERK(f, ERK.ERK2());
 run_stepper(E2, hvals, Ytrue, tspan);
 
 fprintf('\nERK3:\n');
-E3 = ERK(@f, ERK.ERK3());
+E3 = ERK(f, ERK.ERK3());
 run_stepper(E3, hvals, Ytrue, tspan);
 
 fprintf('\nERK4:\n');
-E4 = ERK(@f, ERK.ERK4());
+E4 = ERK(f, ERK.ERK4());
 run_stepper(E4, hvals, Ytrue, tspan);
 end
 
-
-function val = f(t, y)
-    % ODE RHS function
-
-    val = -y(:)*exp(-t);
-end
-
-function val = f_t(t, y)
-    % t-derivative of ODE RHS function
-
-    val = y(:)*exp(-t);
-end
-
-function val = f_y(t, ~)
-    % y-derivative of ODE RHS function
-
-    val = -exp(-t);
-end
-
-function val = ytrue(t)
-    % Analytical solution
-
-    val = exp(exp(-t)-1.0);
-end
 
 function run_stepper(stepper, hvals, Ytrue, tspan)
     % Runs a given stepper on the test problem for a range of time step sizes,

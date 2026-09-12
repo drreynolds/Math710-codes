@@ -1,4 +1,3 @@
-function hermite_driver(lam, quickMode)
 % Main routine to run a piecewise Hermite finite-difference method
 % for solution of a second-order, scalar-valued BVP:
 %
@@ -10,13 +9,11 @@ function hermite_driver(lam, quickMode)
 %
 % Daniel R. Reynolds
 % Math & Stat @ UMBC
-%
-% get optional inputs, otherwise use default values
-if nargin < 1 || isempty(lam)
+
+% get lambda from the user prompt, otherwise set to -10
+lam = input('Enter desired lambda value [leave unset for default of -10]:\n');
+if isempty(lam)
     lam = -10.0;
-end
-if nargin < 2 || isempty(quickMode)
-    quickMode = false;
 end
 
 bvp = BVP(lam);
@@ -24,6 +21,23 @@ bvp = BVP(lam);
 % interval: physical interval index, location: 0=left or 1=right,
 % component: 0=u or 1=u'.
 index = @(interval, location, component) 2*(interval-1) + 2*location + component + 1;
+
+% Hermite basis functions and derivatives
+phi1 = @(tleft, h, t) 2*((t-tleft)/h)^3 - 3*((t-tleft)/h)^2 + 1;
+dphi1 = @(tleft, h, t) (6/h)*((t-tleft)/h)^2 - 6*(t-tleft)/(h*h);
+ddphi1 = @(tleft, h, t) 12*(t-tleft)/(h*h*h) - 6/(h*h);
+
+phi2 = @(tleft, h, t) h*((t-tleft)/h)^3 - 2*h*((t-tleft)/h)^2 + (t-tleft);
+dphi2 = @(tleft, h, t) 3*((t-tleft)/h)^2 - 4*(t-tleft)/h + 1;
+ddphi2 = @(tleft, h, t) 6*(t-tleft)/(h*h) - 4/h;
+
+phi3 = @(tleft, h, t) -2*((t-tleft)/h)^3 + 3*((t-tleft)/h)^2;
+dphi3 = @(tleft, h, t) (-6/h)*((t-tleft)/h)^2 + 6*(t-tleft)/(h*h);
+ddphi3 = @(tleft, h, t) -12*(t-tleft)/(h*h*h) + 6/(h*h);
+
+phi4 = @(tleft, h, t) h*((t-tleft)/h)^3 - h*((t-tleft)/h)^2;
+dphi4 = @(tleft, h, t) 3*((t-tleft)/h)^2 - 2*(t-tleft)/h;
+ddphi4 = @(tleft, h, t) 6*(t-tleft)/(h*h) - 2/h;
 
 fprintf("Test output from 'index' function for N = 3, M = 8:\n");
 for interval = 1:3
@@ -35,202 +49,277 @@ for interval = 1:3
     end
 end
 
-testHermiteBasis();
+% test basis functions
+%   check {1,0} properties
+delta = 1e-8;
+tl = 0.5;
+tr = 0.6;
+tt = 0.53;
+h = tr-tl;
+fprintf('\n\nOsculatory interpolation tests:\n');
+failed = false;
 
-% loop over spatial or temporal resolutions for tests
-Nvals = [100, 1000, 10000];
-if quickMode
-    Nvals = [100, 1000];
+dtest = phi1(tl,h,tl) - 1;
+if abs(dtest) > 1e-4
+    failed = true;
+    fprintf('    phi1(tleft) error, value = %g\n', dtest + 1);
+end
+dtest = phi1(tl,h,tr);
+if abs(dtest) > 1e-4
+    failed = true;
+    fprintf('    phi1(tright) error, value = %g\n', dtest);
+end
+dtest = (phi1(tl,h,tl+delta) - phi1(tl,h,tl))/delta;
+if abs(dtest) > 1e-4
+    failed = true;
+    fprintf('    phi1''(tleft) error, value = %g\n', dtest);
+end
+dtest = (phi1(tl,h,tr+delta) - phi1(tl,h,tr))/delta;
+if abs(dtest) > 1e-4
+    failed = true;
+    fprintf('    phi1''(tright) error, value = %g\n', dtest);
 end
 
-% run each requested resolution
-for n = Nvals
-    fprintf('\nPiecewise Hermite FD method for BVP with lambda = %.1f,  N = %d\n', lam, n);
+dtest = phi2(tl,h,tl);
+if abs(dtest) > 1e-4
+    failed = true;
+    fprintf('    phi2(tleft) error, value = %g\n', dtest);
+end
+dtest = phi2(tl,h,tr);
+if abs(dtest) > 1e-4
+    failed = true;
+    fprintf('    phi2(tright) error, value = %g\n', dtest);
+end
+dtest = (phi2(tl,h,tl+delta) - phi2(tl,h,tl))/delta - 1;
+if abs(dtest) > 1e-4
+    failed = true;
+    fprintf('    phi2''(tleft) error, value = %g\n', dtest + 1);
+end
+dtest = (phi2(tl,h,tr+delta) - phi2(tl,h,tr))/delta;
+if abs(dtest) > 1e-4
+    failed = true;
+    fprintf('    phi2''(tright) error, value = %g\n', dtest);
+end
 
+dtest = phi3(tl,h,tl);
+if abs(dtest) > 1e-4
+    failed = true;
+    fprintf('    phi3(tleft) error, value = %g\n', dtest);
+end
+dtest = phi3(tl,h,tr) - 1;
+if abs(dtest) > 1e-4
+    failed = true;
+    fprintf('    phi3(tright) error, value = %g\n', dtest + 1);
+end
+dtest = (phi3(tl,h,tl+delta) - phi3(tl,h,tl))/delta;
+if abs(dtest) > 1e-4
+    failed = true;
+    fprintf('    phi3''(tleft) error, value = %g\n', dtest);
+end
+dtest = (phi3(tl,h,tr+delta) - phi3(tl,h,tr))/delta;
+if abs(dtest) > 1e-4
+    failed = true;
+    fprintf('    phi3''(tright) error, value = %g\n', dtest);
+end
+
+dtest = phi4(tl,h,tl);
+if abs(dtest) > 1e-4
+    failed = true;
+    fprintf('    phi4(tleft) error, value = %g\n', dtest);
+end
+dtest = phi4(tl,h,tr);
+if abs(dtest) > 1e-4
+    failed = true;
+    fprintf('    phi4(tright) error, value = %g\n', dtest);
+end
+dtest = (phi4(tl,h,tl+delta) - phi4(tl,h,tl))/delta;
+if abs(dtest) > 1e-4
+    failed = true;
+    fprintf('    phi4''(tleft) error, value = %g\n', dtest);
+end
+dtest = (phi4(tl,h,tr+delta) - phi4(tl,h,tr))/delta - 1;
+if abs(dtest) > 1e-4
+    failed = true;
+    fprintf('    phi4''(tright) error, value = %g\n', dtest + 1);
+end
+if ~failed
+    fprintf('  all tests pass\n');
+end
+
+%   check analytical derivative tests
+fprintf('Derivative tests:\n');
+failed = false;
+
+dtest = (phi1(tl,h,tt+delta)-phi1(tl,h,tt))/delta;
+if abs(dtest - dphi1(tl,h,tt)) > 1e-4
+    failed = true;
+    fprintf('  dphi1 error, value = %g, approx = %g\n', dphi1(tl,h,tt), dtest);
+end
+dtest = (dphi1(tl,h,tt+delta)-dphi1(tl,h,tt))/delta;
+if abs(dtest - ddphi1(tl,h,tt)) > 1e-4
+    failed = true;
+    fprintf('  ddphi1 error, value = %g, approx = %g\n', ddphi1(tl,h,tt), dtest);
+end
+
+dtest = (phi2(tl,h,tt+delta)-phi2(tl,h,tt))/delta;
+if abs(dtest - dphi2(tl,h,tt)) > 1e-4
+    failed = true;
+    fprintf('  dphi2 error, value = %g, approx = %g\n', dphi2(tl,h,tt), dtest);
+end
+dtest = (dphi2(tl,h,tt+delta)-dphi2(tl,h,tt))/delta;
+if abs(dtest - ddphi2(tl,h,tt)) > 1e-4
+    failed = true;
+    fprintf('  ddphi2 error, value = %g, approx = %g\n', ddphi2(tl,h,tt), dtest);
+end
+
+dtest = (phi3(tl,h,tt+delta)-phi3(tl,h,tt))/delta;
+if abs(dtest - dphi3(tl,h,tt)) > 1e-4
+    failed = true;
+    fprintf('  dphi3 error, value = %g, approx = %g\n', dphi3(tl,h,tt), dtest);
+end
+dtest = (dphi3(tl,h,tt+delta)-dphi3(tl,h,tt))/delta;
+if abs(dtest - ddphi3(tl,h,tt)) > 1e-4
+    failed = true;
+    fprintf('  ddphi3 error, value = %g, approx = %g\n', ddphi3(tl,h,tt), dtest);
+end
+
+dtest = (phi4(tl,h,tt+delta)-phi4(tl,h,tt))/delta;
+if abs(dtest - dphi4(tl,h,tt)) > 1e-4
+    failed = true;
+    fprintf('  dphi4 error, value = %g, approx = %g\n', dphi4(tl,h,tt), dtest);
+end
+dtest = (dphi4(tl,h,tt+delta)-dphi4(tl,h,tt))/delta;
+if abs(dtest - ddphi4(tl,h,tt)) > 1e-4
+    failed = true;
+    fprintf('  ddphi4 error, value = %g, approx = %g\n', ddphi4(tl,h,tt), dtest);
+end
+if ~failed
+    fprintf('  all tests pass\n');
+end
+
+% loop over spatial resolutions for tests
+N = [100, 1000, 10000];
+for n = N
+
+    % output problem information
+    fprintf('\nPiecewise Hermite FD method for BVP with lambda = %g,  N = %d\n', lam, n);
+
+    % compute/store analytical solution
     t = zeros(n+1, 1);
-    t(1) = 0.0;
-    t(end) = 1.0;
-    for j = 1:(n-1)
+    t(1) = 0;
+    t(n+1) = 1;
+    for j = 1:n-1
         t(j+1) = 0.5*(1-cos((2*j-1)*pi/(2*(n-1))));
     end
-    % compute and store the analytical solution
-    utrue = bvp.utrue(t);
+    utrue = zeros(n+1, 1);
+    for j = 1:n+1
+        utrue(j) = bvp.utrue(t(j));
+    end
 
-    M = 2*n + 2;
-    maxEntries = 8*n + 2;
-    % create matrix and right-hand-side storage
-    Arows = zeros(maxEntries, 1);
-    Acols = zeros(maxEntries, 1);
-    Avals = zeros(maxEntries, 1);
-    rhs = zeros(M, 1);
+    % set integer for overall linear algebra problem size
+    M = 2*n+2;
 
-    % set up the linear system
-    % index(interval,location,component) maps interval data into the global
-    % algebraic vector, with location 0=left, 1=right and component 0=u, 1=u'.
+    % create matrix and right-hand side vectors
+    Arows = zeros(8*n+2, 1);
+    Acols = zeros(8*n+2, 1);
+    Avals = zeros(8*n+2, 1);
+    b = zeros(M, 1);
+
+    % set up linear system:
+    %    recall 'index' usage: index(interval,location,component)
+    %      interval:  physical interval index [1 <= interval <= N]
+    %      location:  location in interval [0=left, 1=right]
+    %      component: solution component at this location [0=u, 1=u']
+    %    recall [dd]phiN usage: [dd]phiN(tleft, h, t)
     idx = 1;
-    [Arows, Acols, Avals, idx] = addEntries(Arows, Acols, Avals, idx, 1, index(1, 0, 0), 1.0);
-    rhs(1) = bvp.ua;
-    [Arows, Acols, Avals, idx] = addEntries(Arows, Acols, Avals, idx, 2, index(n, 1, 0), 1.0);
-    rhs(2) = bvp.ub;
+    Arows(idx) = 1;        % A(1,index(1,0,0))
+    Acols(idx) = index(1,0,0);
+    Avals(idx) = 1;
+    idx = idx + 1;
+    b(1) = bvp.ua;
+
+    Arows(idx) = 2;        % A(2,index(n,1,0))
+    Acols(idx) = index(n,1,0);
+    Avals(idx) = 1;
+    idx = idx + 1;
+    b(2) = bvp.ub;
 
     irow = 3;
     for j = 1:n
+
+        % setup interval-specific information
         tl = t(j);
         tr = t(j+1);
         h = tr-tl;
-        eta1 = 0.5*(tr+tl) - h/(2.0*sqrt(3.0));
-        eta2 = 0.5*(tr+tl) + h/(2.0*sqrt(3.0));
+        eta1 = 0.5*(tr+tl) - h/2/sqrt(3);
+        eta2 = 0.5*(tr+tl) + h/2/sqrt(3);
         q1 = bvp.q(eta1);
         q2 = bvp.q(eta2);
         p1 = bvp.p(eta1);
         p2 = bvp.p(eta2);
 
-        % Enforce the differential equation at the left Gauss point.
-        [Arows, Acols, Avals, idx] = addHermiteEntry(Arows, Acols, Avals, idx, irow, j, tl, h, eta1, p1, q1, index);
-        rhs(irow) = bvp.r(eta1);
+        % setup first equation for this interval: enforce ODE at eta1
+        Arows(idx) = irow;        % A(irow,index(j,0,0))
+        Acols(idx) = index(j,0,0);
+        Avals(idx) = ddphi1(tl,h,eta1) - p1*dphi1(tl,h,eta1) - q1*phi1(tl,h,eta1);
+        idx = idx + 1;
+
+        Arows(idx) = irow;        % A(irow,index(j,0,1))
+        Acols(idx) = index(j,0,1);
+        Avals(idx) = ddphi2(tl,h,eta1) - p1*dphi2(tl,h,eta1) - q1*phi2(tl,h,eta1);
+        idx = idx + 1;
+
+        Arows(idx) = irow;        % A(irow,index(j,1,0))
+        Acols(idx) = index(j,1,0);
+        Avals(idx) = ddphi3(tl,h,eta1) - p1*dphi3(tl,h,eta1) - q1*phi3(tl,h,eta1);
+        idx = idx + 1;
+
+        Arows(idx) = irow;        % A(irow,index(j,1,1))
+        Acols(idx) = index(j,1,1);
+        Avals(idx) = ddphi4(tl,h,eta1) - p1*dphi4(tl,h,eta1) - q1*phi4(tl,h,eta1);
+        idx = idx + 1;
+
+        b(irow) = bvp.r(eta1);
         irow = irow + 1;
 
-        % Enforce the differential equation at the right Gauss point.
-        [Arows, Acols, Avals, idx] = addHermiteEntry(Arows, Acols, Avals, idx, irow, j, tl, h, eta2, p2, q2, index);
-        rhs(irow) = bvp.r(eta2);
+        % setup second equation for this interval: enforce ODE at eta2
+        Arows(idx) = irow;        % A(irow,index(j,0,0))
+        Acols(idx) = index(j,0,0);
+        Avals(idx) = ddphi1(tl,h,eta2) - p2*dphi1(tl,h,eta2) - q2*phi1(tl,h,eta2);
+        idx = idx + 1;
+
+        Arows(idx) = irow;        % A(irow,index(j,0,1))
+        Acols(idx) = index(j,0,1);
+        Avals(idx) = ddphi2(tl,h,eta2) - p2*dphi2(tl,h,eta2) - q2*phi2(tl,h,eta2);
+        idx = idx + 1;
+
+        Arows(idx) = irow;        % A(irow,index(j,1,0))
+        Acols(idx) = index(j,1,0);
+        Avals(idx) = ddphi3(tl,h,eta2) - p2*dphi3(tl,h,eta2) - q2*phi3(tl,h,eta2);
+        idx = idx + 1;
+
+        Arows(idx) = irow;        % A(irow,index(j,1,1))
+        Acols(idx) = index(j,1,1);
+        Avals(idx) = ddphi4(tl,h,eta2) - p2*dphi4(tl,h,eta2) - q2*phi4(tl,h,eta2);
+        idx = idx + 1;
+
+        b(irow) = bvp.r(eta2);
         irow = irow + 1;
+
     end
 
-    % create sparse matrix from accumulated entries
     A = sparse(Arows(1:idx-1), Acols(1:idx-1), Avals(1:idx-1), M, M);
-    % solve linear system for the numerical solution
-    y = A \ rhs;
 
-    u = y(index(1:n+1, 0, 0));
-    % output maximum error against the analytical solution
-    uerr = abs(u - utrue);
-    fprintf('  Maximum BVP solution error = %.4e\n', norm(uerr, inf));
-end
-end
+    % solve linear system for BVP solution
+    y = A \ b;
 
-function [Arows, Acols, Avals, idx] = addHermiteEntry(Arows, Acols, Avals, idx, row, j, tl, h, t, pval, qval, index)
-    % Apply u'' - p(t)u' - q(t)u = r(t) to each Hermite basis function.
-    vals = [
-        ddphi1(tl, h, t) - pval*dphi1(tl, h, t) - qval*phi1(tl, h, t);
-        ddphi2(tl, h, t) - pval*dphi2(tl, h, t) - qval*phi2(tl, h, t);
-        ddphi3(tl, h, t) - pval*dphi3(tl, h, t) - qval*phi3(tl, h, t);
-        ddphi4(tl, h, t) - pval*dphi4(tl, h, t) - qval*phi4(tl, h, t)
-    ];
-    cols = [
-        index(j, 0, 0);
-        index(j, 0, 1);
-        index(j, 1, 0);
-        index(j, 1, 1)
-    ];
-    [Arows, Acols, Avals, idx] = addEntries(Arows, Acols, Avals, idx, row, cols, vals);
-end
-
-function testHermiteBasis()
-    delta = 1e-8;
-    tl = 0.5;
-    tr = 0.6;
-    tt = 0.53;
-    h = tr-tl;
-
-    fprintf('\n\nOsculatory interpolation tests:\n');
-    failed = false;
-    failed = checkValue(failed, phi1(tl,h,tl) - 1.0, 1e-4, '    phi1(tleft) error, value = %.16e\n', phi1(tl,h,tl));
-    failed = checkValue(failed, phi1(tl,h,tr), 1e-4, '    phi1(tright) error, value = %.16e\n', phi1(tl,h,tr));
-    failed = checkValue(failed, (phi1(tl,h,tl+delta)-phi1(tl,h,tl))/delta, 1e-4, "    phi1'(tleft) error, value = %.16e\n", (phi1(tl,h,tl+delta)-phi1(tl,h,tl))/delta);
-    failed = checkValue(failed, (phi1(tl,h,tr+delta)-phi1(tl,h,tr))/delta, 1e-4, "    phi1'(tright) error, value = %.16e\n", (phi1(tl,h,tr+delta)-phi1(tl,h,tr))/delta);
-    failed = checkValue(failed, phi2(tl,h,tl), 1e-4, '    phi2(tleft) error, value = %.16e\n', phi2(tl,h,tl));
-    failed = checkValue(failed, phi2(tl,h,tr), 1e-4, '    phi2(tright) error, value = %.16e\n', phi2(tl,h,tr));
-    dtest = (phi2(tl,h,tl+delta)-phi2(tl,h,tl))/delta - 1.0;
-    failed = checkValue(failed, dtest, 1e-4, "    phi2'(tleft) error, value = %.16e\n", dtest + 1.0);
-    failed = checkValue(failed, (phi2(tl,h,tr+delta)-phi2(tl,h,tr))/delta, 1e-4, "    phi2'(tright) error, value = %.16e\n", (phi2(tl,h,tr+delta)-phi2(tl,h,tr))/delta);
-    failed = checkValue(failed, phi3(tl,h,tl), 1e-4, '    phi3(tleft) error, value = %.16e\n', phi3(tl,h,tl));
-    failed = checkValue(failed, phi3(tl,h,tr) - 1.0, 1e-4, '    phi3(tright) error, value = %.16e\n', phi3(tl,h,tr));
-    failed = checkValue(failed, (phi3(tl,h,tl+delta)-phi3(tl,h,tl))/delta, 1e-4, "    phi3'(tleft) error, value = %.16e\n", (phi3(tl,h,tl+delta)-phi3(tl,h,tl))/delta);
-    failed = checkValue(failed, (phi3(tl,h,tr+delta)-phi3(tl,h,tr))/delta, 1e-4, "    phi3'(tright) error, value = %.16e\n", (phi3(tl,h,tr+delta)-phi3(tl,h,tr))/delta);
-    failed = checkValue(failed, phi4(tl,h,tl), 1e-4, '    phi4(tleft) error, value = %.16e\n', phi4(tl,h,tl));
-    failed = checkValue(failed, phi4(tl,h,tr), 1e-4, '    phi4(tright) error, value = %.16e\n', phi4(tl,h,tr));
-    failed = checkValue(failed, (phi4(tl,h,tl+delta)-phi4(tl,h,tl))/delta, 1e-4, "    phi4'(tleft) error, value = %.16e\n", (phi4(tl,h,tl+delta)-phi4(tl,h,tl))/delta);
-    dtest = (phi4(tl,h,tr+delta)-phi4(tl,h,tr))/delta - 1.0;
-    failed = checkValue(failed, dtest, 1e-4, "    phi4'(tright) error, value = %.16e\n", dtest + 1.0);
-    if ~failed
-        fprintf('  all tests pass\n');
+    % output maximum error
+    u = zeros(n+1, 1);
+    for j = 1:n+1
+        u(j) = y(index(j,0,0));
     end
+    uerr = abs(u-utrue);
+    fprintf('  Maximum BVP solution error = %.4e\n', max(uerr));
 
-    fprintf('Derivative tests:\n');
-    failed = false;
-    failed = checkValue(failed, (phi1(tl,h,tt+delta)-phi1(tl,h,tt))/delta - dphi1(tl,h,tt), 1e-4, '  dphi1 error, value = %.16e\n', dphi1(tl,h,tt));
-    failed = checkValue(failed, (dphi1(tl,h,tt+delta)-dphi1(tl,h,tt))/delta - ddphi1(tl,h,tt), 1e-4, '  ddphi1 error, value = %.16e\n', ddphi1(tl,h,tt));
-    failed = checkValue(failed, (phi2(tl,h,tt+delta)-phi2(tl,h,tt))/delta - dphi2(tl,h,tt), 1e-4, '  dphi2 error, value = %.16e\n', dphi2(tl,h,tt));
-    failed = checkValue(failed, (dphi2(tl,h,tt+delta)-dphi2(tl,h,tt))/delta - ddphi2(tl,h,tt), 1e-4, '  ddphi2 error, value = %.16e\n', ddphi2(tl,h,tt));
-    failed = checkValue(failed, (phi3(tl,h,tt+delta)-phi3(tl,h,tt))/delta - dphi3(tl,h,tt), 1e-4, '  dphi3 error, value = %.16e\n', dphi3(tl,h,tt));
-    failed = checkValue(failed, (dphi3(tl,h,tt+delta)-dphi3(tl,h,tt))/delta - ddphi3(tl,h,tt), 1e-4, '  ddphi3 error, value = %.16e\n', ddphi3(tl,h,tt));
-    failed = checkValue(failed, (phi4(tl,h,tt+delta)-phi4(tl,h,tt))/delta - dphi4(tl,h,tt), 1e-4, '  dphi4 error, value = %.16e\n', dphi4(tl,h,tt));
-    failed = checkValue(failed, (dphi4(tl,h,tt+delta)-dphi4(tl,h,tt))/delta - ddphi4(tl,h,tt), 1e-4, '  ddphi4 error, value = %.16e\n', ddphi4(tl,h,tt));
-    if ~failed
-        fprintf('  all tests pass\n');
-    end
 end
 
-function failed = checkValue(failed, err, tol, msg, val)
-    if abs(err) > tol
-        failed = true;
-        fprintf(msg, val);
-    end
-end
-
-function val = phi1(tleft, h, t)
-    val = 2*((t-tleft)/h)^3 - 3*((t-tleft)/h)^2 + 1;
-end
-
-function val = dphi1(tleft, h, t)
-    val = (6/h)*((t-tleft)/h)^2 - 6*(t-tleft)/(h*h);
-end
-
-function val = ddphi1(tleft, h, t)
-    val = 12*(t-tleft)/(h*h*h) - 6/(h*h);
-end
-
-function val = phi2(tleft, h, t)
-    val = h*((t-tleft)/h)^3 - 2*h*((t-tleft)/h)^2 + (t-tleft);
-end
-
-function val = dphi2(tleft, h, t)
-    val = 3*((t-tleft)/h)^2 - 4*(t-tleft)/h + 1;
-end
-
-function val = ddphi2(tleft, h, t)
-    val = 6*(t-tleft)/(h*h) - 4/h;
-end
-
-function val = phi3(tleft, h, t)
-    val = -2*((t-tleft)/h)^3 + 3*((t-tleft)/h)^2;
-end
-
-function val = dphi3(tleft, h, t)
-    val = (-6/h)*((t-tleft)/h)^2 + 6*(t-tleft)/(h*h);
-end
-
-function val = ddphi3(tleft, h, t)
-    val = -12*(t-tleft)/(h*h*h) + 6/(h*h);
-end
-
-function val = phi4(tleft, h, t)
-    val = h*((t-tleft)/h)^3 - h*((t-tleft)/h)^2;
-end
-
-function val = dphi4(tleft, h, t)
-    val = 3*((t-tleft)/h)^2 - 2*(t-tleft)/h;
-end
-
-function val = ddphi4(tleft, h, t)
-    val = 6*(t-tleft)/(h*h) - 2/h;
-end
-
-function [Arows, Acols, Avals, idx] = addEntries(Arows, Acols, Avals, idx, row, cols, vals)
-    nvals = numel(vals);
-    entries = idx:(idx+nvals-1);
-    Arows(entries) = row;
-    Acols(entries) = cols(:);
-    Avals(entries) = vals(:);
-    idx = idx + nvals;
-end

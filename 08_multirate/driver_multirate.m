@@ -37,6 +37,14 @@ w = 100;
 G = -10;
 Hvals = [0.1, 0.05, 0.025, 0.01, 0.005, 0.0025];
 
+% problem-defining functions
+r = @(t) 0.5*cos(t);
+s = @(t, w) cos(w*t);
+rdot = @(t) -0.5*sin(t);
+sdot = @(t, w) -w*sin(w*t);
+utrue = @(t) sqrt(1 + r(t));
+vtrue = @(t, w) sqrt(2 + s(t, w));
+
 if quickMode
     Nt = 5;
     tvals = linspace(0, Tf, Nt+1).';
@@ -110,30 +118,6 @@ function runFamily(name, Hvals, w, Y0, Ytrue, tvals, buildStepper)
         orders = log(errs(1:end-2)./errs(2:end-1))./log(Hvals(1:end-2)./Hvals(2:end-1));
         fprintf('estimated order: %.2f\n', mean(orders));
     end
-end
-
-function val = r(t)
-    val = 0.5*cos(t);
-end
-
-function val = s(t, w)
-    val = cos(w*t);
-end
-
-function val = rdot(t)
-    val = -0.5*sin(t);
-end
-
-function val = sdot(t, w)
-    val = -w*sin(w*t);
-end
-
-function val = utrue(t)
-    val = sqrt(1 + r(t));
-end
-
-function val = vtrue(t, w)
-    val = sqrt(2 + s(t, w));
 end
 
 function val = ytrue(t, w)

@@ -14,7 +14,12 @@ addpath(fullfile(here, '..', '03_simple_implicit'));
 t0 = 0.0;
 tf = 5.0;
 
-solver = ImplicitSolver(@J, 20, 1e-9, 1e-12, 2);
+% problem-defining functions
+ytrue = @(t) sin(t) + cos(t);
+f = @(t, y, lam) lam*y(1) + (1.0-lam)*cos(t) - (1.0+lam)*sin(t);
+J = @(t, y, lam) lam;
+
+solver = ImplicitSolver(J, 20, 1e-9, 1e-12, 2);
 
 Nout = 6;   % includes initial condition
 % set output times for the experiment
@@ -31,50 +36,32 @@ lambdas = [-1.0, -10.0, -50.0];
 hvals = 1.0 ./ linspace(1, 7, 7);
 
 % Compare simple one-step implicit methods, DIRK methods, and fully implicit RK methods.
-BE = BackwardEuler(@f, solver);
+BE = BackwardEuler(f, solver);
 runTest(BE, 'Backward Euler', lambdas, hvals, Ytrue, tspan);
 
-Alex3 = DIRK(@f, solver, DIRK.Alexander3());
+Alex3 = DIRK(f, solver, DIRK.Alexander3());
 runTest(Alex3, 'Alexander-3', lambdas, hvals, Ytrue, tspan);
 
-CR3 = DIRK(@f, solver, DIRK.CrouzeixRaviart3());
+CR3 = DIRK(f, solver, DIRK.CrouzeixRaviart3());
 runTest(CR3, 'Crouzeix & Raviart-3', lambdas, hvals, Ytrue, tspan);
 
-SD5 = DIRK(@f, solver, DIRK.SDIRK5());
+SD5 = DIRK(f, solver, DIRK.SDIRK5());
 runTest(SD5, 'SDIRK5', lambdas, hvals, Ytrue, tspan);
 
-RIIA2 = IRK(@f, solver, IRK.RadauIIA2());
+RIIA2 = IRK(f, solver, IRK.RadauIIA2());
 runTest(RIIA2, 'RadauIIA-2', lambdas, hvals, Ytrue, tspan);
 
-GL2 = IRK(@f, solver, IRK.GaussLegendre2());
+GL2 = IRK(f, solver, IRK.GaussLegendre2());
 runTest(GL2, 'Gauss-Legendre-2', lambdas, hvals, Ytrue, tspan);
 
-RIIA3 = IRK(@f, solver, IRK.RadauIIA3());
+RIIA3 = IRK(f, solver, IRK.RadauIIA3());
 runTest(RIIA3, 'RadauIIA-3', lambdas, hvals, Ytrue, tspan);
 
-GL3 = IRK(@f, solver, IRK.GaussLegendre3());
+GL3 = IRK(f, solver, IRK.GaussLegendre3());
 runTest(GL3, 'Gauss-Legendre-3', lambdas, hvals, Ytrue, tspan);
 
-GL6 = IRK(@f, solver, IRK.GaussLegendre6());
+GL6 = IRK(f, solver, IRK.GaussLegendre6());
 runTest(GL6, 'Gauss-Legendre-6', lambdas, hvals, Ytrue, tspan);
-end
-
-function val = ytrue(t)
-    % Generates a MATLAB array containing the true solution to the IVP at a given input t.
-
-    val = sin(t) + cos(t);
-end
-
-function val = f(t, y, lam)
-    % Right-hand side function, f(t,y), for the IVP
-
-    val = lam*y(1) + (1.0-lam)*cos(t) - (1.0+lam)*sin(t);
-end
-
-function val = J(~, ~, lam)
-    % Jacobian (in dense matrix format) of the right-hand side function, J(t,y) = df/dy
-
-    val = lam;
 end
 
 function runTest(stepper, name, lambdas, hvals, Ytrue, tspan)

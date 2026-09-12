@@ -34,13 +34,16 @@ tf = 1.0;
 y0 = rand(N,1);
 z0 = V \ y0;
 
+% problem-defining functions
+ytrue = @(t) (exp((t(:)-t0) * d(:).') .* z0(:).') * V.';
+
 solver = ImplicitSolver(@(~,~) A, 20, 1e-12, 1e-14, 2);
 
 Nout = 3;
 % set output times for the experiment
 tspan = linspace(t0, tf, Nout).';
 % Compute the analytical solution at the same output times as the methods.
-Ytrue = ytrue(tspan, V, d, z0, t0);
+Ytrue = ytrue(tspan);
 
 % set requested time step sizes for convergence tests
 hvals = 0.5 ./ linspace(1, 5, 5);
@@ -65,12 +68,6 @@ runTest(GL3, 'Gauss-Legendre-3', hvals, Ytrue, tspan);
 
 GL6 = IRK(@(~,y) A*y, solver, IRK.GaussLegendre6());
 runTest(GL6, 'Gauss-Legendre-6', hvals, Ytrue, tspan);
-end
-
-function Y = ytrue(t, V, d, z0, t0)
-    % Scale each modal component by exp(d_i*(t-t0)) and transform back with V.
-    Z = exp((t(:)-t0) * d(:).') .* z0(:).';
-    Y = Z * V.';
 end
 
 function runTest(stepper, name, hvals, Ytrue, tspan)

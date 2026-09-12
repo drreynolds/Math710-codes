@@ -17,8 +17,14 @@ end
 
 t0 = 0.0;
 tf = 5.0;
+
+% problem-defining functions
+ytrue = @(t) sin(t) + cos(t);
+f = @(t, y, lam) lam*y(1) + (1.0-lam)*cos(t) - (1.0+lam)*sin(t);
+J = @(t, y, lam) lam;
+
 % The implicit LMM families use the shared Newton solver and the same Jacobian.
-solver = ImplicitSolver(@J, 20, 1e-9, 1e-12, 2);
+solver = ImplicitSolver(J, 20, 1e-9, 1e-12, 2);
 
 Nout = 6;
 % set output times for the experiment
@@ -40,60 +46,42 @@ end
 
 % Adams-Bashforth methods are explicit and only require previous RHS values.
 [alpha, beta] = Explicit_LMM.AdamsBashforth1();
-RunTest(Explicit_LMM(@f, alpha, beta), 0, 'Adams-Bashforth-1', false, lambdas, hvals, Ytrue, tspan);
+RunTest(Explicit_LMM(f, alpha, beta), 0, 'Adams-Bashforth-1', false, lambdas, hvals, Ytrue, tspan);
 
 [alpha, beta] = Explicit_LMM.AdamsBashforth2();
-RunTest(Explicit_LMM(@f, alpha, beta), 1, 'Adams-Bashforth-2', false, lambdas, hvals, Ytrue, tspan);
+RunTest(Explicit_LMM(f, alpha, beta), 1, 'Adams-Bashforth-2', false, lambdas, hvals, Ytrue, tspan);
 
 [alpha, beta] = Explicit_LMM.AdamsBashforth3();
-RunTest(Explicit_LMM(@f, alpha, beta), 2, 'Adams-Bashforth-3', false, lambdas, hvals, Ytrue, tspan);
+RunTest(Explicit_LMM(f, alpha, beta), 2, 'Adams-Bashforth-3', false, lambdas, hvals, Ytrue, tspan);
 
 [alpha, beta] = Explicit_LMM.AdamsBashforth4();
-RunTest(Explicit_LMM(@f, alpha, beta), 3, 'Adams-Bashforth-4', false, lambdas, hvals, Ytrue, tspan);
+RunTest(Explicit_LMM(f, alpha, beta), 3, 'Adams-Bashforth-4', false, lambdas, hvals, Ytrue, tspan);
 
 % Adams-Moulton methods use the implicit solver at the new time level.
 [alpha, beta] = Implicit_LMM.AdamsMoulton1();
-RunTest(Implicit_LMM(@f, solver, alpha, beta), 0, 'Adams-Moulton-1', true, lambdas, hvals, Ytrue, tspan);
+RunTest(Implicit_LMM(f, solver, alpha, beta), 0, 'Adams-Moulton-1', true, lambdas, hvals, Ytrue, tspan);
 
 [alpha, beta] = Implicit_LMM.AdamsMoulton2();
-RunTest(Implicit_LMM(@f, solver, alpha, beta), 0, 'Adams-Moulton-2', true, lambdas, hvals, Ytrue, tspan);
+RunTest(Implicit_LMM(f, solver, alpha, beta), 0, 'Adams-Moulton-2', true, lambdas, hvals, Ytrue, tspan);
 
 [alpha, beta] = Implicit_LMM.AdamsMoulton3();
-RunTest(Implicit_LMM(@f, solver, alpha, beta), 1, 'Adams-Moulton-3', true, lambdas, hvals, Ytrue, tspan);
+RunTest(Implicit_LMM(f, solver, alpha, beta), 1, 'Adams-Moulton-3', true, lambdas, hvals, Ytrue, tspan);
 
 [alpha, beta] = Implicit_LMM.AdamsMoulton4();
-RunTest(Implicit_LMM(@f, solver, alpha, beta), 2, 'Adams-Moulton-4', true, lambdas, hvals, Ytrue, tspan);
+RunTest(Implicit_LMM(f, solver, alpha, beta), 2, 'Adams-Moulton-4', true, lambdas, hvals, Ytrue, tspan);
 
 % BDF methods are implicit and use the same test harness as Adams-Moulton.
 [alpha, beta] = Implicit_LMM.BDF1();
-RunTest(Implicit_LMM(@f, solver, alpha, beta), 0, 'BDF-1', true, lambdas, hvals, Ytrue, tspan);
+RunTest(Implicit_LMM(f, solver, alpha, beta), 0, 'BDF-1', true, lambdas, hvals, Ytrue, tspan);
 
 [alpha, beta] = Implicit_LMM.BDF2();
-RunTest(Implicit_LMM(@f, solver, alpha, beta), 1, 'BDF-2', true, lambdas, hvals, Ytrue, tspan);
+RunTest(Implicit_LMM(f, solver, alpha, beta), 1, 'BDF-2', true, lambdas, hvals, Ytrue, tspan);
 
 [alpha, beta] = Implicit_LMM.BDF3();
-RunTest(Implicit_LMM(@f, solver, alpha, beta), 2, 'BDF-3', true, lambdas, hvals, Ytrue, tspan);
+RunTest(Implicit_LMM(f, solver, alpha, beta), 2, 'BDF-3', true, lambdas, hvals, Ytrue, tspan);
 
 [alpha, beta] = Implicit_LMM.BDF4();
-RunTest(Implicit_LMM(@f, solver, alpha, beta), 3, 'BDF-4', true, lambdas, hvals, Ytrue, tspan);
-end
-
-function val = ytrue(t)
-    % Generates a MATLAB array containing the true solution to the IVP at a given input t.
-
-    val = sin(t) + cos(t);
-end
-
-function val = f(t, y, lam)
-    % Right-hand side function, f(t,y), for the IVP
-
-    val = lam*y(1) + (1.0-lam)*cos(t) - (1.0+lam)*sin(t);
-end
-
-function val = J(~, ~, lam)
-    % Jacobian (in dense matrix format) of the right-hand side function, J(t,y) = df/dy
-
-    val = lam;
+RunTest(Implicit_LMM(f, solver, alpha, beta), 3, 'BDF-4', true, lambdas, hvals, Ytrue, tspan);
 end
 
 function RunTest(stepper, prevsteps, name, implicit, lambdas, hvals, Ytrue, tspan)
