@@ -210,7 +210,7 @@ class MRI:
             # iterate over internal time steps to reach next output
             for n in range(N):
 
-                # perform forward Euler update
+                # perform MRI step
                 t, y, success = self.step(t, y, H, args)
                 if (not success):
                     print("MRI error in time step at t =", t)
@@ -225,10 +225,10 @@ class MRI:
 
 def MRIGARKERK22a():
     """
-    Usage: C = MRIGARKERK33a()
+    Usage: C = MRIGARKERK22a()
 
     Returns a dictionary with the coupling coefficients and abscissae
-    for the explicit MRI-GARK-ERK33a method.
+    for the explicit MRI-GARK-ERK22a method.
     """
     C = {}
     c2 = 0.5

@@ -25,7 +25,7 @@ class SMSubcycling:
         fs = ODE RHS function with calling syntax fs(t,y).
         B = Explicit Runge--Kutta Butcher table.
         FastSolver = object that implements the "Evolve" method for the fast IVP.
-        h = (optional) input with requested stepsize to use for time stepping.
+        H = (optional) input with requested stepsize to use for time stepping.
             Note that this MUST be set either here or in the Evolve call.
     """
     def __init__(self, fs, B, FastSolver, H=0.0):
@@ -117,7 +117,7 @@ class SMSubcycling:
 
     def Evolve(self, tspan, y0, H=0.0, args=()):
         """
-        Usage: Y, success = Evolve(tspan, y0, h, args)
+        Usage: Y, success = Evolve(tspan, y0, H, args)
 
         The fixed-step Strang-Marchuk subcycled evolution routine
 
@@ -125,7 +125,7 @@ class SMSubcycling:
                      intermediate times when the solution is desired, i.e.
                      [t0, t1, ..., tf]
                  y holds the initial condition, y(t0)
-                 H optionally holds the requested MRI step size (if it is not
+                 H optionally holds the requested slow step size (if it is not
                      provided then the stored value will be used)
                  args holds optional equation parameters used when evaluating
                      the RHS.
@@ -166,7 +166,7 @@ class SMSubcycling:
             # iterate over internal time steps to reach next output
             for n in range(N):
 
-                # perform forward Euler update
+                # perform Strang--Marchuk subcycled step
                 t, y, success = self.step(t, y, H, args)
                 if (not success):
                     print("SMSubcycling error in time step at t =", t)
