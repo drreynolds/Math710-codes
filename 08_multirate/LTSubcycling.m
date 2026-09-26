@@ -22,7 +22,7 @@ classdef LTSubcycling < handle
     %     fs = ODE RHS function with calling syntax fs(t,y).
     %     B = Explicit Runge--Kutta Butcher table.
     %     FastSolver = object that implements the "Evolve" method for the fast IVP.
-    %     h = (optional) input with requested stepsize to use for time stepping.
+    %     H = (optional) input with requested stepsize to use for time stepping.
     %         Note that this MUST be set either here or in the Evolve call.
 
     % Stored problem data, method coefficients, temporary vectors, and run statistics.
@@ -129,7 +129,7 @@ classdef LTSubcycling < handle
         end
 
         function [Y, success] = Evolve(self, tspan, y0, H, args)
-            % Usage: Y, success = Evolve(tspan, y0, h, args)
+            % Usage: Y, success = Evolve(tspan, y0, H, args)
             %
             % The fixed-step Lie Trotter subcycled evolution routine
             %
@@ -137,7 +137,7 @@ classdef LTSubcycling < handle
             %              intermediate times when the solution is desired, i.e.
             %              [t0, t1, ..., tf]
             %          y holds the initial condition, y(t0)
-            %          H optionally holds the requested MRI step size (if it is not
+            %          H optionally holds the requested slow step size (if it is not
             %              provided then the stored value will be used)
             %          args holds optional equation parameters used when evaluating
             %              the RHS.

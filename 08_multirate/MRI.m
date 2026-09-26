@@ -237,10 +237,10 @@ classdef MRI < handle
 
     methods (Static)
         function C = MRIGARKERK22a()
-            % Usage: C = MRIGARKERK33a()
+            % Usage: C = MRIGARKERK22a()
             %
             % Returns a struct with the coupling coefficients and abscissae
-            % for the explicit MRI-GARK-ERK33a method.
+            % for the explicit MRI-GARK-ERK22a method.
 
             c2 = 0.5;
             C.G = zeros(1, 3, 3);
