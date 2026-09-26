@@ -1,4 +1,3 @@
-function driver_order_reduction()
 % Demonstrate order reduction of fixed-step DIRK methods on the linear
 % Prothero--Robinson ODE from Ketcheson, Seibold, Shirokoff, and Zhou (2020),
 % Sect. 4.1:
@@ -7,6 +6,7 @@ function driver_order_reduction()
 %
 % Daniel R. Reynolds
 % Math & Stat @ UMBC
+clear
 
 here = fileparts(mfilename('fullpath'));
 addpath(fullfile(here, '..', 'shared'));
@@ -45,7 +45,6 @@ runTest(SD45, 'SDIRK45L1SA', 4, 1, lambdas, hvals, y0, ytrue, tspan, tf);
 runTest(D32, 'WSO32', 3, 2, lambdas, hvals, y0, ytrue, tspan, tf);
 runTest(D33, 'WSO33', 3, 3, lambdas, hvals, y0, ytrue, tspan, tf);
 runTest(D43, 'WSO43', 4, 3, lambdas, hvals, y0, ytrue, tspan, tf);
-end
 
 function runTest(stepper, name, order, wso, lambdas, hvals, y0, ytrue, tspan, tf)
     % Run all stiffness values for one DIRK method and save its convergence plot.

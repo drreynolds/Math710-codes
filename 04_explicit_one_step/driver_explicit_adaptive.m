@@ -1,4 +1,3 @@
-function driver_explicit_adaptive(doPlots)
 % Script to solve the IVP system
 %    u1'' = u1 + 2*u2' - muh*(u1+mu)/D1 - mu*(u1-muh)/D2,
 %    u2'' = u2 - 2*u1' - muh*u2/D1 - mu*u2/D2,
@@ -20,11 +19,7 @@ function driver_explicit_adaptive(doPlots)
 % Daniel R. Reynolds
 % Math & Stat @ UMBC
 %
-% get optional inputs, otherwise use default values
-if nargin < 1 || isempty(doPlots)
-    doPlots = true;
-end
-
+clear
 t0 = 0.0;
 tf = 17.1;
 y0 = [0.994; 0.0; 0.0; -2.00158510637908252240537862224];
@@ -74,11 +69,6 @@ if ~success, fprintf('    solve failed\n'); end
 fprintf('  20000 steps:\n');
 [Y_erk4_20000, success] = E4.Evolve(tspan, y0, tf/20000);
 if ~success, fprintf('    solve failed\n'); end
-
-% allow smoke tests to exercise the demo without generating figures
-if ~doPlots
-    return;
-end
 
 % Plot adaptive orbits and step histories, then compare with fixed-step ERK4.
 figure();
@@ -135,7 +125,6 @@ xlabel('u_1');
 ylabel('u_2');
 title('Orbit (ERK4, 20000 steps)');
 saveas(gcf, 'orbit_20000.png');
-end
 
 function val = f(~, y)
     % ODE RHS function

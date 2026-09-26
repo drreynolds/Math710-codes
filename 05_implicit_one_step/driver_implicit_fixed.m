@@ -1,4 +1,3 @@
-function driver_implicit_fixed()
 % Main routine to test various DIRK and IRK methods on the
 % scalar-valued ODE problem
 %    y' = lambda*y + (1-lambda)*cos(t) - (1+lambda)*sin(t), t in [0,5],
@@ -7,6 +6,7 @@ function driver_implicit_fixed()
 % Daniel R. Reynolds
 % Math & Stat @ UMBC
 %
+clear
 here = fileparts(mfilename('fullpath'));
 addpath(fullfile(here, '..', 'shared'));
 addpath(fullfile(here, '..', '03_simple_implicit'));
@@ -62,7 +62,6 @@ runTest(GL3, 'Gauss-Legendre-3', lambdas, hvals, Ytrue, tspan);
 
 GL6 = IRK(f, solver, IRK.GaussLegendre6());
 runTest(GL6, 'Gauss-Legendre-6', lambdas, hvals, Ytrue, tspan);
-end
 
 function runTest(stepper, name, lambdas, hvals, Ytrue, tspan)
     % store errors for convergence-rate estimates

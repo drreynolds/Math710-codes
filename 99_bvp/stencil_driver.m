@@ -1,4 +1,3 @@
-function stencil_driver(lam, quickMode)
 % Main routine to run a stencil-based finite-difference method for solution of a
 % second-order, scalar-valued BVP:
 %
@@ -14,20 +13,17 @@ function stencil_driver(lam, quickMode)
 % Daniel R. Reynolds
 % Math & Stat @ UMBC
 %
-% get optional inputs, otherwise use default values
-if nargin < 1 || isempty(lam)
+clear
+% get lambda from the command line, otherwise set to -10
+lam = str2double(input('Enter the stiffness parameter lambda < 0 [default -10]: ', 's'));
+if ~isfinite(lam) || ~isreal(lam) || lam >= 0
+    fprintf('Invalid or missing lambda, using the default value -10\n');
     lam = -10.0;
-end
-if nargin < 2 || isempty(quickMode)
-    quickMode = false;
 end
 
 bvp = BVP(lam);
 % loop over spatial or temporal resolutions for tests
 Nvals = [100, 1000, 10000];
-if quickMode
-    Nvals = [100, 1000];
-end
 
 % run each requested resolution
 for n = Nvals
@@ -64,5 +60,4 @@ for n = Nvals
     % output maximum error against the analytical solution
     uerr = abs(u - utrue);
     fprintf('  Maximum BVP solution error = %.4e\n', norm(uerr, inf));
-end
 end

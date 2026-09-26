@@ -1,19 +1,11 @@
-function driver_implicit_adaptive(quickMode, doPlots)
 % Script that runs various adaptive implicit methods on the Oregonator problem.
 %
 % Daniel R. Reynolds
 % Math & Stat @ UMBC
 %
+clear
 here = fileparts(mfilename('fullpath'));
 addpath(fullfile(here, '..', 'shared'));
-
-% get optional inputs, otherwise use default values
-if nargin < 1 || isempty(quickMode)
-    quickMode = false;
-end
-if nargin < 2 || isempty(doPlots)
-    doPlots = true;
-end
 
 % Initial data and tolerances for the stiff Oregonator kinetics test.
 y0 = [5.025e-11; 6e-7; 7.236e-8];
@@ -22,11 +14,6 @@ tf = 360.0;
 Nout = 100;
 rtol = 1e-6;
 atol = 1e-12;
-
-if quickMode
-    Nout = 24;
-    rtol = 1e-5;
-end
 
 % Set output times for the experiment, while the adaptive methods choose their own steps.
 tspan = linspace(t0, tf, Nout+1).';
@@ -64,11 +51,6 @@ for imethod = 1:size(methods,1)
     solver.reset();
 end
 
-% allow smoke tests to exercise the demo without generating figures
-if ~doPlots
-    return;
-end
-
 for imethod = 1:size(methods,1)
     name = methods{imethod,1};
     Y = solutions{imethod};
@@ -94,7 +76,6 @@ ylabel('h');
 title('Oregonator adaptive step history');
 legend('Location', 'best');
 saveas(gcf, 'adaptive_DIRK_steps.png');
-end
 
 function Yref = referenceSolution(tspan)
     % ode15s is used only as an external reference, not as part of the method under test.

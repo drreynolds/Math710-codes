@@ -1,9 +1,9 @@
-function driver_explicit_fixed()
 % Main routine to test the higher-order one-step methods.
 %
 % Daniel R. Reynolds
 % Math & Stat @ UMBC
 %
+clear
 t0 = 0.0;
 tf = 1.0;
 
@@ -52,7 +52,6 @@ run_stepper(E3, hvals, Ytrue, tspan);
 fprintf('\nERK4:\n');
 E4 = ERK(f, ERK.ERK4());
 run_stepper(E4, hvals, Ytrue, tspan);
-end
 
 
 function run_stepper(stepper, hvals, Ytrue, tspan)

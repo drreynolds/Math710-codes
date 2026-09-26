@@ -1,4 +1,3 @@
-function driver()
 % Main routine to test the backward Euler, trapezoidal, and
 % forward Euler methods on the scalar-valued ODE problem
 %    y' = lambda*y + (1-lambda)*cos(t) - (1+lambda)*sin(t), t in [0,5],
@@ -7,6 +6,7 @@ function driver()
 % Daniel R. Reynolds
 % Math & Stat @ UMBC
 %
+clear
 addpath('../shared');
 addpath('../02_forward_euler');
 
@@ -108,5 +108,4 @@ for lam = [-1.0, -10.0, -50.0]
     end
     orders = log(errs(1:end-2)./errs(2:end-1)) ./ log(hvals(1:end-2)./hvals(2:end-1));
     fprintf('estimated order: max = %.4f, avg = %.4f\n', max(orders), mean(orders));
-end
 end

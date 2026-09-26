@@ -1,15 +1,18 @@
-function RK_stability_demo(N, doPlots)
 % MATLAB teaching demo for RK stability.
 %
 % Daniel R. Reynolds
 % Math & Stat @ UMBC
 %
-% get optional inputs, otherwise use default values
-if nargin < 1 || isempty(N)
+clear
+here = fileparts(mfilename('fullpath'));
+addpath(fullfile(here, '..', '04_explicit_one_step'));
+addpath(fullfile(here, '..', '05_implicit_one_step'));
+
+% get the plot resolution from the command line, otherwise set to 100
+N = str2double(input('Enter the plot resolution N >= 2 [default 100]: ', 's'));
+if ~isfinite(N) || ~isreal(N) || N ~= round(N) || N < 2
+    fprintf('Invalid or missing N, using the default value 100\n');
     N = 100;
-end
-if nargin < 2 || isempty(doPlots)
-    doPlots = true;
 end
 
 methods = {
@@ -28,10 +31,7 @@ for i = 1:size(methods, 1)
     [x, y, R] = RK_stability(B, box, N);
     fprintf('  %-16s: boundary points = %4d,  sampled min/max |R| = %.4e / %.4e\n', ...
         name, numel(x), min(R(:)), max(R(:)));
-    if doPlots
-        plotStabilityRegion(box, R, N, name, fileName, x, y);
-    end
-end
+    plotStabilityRegion(box, R, N, name, fileName, x, y);
 end
 
 function B = forwardEulerTable()

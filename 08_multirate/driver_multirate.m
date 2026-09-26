@@ -1,4 +1,3 @@
-function driver_multirate(quickMode)
 % Script that runs various Lie-Trotter subcycling methods and MRI methods
 % on the nonlinear Kvaerno Prothero and Robinson problem:
 %    [u]' = [ G  e ] [(-1+u^2-r)/(2u)] + [ r'(t)/(2u) ]
@@ -21,13 +20,9 @@ function driver_multirate(quickMode)
 % Daniel R. Reynolds
 % Math & Stat @ UMBC
 %
+clear
 here = fileparts(mfilename('fullpath'));
 addpath(fullfile(here, '..', '04_explicit_one_step'));
-
-% get optional inputs, otherwise use default values
-if nargin < 1 || isempty(quickMode)
-    quickMode = false;
-end
 
 Tf = 5;
 Nt = 25;
@@ -44,17 +39,23 @@ rdot = @(t) -0.5*sin(t);
 sdot = @(t, w) -w*sin(w*t);
 utrue = @(t) sqrt(1 + r(t));
 vtrue = @(t, w) sqrt(2 + s(t, w));
+ytrue = @(t) [utrue(t); vtrue(t, w)];
 
-if quickMode
-    Nt = 5;
-    tvals = linspace(0, Tf, Nt+1).';
-    w = 50;
-    Hvals = [0.1, 0.05];
+% initial condition
+Y0 = ytrue(0);
+% compute and store the analytical solution
+Ytrue = zeros(Nt+1, 2);
+for i = 1:(Nt+1)
+    Ytrue(i,:) = ytrue(tvals(i)).';
 end
 
-Y0 = ytrue(0, w);
-% compute and store the analytical solution
-Ytrue = ytrue(tvals, w);
+% KPR right-hand side functions
+fs = @(t, y) [G, epsilon; 0, 0] ...
+    * [(-1 + y(1)^2 - r(t)) / (2*y(1)); (-2 + y(2)^2 - s(t, w)) / (2*y(2))] ...
+    + [rdot(t)/(2*y(1)); 0];
+ff = @(t, y) [0, 0; epsilon, -1] ...
+    * [(-1 + y(1)^2 - r(t)) / (2*y(1)); (-2 + y(2)^2 - s(t, w)) / (2*y(2))] ...
+    + [0; sdot(t, w)/(2*y(2))];
 
 runLT = true;
 runSM = true;
@@ -64,35 +65,34 @@ if runLT
     % Lie-Trotter subcycling evolves slow dynamics once per macro step and
     % fast dynamics with h = H/w substeps.
     runFamily('Lie-Trotter-Subcycling-1', Hvals, w, Y0, Ytrue, tvals, ...
-        @(h,H) LTSubcycling(@(t,y) fs(t,y,G,epsilon,w), ERK.ERK1(), ERK(@(t,y) ff(t,y,G,epsilon,w), ERK.ERK1(), h), H));
+        @(h,H) LTSubcycling(fs, ERK.ERK1(), ERK(ff, ERK.ERK1(), h), H));
 
     runFamily('Lie-Trotter-Subcycling-2', Hvals, w, Y0, Ytrue, tvals, ...
-        @(h,H) LTSubcycling(@(t,y) fs(t,y,G,epsilon,w), ERK.ERK2(), ERK(@(t,y) ff(t,y,G,epsilon,w), ERK.ERK2(), h), H));
+        @(h,H) LTSubcycling(fs, ERK.ERK2(), ERK(ff, ERK.ERK2(), h), H));
 end
 
 if runSM
     % Strang-Marchuk variants symmetrize the slow/fast splitting.
     runFamily('Strang-Marchuk-Subcycling-1', Hvals, w, Y0, Ytrue, tvals, ...
-        @(h,H) SMSubcycling(@(t,y) fs(t,y,G,epsilon,w), ERK.ERK1(), ERK(@(t,y) ff(t,y,G,epsilon,w), ERK.ERK1(), h), H));
+        @(h,H) SMSubcycling(fs, ERK.ERK1(), ERK(ff, ERK.ERK1(), h), H));
 
     runFamily('Strang-Marchuk-2', Hvals, w, Y0, Ytrue, tvals, ...
-        @(h,H) SMSubcycling(@(t,y) fs(t,y,G,epsilon,w), ERK.ERK2(), ERK(@(t,y) ff(t,y,G,epsilon,w), ERK.ERK2(), h), H));
+        @(h,H) SMSubcycling(fs, ERK.ERK2(), ERK(ff, ERK.ERK2(), h), H));
 
     runFamily('Strang-Marchuk-3', Hvals, w, Y0, Ytrue, tvals, ...
-        @(h,H) SMSubcycling(@(t,y) fs(t,y,G,epsilon,w), ERK.ERK3(), ERK(@(t,y) ff(t,y,G,epsilon,w), ERK.ERK3(), h), H));
+        @(h,H) SMSubcycling(fs, ERK.ERK3(), ERK(ff, ERK.ERK3(), h), H));
 end
 
 if runMRI
     % MRI-GARK methods couple slow stages to a fast IVP solve over each stage interval.
     runFamily('MRI-GARK-ERK22a', Hvals, w, Y0, Ytrue, tvals, ...
-        @(h,H) MRI(Y0, @(t,y) fs(t,y,G,epsilon,w), @(t,y) ff(t,y,G,epsilon,w), MRI.MRIGARKERK22a(), ERK(@(t,y) ff(t,y,G,epsilon,w), ERK.ERK2(), h), H));
+        @(h,H) MRI(Y0, fs, ff, MRI.MRIGARKERK22a(), ERK(ff, ERK.ERK2(), h), H));
 
     runFamily('MRI-GARK-ERK33a', Hvals, w, Y0, Ytrue, tvals, ...
-        @(h,H) MRI(Y0, @(t,y) fs(t,y,G,epsilon,w), @(t,y) ff(t,y,G,epsilon,w), MRI.MRIGARKERK33a(), ERK(@(t,y) ff(t,y,G,epsilon,w), ERK.ERK3(), h), H));
+        @(h,H) MRI(Y0, fs, ff, MRI.MRIGARKERK33a(), ERK(ff, ERK.ERK3(), h), H));
 
     runFamily('MRI-GARK-ERK45a', Hvals, w, Y0, Ytrue, tvals, ...
-        @(h,H) MRI(Y0, @(t,y) fs(t,y,G,epsilon,w), @(t,y) ff(t,y,G,epsilon,w), MRI.MRIGARKERK45a(), ERK(@(t,y) ff(t,y,G,epsilon,w), ERK.ERK4(), h), H));
-end
+        @(h,H) MRI(Y0, fs, ff, MRI.MRIGARKERK45a(), ERK(ff, ERK.ERK4(), h), H));
 end
 
 function runFamily(name, Hvals, w, Y0, Ytrue, tvals, buildStepper)
@@ -118,32 +118,4 @@ function runFamily(name, Hvals, w, Y0, Ytrue, tvals, buildStepper)
         orders = log(errs(1:end-2)./errs(2:end-1))./log(Hvals(1:end-2)./Hvals(2:end-1));
         fprintf('estimated order: %.2f\n', mean(orders));
     end
-end
-
-function val = ytrue(t, w)
-    if isscalar(t)
-        val = [utrue(t); vtrue(t, w)];
-    else
-        val = [utrue(t(:)), vtrue(t(:), w)];
-    end
-end
-
-function val = fs(t, y, G, epsilon, w)
-    u = y(1);
-    v = y(2);
-    Mat = [G, epsilon; 0, 0];
-    alg = [(-1 + u^2 - r(t)) / (2*u); ...
-           (-2 + v^2 - s(t, w)) / (2*v)];
-    forcing = [rdot(t)/(2*u); 0];
-    val = Mat*alg + forcing;
-end
-
-function val = ff(t, y, G, epsilon, w)
-    u = y(1);
-    v = y(2);
-    Mat = [0, 0; epsilon, -1];
-    alg = [(-1 + u^2 - r(t)) / (2*u); ...
-           (-2 + v^2 - s(t, w)) / (2*v)];
-    forcing = [0; sdot(t, w)/(2*v)];
-    val = Mat*alg + forcing;
 end

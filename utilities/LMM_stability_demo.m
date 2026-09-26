@@ -1,56 +1,49 @@
-function LMM_stability_demo(nthetas, doPlots)
-    % MATLAB teaching demo for LMM stability.
-    %
-    % Daniel R. Reynolds
-    % Math & Stat @ UMBC
-    %
-    % get optional inputs, otherwise use default values
-    if nargin < 1 || isempty(nthetas)
-        nthetas = 1000;
-    end
-    if nargin < 2 || isempty(doPlots)
-        doPlots = true;
-    end
-
-    % set LMM coefficients for each method
-    methods = lmmTables();
-
-    % set the thetas resolution
-    thetas = linspace(0, 2*pi, nthetas).';
-
-    fprintf('\nLinear multistep stability boundary samples:\n');
-    printSample('AB1', thetas, methods.AB1.a, methods.AB1.b);
-    printSample('AM2', thetas, methods.AM2.a, methods.AM2.b);
-    printSample('BDF2', thetas, methods.BDF2.a, methods.BDF2.b);
-
-    % allow smoke tests to exercise the demo without generating figures
-    if ~doPlots
-        return;
-    end
-
-    % set the bounding box for plots in the complex plane
-    box = [-6, 2, -4, 4];
-    zoombox = [-1, 1, -3, 3];
-
-    % set the transparency value for filled regions
-    alp = 0.2;
-
-    % plot the Adams-Bashforth stability regions, one at a time
-    plotFamily(methods, {'AB1','AB2','AB3','AB4','AB5'}, thetas, box, alp, ...
-        'Adams-Bashforth Stability Regions (shaded = stable)', 'AB_stability.pdf', 'best');
-
-    % plot the Adams-Moulton stability regions, one at a time
-    plotFamily(methods, {'AM1','AM2','AM3','AM4','AM5','AM6'}, thetas, box, alp, ...
-        'Adams-Moulton Stability Regions (shaded = stable)', 'AM_stability.pdf', 'best');
-
-    % plot the BDF stability regions, one at a time
-    plotFamily(methods, {'BDF1','BDF2','BDF3','BDF4','BDF5','BDF6'}, thetas, box, alp, ...
-        'BDF Stability Regions (shaded = unstable)', 'BDF_stability.pdf', 'best');
-
-    % plot a zoomed-in version of BDF stability regions
-    plotFamily(methods, {'BDF1','BDF2','BDF3','BDF4','BDF5','BDF6'}, thetas, zoombox, alp, ...
-        'Zoom of BDF Stability Regions (shaded = unstable)', 'BDF_stability_zoom.pdf', 'northeastoutside');
+% MATLAB teaching demo for LMM stability.
+%
+% Daniel R. Reynolds
+% Math & Stat @ UMBC
+%
+clear
+% get the thetas resolution from the command line, otherwise set to 1000
+nthetas = str2double(input('Enter the number of thetas samples nthetas >= 2 [default 1000]: ', 's'));
+if ~isfinite(nthetas) || ~isreal(nthetas) || nthetas ~= round(nthetas) || nthetas < 2
+    fprintf('Invalid or missing nthetas, using the default value 1000\n');
+    nthetas = 1000;
 end
+
+% set LMM coefficients for each method
+methods = lmmTables();
+
+% set the thetas resolution
+thetas = linspace(0, 2*pi, nthetas).';
+
+fprintf('\nLinear multistep stability boundary samples:\n');
+printSample('AB1', thetas, methods.AB1.a, methods.AB1.b);
+printSample('AM2', thetas, methods.AM2.a, methods.AM2.b);
+printSample('BDF2', thetas, methods.BDF2.a, methods.BDF2.b);
+
+% set the bounding box for plots in the complex plane
+box = [-6, 2, -4, 4];
+zoombox = [-1, 1, -3, 3];
+
+% set the transparency value for filled regions
+alp = 0.2;
+
+% plot the Adams-Bashforth stability regions, one at a time
+plotFamily(methods, {'AB1','AB2','AB3','AB4','AB5'}, thetas, box, alp, ...
+    'Adams-Bashforth Stability Regions (shaded = stable)', 'AB_stability.pdf', 'best');
+
+% plot the Adams-Moulton stability regions, one at a time
+plotFamily(methods, {'AM1','AM2','AM3','AM4','AM5','AM6'}, thetas, box, alp, ...
+    'Adams-Moulton Stability Regions (shaded = stable)', 'AM_stability.pdf', 'best');
+
+% plot the BDF stability regions, one at a time
+plotFamily(methods, {'BDF1','BDF2','BDF3','BDF4','BDF5','BDF6'}, thetas, box, alp, ...
+    'BDF Stability Regions (shaded = unstable)', 'BDF_stability.pdf', 'best');
+
+% plot a zoomed-in version of BDF stability regions
+plotFamily(methods, {'BDF1','BDF2','BDF3','BDF4','BDF5','BDF6'}, thetas, zoombox, alp, ...
+    'Zoom of BDF Stability Regions (shaded = unstable)', 'BDF_stability_zoom.pdf', 'northeastoutside');
 
 function methods = lmmTables()
     methods.AB1 = tableEntry([1, -1], [0, 1]);

@@ -1,4 +1,3 @@
-function driver_explicit_stability()
 % Script to test the forward Euler and some fixed-step ERK methods on the
 % Dahlquist test problem
 %     y' = lambda*y, t in [0,0.5],
@@ -8,6 +7,7 @@ function driver_explicit_stability()
 % Daniel R. Reynolds
 % Math & Stat @ UMBC
 %
+clear
 t0 = 0.0;
 tf = 0.6;
 lam = -70.0;
@@ -42,7 +42,6 @@ run_stepper(T2, hvals, Ytrue, tspan);
 RK4 = ERK(f, ERK.ERK4());
 fprintf('\n4th order explicit Runge-Kutta:\n');
 run_stepper(RK4, hvals, Ytrue, tspan);
-end
 
 function run_stepper(stepper, hvals, Ytrue, tspan)
     % Runs a given stepper on the test problem for a range of time step sizes,

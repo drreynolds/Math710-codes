@@ -66,7 +66,7 @@ classdef Implicit_LMM < handle
             % Usage: t, success = implicit_lmm_step(t, args)
             %
             % Utility routine to take a single implicit LMM time step,
-            % where the inputs `t` is overwritten by the updated value.
+            % where the input `t` is overwritten by the updated value.
             % args is used for optional parameters of the RHS.
             % If success==true then the step succeeded; otherwise it failed.
 
@@ -86,11 +86,11 @@ classdef Implicit_LMM < handle
                     - (self.alpha(i) / self.alpha(1)) * self.yprev{end-i+2};
             end
 
-            gamma = self.h * self.beta(1) / self.alpha(1);
             % Define the residual for the new unknown value y_{n+1}.
-            F = @(ynew) ynew(:) - self.data(:) - gamma * self.f(t, ynew(:), args{:});
-            % Tell the Newton solver to use I - gamma*J for this implicit LMM step.
-            self.sol.setup_linear_solver(t, -gamma, args);
+            F = @(ynew) ynew(:) - self.data(:) - (self.h * self.beta(1) / self.alpha(1)) ...
+                * self.f(t, ynew(:), args{:});
+            % Tell the Newton solver to use I - (h*beta_0/alpha_0)*J for this implicit LMM step.
+            self.sol.setup_linear_solver(t, -self.h * self.beta(1) / self.alpha(1), args);
 
             % Solve the nonlinear residual equation for the new solution.
             [y, ~, success] = self.sol.solve(F, self.yprev{end});
