@@ -2,7 +2,7 @@
 #
 # Fixed-stepsize implicit linear multistep class implementation file.
 #
-# Also contains functions to return Adams-Bashforth LMM coefficients
+# Also contains functions to return Adams-Moulton and BDF LMM coefficients
 # of orders 1-4.
 #
 # Class to perform fixed-stepsize time evolution of the IVP
