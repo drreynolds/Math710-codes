@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Script that runs various adaptive implicit methods on the Oregonator problem.
+# Script that runs various adaptive implicit methods on a reaction-diffusion problem.
 #
 # Daniel R. Reynolds
 # Math & Stat @ UMBC
@@ -45,7 +45,7 @@ if runERK:
         errs[idx] = np.linalg.norm(Y_ERK - yref, 1)
         print("  steps = %5i  nrhs = %5i, error = %.2e\n" %
             (ERK_4.get_num_steps(), ERK_4.get_num_rhs(), errs[idx]))
-    orders = np.log(errs[0:-2]/errs[1:-1])/np.log(hvals[0:-2]/hvals[1:-1])
+    orders = np.log(errs[0:-1]/errs[1:])/np.log(hvals[0:-1]/hvals[1:])
     print('estimated order: ', np.median(orders))
 
 if runDIRK:
@@ -62,7 +62,7 @@ if runDIRK:
         errs[idx] = np.linalg.norm(Y_DIRK - yref, 1)
         print("  steps = %5i  nsolves = %5i, error = %.2e\n" %
             (SDIRK_CR3.get_num_steps(), SDIRK_CR3.get_num_solves(), errs[idx]))
-    orders = np.log(errs[0:-2]/errs[1:-1])/np.log(hvals[0:-2]/hvals[1:-1])
+    orders = np.log(errs[0:-1]/errs[1:])/np.log(hvals[0:-1]/hvals[1:])
     print('estimated order: ', np.median(orders))
 
 if runAdaptERK:

@@ -64,6 +64,9 @@ class SMSubcycling:
         # call fast solver to evolve the sub-IVP over half the step
         tspan = np.array([t, t + H/2])
         ytmp, success = self.FastSolver.Evolve(tspan, y, args=args)
+        if (not success):
+            self.steps += 1
+            return t, y, success
         y = ytmp[1,:]  # extract the solution at t + H/2
 
         # loop over slow stages, computing RHS vectors
@@ -83,6 +86,9 @@ class SMSubcycling:
         # call fast solver to evolve the sub-IVP over the last half step
         tspan = np.array([t + H/2, t + H])
         ytmp, success = self.FastSolver.Evolve(tspan, y, args=args)
+        if (not success):
+            self.steps += 1
+            return t, y, success
 
         # update current solution, time, and step counter, and return
         y = ytmp[1,:]  # extract the solution at t + H
@@ -97,6 +103,7 @@ class SMSubcycling:
     def reset(self):
         """ Resets the accumulated number of steps """
         self.steps = 0
+        self.nrhs = 0
         if hasattr(self.FastSolver, 'reset'):
             self.FastSolver.reset()
 

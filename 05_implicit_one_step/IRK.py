@@ -104,7 +104,7 @@ class IRK:
                 return LinearOperator((z.size,z.size), matvec=Jsolve)
         elif (self.sol.solver_type == 'sparse'):
             def J(z):
-                Jac = identity(z.size)
+                Jac = identity(z.size, format='lil')
                 for j in range(s):
                     tj = t + self.c[j] * self.h
                     zj = np.array(z[m*j:m*(j+1)])
@@ -112,7 +112,7 @@ class IRK:
                     for i in range(s):
                         Jac[m*i:m*(i+1),m*j:m*(j+1)] -= self.h * self.A[i,j] * Jj
                 try:
-                    Jfactored = factorized(Jac)
+                    Jfactored = factorized(Jac.tocsc())
                 except:
                     raise RuntimeError("Sparse Jacobian factorization failure")
                 Jsolve = lambda b: Jfactored(b)
@@ -128,6 +128,12 @@ class IRK:
         self.nsol += 1
         if (not success):
             return t, y, False
+
+        # evaluate and store RHS values at the converged stage states
+        for j in range(s):
+            tj = t + self.c[j] * self.h
+            zj = np.array(self.z[m*j:m*(j+1)])
+            self.k[j,:] = self.f(tj, zj, *args)
 
         # compute updated time step solution
         for i in range(s):

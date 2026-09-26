@@ -11,8 +11,8 @@
 
 import numpy as np
 import sys
-sys.path.append('../ImplicitSolver')
-from ImplicitSolver import *
+sys.path.append('..')
+from shared.ImplicitSolver import *
 
 class BackwardEuler:
     """

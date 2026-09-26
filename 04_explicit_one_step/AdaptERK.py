@@ -222,7 +222,7 @@ class AdaptERK:
         """ Resets the maximum allowed iterations """
         self.maxit = maxit
 
-    def set_bias(self, bias=2.0):
+    def set_bias(self, bias=1.0):
         """ Resets the error bias factor """
         self.bias = bias
 
@@ -230,7 +230,7 @@ class AdaptERK:
         """ Resets the maximum stepsize growth factor """
         self.growth = growth
 
-    def set_safety(self, safety=0.95):
+    def set_safety(self, safety=0.85):
         """ Resets the stepsize safety factor """
         self.safety = safety
 

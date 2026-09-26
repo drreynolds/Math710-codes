@@ -59,10 +59,10 @@ def fd_maker(stencil, deriv):
     b = sympy.zeros(2*n,1)
     b[deriv] = fact
 
-    #   determine which equations fail, scale by corresponding factor of h
+    #   determine which equations fail, scale by corresponding factor of h^i/i!
     err = A * c - b
     for i in range(2*n):
-        err[i] *= h**i
+        err[i] *= h**i / sympy.factorial(i)
 
     #   identify the leading nonzero error term and store for output
     for i in range(2*n):

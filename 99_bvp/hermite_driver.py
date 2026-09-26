@@ -188,7 +188,7 @@ N = [100, 1000, 10000]
 for n in N:
 
     # output problem information
-    print("\nPiecewise Hermite FD method for BVP with lambda =", lam, ",  N =", n)
+    print("\nPiecewise Hermite FD method for BVP with lambda = %.1f,  N = %i" % (lam, n))
 
     # compute/store analytical solution
     t = np.zeros(n+1)

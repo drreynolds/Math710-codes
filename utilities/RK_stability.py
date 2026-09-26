@@ -8,7 +8,11 @@
 
 # general imports
 import numpy as np
+import matplotlib
 import matplotlib.pyplot as plt
+import sys
+sys.path.append('../04_explicit_one_step')
+sys.path.append('../05_implicit_one_step')
 from ERK import ERK4
 from DIRK import CrouzeixRaviart3
 
@@ -70,9 +74,16 @@ def RK_stability(B, box, N=1000):
     ax.set_xlim(box[0],box[1])
     ax.set_ylim(box[2],box[3])
     contour_set = pyplot.contourf(x, y, R, levels=(-eps,1.0))
+    pyplot.contour(x, y, R, levels=(1.0,), colors='k', linewidths=1.25)
 
     # extract and return vertices in the contour R = 1
-    vertices = contour_set.collections[0].get_paths()[0].vertices
+    # (ContourSet.collections was removed in matplotlib 3.10; since 3.8 the
+    # ContourSet itself holds one path per contour level)
+    mpl_version = tuple(int(v) for v in matplotlib.__version__.split('.')[:2])
+    if (mpl_version >= (3,8)):
+        vertices = contour_set.get_paths()[0].vertices
+    else:
+        vertices = contour_set.collections[0].get_paths()[0].vertices
     return vertices[:,0], vertices[:,1]
 
 

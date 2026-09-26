@@ -106,8 +106,8 @@ for g in G:
     Y_D32, success = D32.Evolve(tvals, Y0)
     step_hist_D32 = D32.get_step_history()
     err_D32 = np.linalg.norm(Y_D32 - np.transpose(Ytrue), 1)
-    print("  steps = %5i  fails = %2i, error = %.2e\n" %
-      (D32.get_num_steps(), D32.get_num_error_failures(), err_D32))
+    print("  steps = %5i  fails = %2i, solves = %5i, error = %.2e\n" %
+      (D32.get_num_steps(), D32.get_num_error_failures(), D32.get_num_solves(), err_D32))
     solver.reset()
 
     # create plots for adaptive runs

@@ -37,7 +37,7 @@ rtols = np.array((1.e-3, 1.e-5, 1.e-7))
 atol = 1.e-11
 
 # create adaptive forward Euler stepper object (will reset rtol before each solve)
-AE = AdaptEuler(f, y0)
+AE = AdaptEuler(f, y0, atol=atol)
 
 # loop over relative tolerances
 print("Adaptive Euler test problem, steps and errors vs tolerances:")

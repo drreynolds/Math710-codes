@@ -78,6 +78,9 @@ class LTSubcycling:
         # call fast solver to evolve the sub-IVP
         tspan = np.array([t, t + H])
         ytmp, success = self.FastSolver.Evolve(tspan, y, args=args)
+        if (not success):
+            self.steps += 1
+            return t, y, success
 
         # update current solution, time, and step counter, and return
         y = ytmp[1,:]  # extract the solution at t + h
@@ -92,6 +95,7 @@ class LTSubcycling:
     def reset(self):
         """ Resets the accumulated number of steps """
         self.steps = 0
+        self.nrhs = 0
         if hasattr(self.FastSolver, 'reset'):
             self.FastSolver.reset()
 

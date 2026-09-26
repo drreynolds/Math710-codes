@@ -15,8 +15,8 @@
 
 import numpy as np
 import sys
-sys.path.append('../ImplicitSolver')
-from ImplicitSolver import *
+sys.path.append('..')
+from shared.ImplicitSolver import *
 
 class AdaptDIRK:
     """
@@ -163,7 +163,7 @@ class AdaptDIRK:
         # check for legal time span
         for n in range(N):
             if (tspan[n+1] < tspan[n]):
-                raise ValueError("AdaptERK::Evolve illegal tspan")
+                raise ValueError("AdaptDIRK::Evolve illegal tspan")
 
         # initialize error weight vector, and check for legal tolerances
         self.w = self.error_weight(y, self.w)
@@ -247,7 +247,7 @@ class AdaptDIRK:
         """ Resets the maximum allowed iterations """
         self.maxit = maxit
 
-    def set_bias(self, bias=2.0):
+    def set_bias(self, bias=1.0):
         """ Resets the error bias factor """
         self.bias = bias
 
@@ -255,7 +255,7 @@ class AdaptDIRK:
         """ Resets the maximum stepsize growth factor """
         self.growth = growth
 
-    def set_safety(self, safety=0.95):
+    def set_safety(self, safety=0.85):
         """ Resets the stepsize safety factor """
         self.safety = safety
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Main routine to test various DIRK and IRK methods on the
+# Main routine to test various explicit and implicit linear multistep methods on the
 # scalar-valued ODE problem
 #    y' = lambda*y + (1-lambda)*cos(t) - (1+lambda)*sin(t), t in [0,5],
 #    y(0) = 1.
@@ -86,7 +86,7 @@ def RunTest(stepper, prevsteps, name, implicit):
             else:
                 print("  solve failed  abserr = %8.2e" % (errs[idx]))
         if (hvals.size > 2):
-            orders = np.log(errs[0:-2]/errs[1:-1])/np.log(hvals[0:-2]/hvals[1:-1])
+            orders = np.log(errs[0:-1]/errs[1:])/np.log(hvals[0:-1]/hvals[1:])
             print('    estimated order:  max = %.2f,  avg = %.2f' %
                   (np.max(orders), np.average(orders)))
 

@@ -128,6 +128,7 @@ class MRI:
             # call fast solver to evolve the sub-IVP
             ytmp, success = self.FastSolver.Evolve(tspan, y, args=args)
             if not success:
+                self.steps += 1
                 return t, y, False
 
             # update current solution and store slow RHS evaluation
@@ -147,6 +148,7 @@ class MRI:
     def reset(self):
         """ Resets the accumulated number of steps """
         self.steps = 0
+        self.nrhs = 0
         if hasattr(self.FastSolver, 'reset'):
             self.FastSolver.reset()
 

@@ -131,7 +131,7 @@ class ImplicitSolver:
             y -= h
 
             # check for convergence
-            if (np.linalg.norm(h / (self.atol + self.rtol*np.abs(y)))/np.sqrt(n) < 1):
+            if (np.linalg.norm(h / np.maximum(self.atol + self.rtol*np.abs(y), 1e-15))/np.sqrt(n) < 1):
                 success = True
                 return y, iters, success
 
