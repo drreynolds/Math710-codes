@@ -1,13 +1,13 @@
-# Explicit_LMM.py
+# Implicit_LMM.py
 #
-# Fixed-stepsize explicit linear multistep class implementation file.
+# Fixed-stepsize implicit linear multistep class implementation file.
 #
 # Also contains functions to return Adams-Bashforth LMM coefficients
 # of orders 1-4.
 #
 # Class to perform fixed-stepsize time evolution of the IVP
 #      y' = f(t,y),  t in [t0, Tf],  y(t0) = y0
-# using an explicit linear multistep (LMM) time stepping method.
+# using an implicit linear multistep (LMM) time stepping method.
 #
 # Daniel R. Reynolds
 # Math & Stat @ UMBC
@@ -129,7 +129,7 @@ class Implicit_LMM:
 
         # raise error if step size was never set
         if (self.h == 0.0):
-            raise ValueError("ERROR: Explicit_LMM::Evolve called without specifying a nonzero step size")
+            raise ValueError("ERROR: Implicit_LMM::Evolve called without specifying a nonzero step size")
 
         # verify that tspan values are separated by multiples of h
         for n in range(tspan.size-1):
