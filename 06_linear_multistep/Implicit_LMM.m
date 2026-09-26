@@ -1,14 +1,14 @@
 classdef Implicit_LMM < handle
-    % Explicit_LMM.m
+    % Implicit_LMM.m
     %
-    % Fixed-stepsize explicit linear multistep class implementation file.
+    % Fixed-stepsize implicit linear multistep class implementation file.
     %
-    % Also contains functions to return Adams-Bashforth LMM coefficients
+    % Also contains functions to return Adams-Moulton and BDF LMM coefficients
     % of orders 1-4.
     %
     % Class to perform fixed-stepsize time evolution of the IVP
     %      y' = f(t,y),  t in [t0, Tf],  y(t0) = y0
-    % using an explicit linear multistep (LMM) time stepping method.
+    % using an implicit linear multistep (LMM) time stepping method.
     %
     % Daniel R. Reynolds
     % Math & Stat @ UMBC
