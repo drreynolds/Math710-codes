@@ -1,4 +1,4 @@
-% Main routine to test various DIRK and IRK methods on the
+% Main routine to test various explicit and implicit linear multistep methods on the
 % scalar-valued ODE problem
 %    y' = lambda*y + (1-lambda)*cos(t) - (1+lambda)*sin(t), t in [0,5],
 %    y(0) = 1.
@@ -114,7 +114,7 @@ function RunTest(stepper, prevsteps, name, implicit, lambdas, hvals, Ytrue, tspa
         end
 
         if numel(hvals) > 2
-            orders = log(errs(1:end-2)./errs(2:end-1))./log(hvals(1:end-2)./hvals(2:end-1));
+            orders = log(errs(1:end-1)./errs(2:end))./log(hvals(1:end-1)./hvals(2:end));
             fprintf('    estimated order:  max = %.2f,  avg = %.2f\n', max(orders), mean(orders));
         end
     end

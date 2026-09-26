@@ -255,36 +255,57 @@ classdef AdaptERK < handle
 
         function set_rtol(self, rtol)
             % Resets the relative tolerance
+            if nargin < 2
+                rtol = 1e-3;
+            end
             self.rtol = rtol;
         end
 
         function set_atol(self, atol)
             % Resets the scalar- or vector-valued absolute tolerance
+            if nargin < 2
+                atol = 1e-14;
+            end
             self.atol = ones(size(self.atol))*atol;
         end
 
         function set_maxit(self, maxit)
             % Resets the maximum allowed iterations
+            if nargin < 2
+                maxit = 1e6;
+            end
             self.maxit = maxit;
         end
 
         function set_bias(self, bias)
             % Resets the error bias factor
+            if nargin < 2
+                bias = 1.0;
+            end
             self.bias = bias;
         end
 
         function set_growth(self, growth)
             % Resets the maximum stepsize growth factor
+            if nargin < 2
+                growth = 50.0;
+            end
             self.growth = growth;
         end
 
         function set_safety(self, safety)
             % Resets the stepsize safety factor
+            if nargin < 2
+                safety = 0.85;
+            end
             self.safety = safety;
         end
 
         function set_hmin(self, hmin)
             % Resets the minimum step size
+            if nargin < 2
+                hmin = 10*eps;
+            end
             self.hmin = hmin;
         end
 

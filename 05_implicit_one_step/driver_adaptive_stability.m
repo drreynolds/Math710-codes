@@ -16,6 +16,7 @@
 %
 % Daniel R. Reynolds
 % Math & Stat @ UMBC
+clear
 %
 here = fileparts(mfilename('fullpath'));
 addpath(fullfile(here, '..', 'shared'));

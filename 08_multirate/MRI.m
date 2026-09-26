@@ -126,6 +126,7 @@ classdef MRI < handle
                 tstage = [t + self.c(stage-1)*H; t + self.c(stage)*H];
                 [ytmp, success] = self.FastSolver.Evolve(tstage, y, [], args);
                 if ~success
+                    self.steps = self.steps + 1;
                     return;
                 end
 

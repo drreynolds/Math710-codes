@@ -3,6 +3,8 @@
 % Daniel R. Reynolds
 % Math & Stat @ UMBC
 %
+clear
+
 % initial setup
 %
 a = zeros(1, 5);

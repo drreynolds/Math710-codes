@@ -9,10 +9,12 @@
 %
 % Daniel R. Reynolds
 % Math & Stat @ UMBC
+clear
 
-% get lambda from the user prompt, otherwise set to -10
-lam = input('Enter desired lambda value [leave unset for default of -10]:\n');
-if isempty(lam)
+% get lambda from the command line, otherwise set to -10
+lam = str2double(input('Enter the stiffness parameter lambda < 0 [default -10]: ', 's'));
+if ~isfinite(lam) || ~isreal(lam) || lam >= 0
+    fprintf('Invalid or missing lambda, using the default value -10\n');
     lam = -10.0;
 end
 
@@ -202,7 +204,7 @@ N = [100, 1000, 10000];
 for n = N
 
     % output problem information
-    fprintf('\nPiecewise Hermite FD method for BVP with lambda = %g,  N = %d\n', lam, n);
+    fprintf('\nPiecewise Hermite FD method for BVP with lambda = %.1f,  N = %d\n', lam, n);
 
     % compute/store analytical solution
     t = zeros(n+1, 1);

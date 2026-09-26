@@ -33,15 +33,15 @@ solver = ImplicitSolver(J, 8, 1e-12, 1e-14, 1);
 % The first three are conventional order >= 3 DIRK methods; the final three
 % are the high-WSO methods published in Sect. 3 of the paper.
 Alex3 = DIRK(f, solver, DIRK.Alexander3());
-C6 = DIRK(f, solver, DIRK.Cooper6ESDIRK());
 SD45 = DIRK(f, solver, DIRK.SDIRK45L1SA());
+C6 = DIRK(f, solver, DIRK.Cooper6ESDIRK());
 D32 = DIRK(f, solver, DIRK.WSO32());
 D33 = DIRK(f, solver, DIRK.WSO33());
 D43 = DIRK(f, solver, DIRK.WSO43());
 
 runTest(Alex3, 'Alexander3', 3, 1, lambdas, hvals, y0, ytrue, tspan, tf);
-runTest(C6, 'Cooper6ESDIRK', 5, 1, lambdas, hvals, y0, ytrue, tspan, tf);
 runTest(SD45, 'SDIRK45L1SA', 4, 1, lambdas, hvals, y0, ytrue, tspan, tf);
+runTest(C6, 'Cooper6ESDIRK', 5, 1, lambdas, hvals, y0, ytrue, tspan, tf);
 runTest(D32, 'WSO32', 3, 2, lambdas, hvals, y0, ytrue, tspan, tf);
 runTest(D33, 'WSO33', 3, 3, lambdas, hvals, y0, ytrue, tspan, tf);
 runTest(D43, 'WSO43', 4, 3, lambdas, hvals, y0, ytrue, tspan, tf);

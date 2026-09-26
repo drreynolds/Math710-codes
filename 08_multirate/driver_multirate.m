@@ -104,11 +104,11 @@ function runFamily(name, Hvals, w, Y0, Ytrue, tvals, buildStepper)
         h = H / w;
         stepper = buildStepper(h, H);
         fast = stepper.FastSolver;
-        fprintf('  H = %.6f, h = %.6f:', H, h);
+        fprintf('  H = %f, h = %f:\n', H, h);
         [Y, success] = stepper.Evolve(tvals, Y0);
         errs(idx) = norm(abs(Y - Ytrue), inf);
         if ~success
-            fprintf('  solve failed');
+            fprintf('  solve failed\n');
         end
         fprintf('   steps (s,f) = (%d, %d)  nrhs (s,f) = (%d, %d)  err = %.1e\n', ...
             stepper.get_num_steps(), fast.get_num_steps(), stepper.get_num_rhs(), fast.get_num_rhs(), errs(idx));
@@ -116,6 +116,6 @@ function runFamily(name, Hvals, w, Y0, Ytrue, tvals, buildStepper)
 
     if numel(Hvals) > 2
         orders = log(errs(1:end-2)./errs(2:end-1))./log(Hvals(1:end-2)./Hvals(2:end-1));
-        fprintf('estimated order: %.2f\n', mean(orders));
+        fprintf('estimated order:  %.16g\n', mean(orders));
     end
 end

@@ -75,6 +75,7 @@ classdef SMSubcycling < handle
             % Apply the fast subsolver over the first half step.
             [ytmp, success] = self.FastSolver.Evolve([t; t+H/2], y, [], args);
             if ~success
+                self.steps = self.steps + 1;
                 return;
             end
             y = ytmp(end,:).';
@@ -99,6 +100,7 @@ classdef SMSubcycling < handle
             % Finish with the fast subsolver over the second half step.
             [ytmp, success] = self.FastSolver.Evolve([t+H/2; t+H], y, [], args);
             if ~success
+                self.steps = self.steps + 1;
                 return;
             end
 

@@ -16,6 +16,7 @@
 %
 % Daniel R. Reynolds
 % Math & Stat @ UMBC
+clear
 
 Tf = 5;
 Nt = 500;

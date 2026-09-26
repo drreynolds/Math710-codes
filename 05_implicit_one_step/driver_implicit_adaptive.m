@@ -31,6 +31,7 @@ methods = {
 Yref = referenceSolution(tspan);
 solutions = cell(size(methods,1), 1);
 histories = cell(size(methods,1), 1);
+nsteps = zeros(size(methods,1), 1);
 
 for imethod = 1:size(methods,1)
     name = methods{imethod,1};
@@ -45,9 +46,10 @@ for imethod = 1:size(methods,1)
     end
     histories{imethod} = stepper.get_step_history();
     solutions{imethod} = Y;
+    nsteps(imethod) = stepper.get_num_steps();
     err = norm(Y - Yref, 1);
-    fprintf('  steps = %5d  fails = %2d, solves = %5d, error = %.2e\n\n', ...
-        stepper.get_num_steps(), stepper.get_num_error_failures(), stepper.get_num_solves(), err);
+    fprintf('  steps = %5d  fails = %2d, error = %.2e\n\n', ...
+        stepper.get_num_steps(), stepper.get_num_error_failures(), err);
     solver.reset();
 end
 
@@ -59,21 +61,22 @@ for imethod = 1:size(methods,1)
     plot(tspan, Y);
     xlabel('t');
     ylabel('y');
-    title(sprintf('Oregonator Solution (%s, %d outputs)', name, numel(tspan)));
+    title(sprintf('Oregonator Solution (%s, %d steps)', name, nsteps(imethod)));
     saveas(gcf, sprintf('adaptive_%s.png', lower(name)));
 end
 
+colors = {'b', 'k', 'g', 'm'};
 figure();
 hold on;
 for imethod = 1:size(methods,1)
     hist = histories{imethod};
-    plot(hist.t, hist.h, 'DisplayName', methods{imethod,1});
-    plotFailures(hist);
+    plot(hist.t, hist.h, [colors{imethod} '-'], 'DisplayName', methods{imethod,1});
+    plotFailures(hist, colors{imethod});
 end
 hold off;
 xlabel('t');
 ylabel('h');
-title('Oregonator adaptive step history');
+title('Oregonator -- adaptive step history');
 legend('Location', 'best');
 saveas(gcf, 'adaptive_DIRK_steps.png');
 
@@ -128,10 +131,10 @@ function val = J(~, y)
            k2, 0, -k5];
 end
 
-function plotFailures(step_hist)
+function plotFailures(step_hist, color)
     % Mark rejected steps on the adaptive step-size history.
     idx = step_hist.err > 1.0;
     if any(idx)
-        plot(step_hist.t(idx), step_hist.h(idx), 'x', 'HandleVisibility', 'off');
+        plot(step_hist.t(idx), step_hist.h(idx), [color 'x'], 'HandleVisibility', 'off');
     end
 end

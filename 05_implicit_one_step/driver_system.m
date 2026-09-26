@@ -24,7 +24,7 @@ A = V * D / V;
 if N < 10
     fprintf('\nProblem-defining matrices:\n');
     fprintf('V:\n'); disp(V);
-    fprintf('V \\ eye(N):\n'); disp(V \ eye(N));
+    fprintf('Vinv:\n'); disp(V \ eye(N));
     fprintf('D:\n'); disp(D);
     fprintf('A:\n'); disp(A);
 end

@@ -93,6 +93,7 @@ classdef LTSubcycling < handle
             tspan = [t; t+H];
             [ytmp, success] = self.FastSolver.Evolve(tspan, y, [], args);
             if ~success
+                self.steps = self.steps + 1;
                 return;
             end
 

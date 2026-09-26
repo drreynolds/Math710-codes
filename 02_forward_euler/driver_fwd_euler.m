@@ -7,6 +7,7 @@
 %
 % Daniel R. Reynolds
 % Math & Stat @ UMBC
+clear
 
 % problem time interval
 t0 = 0.0;

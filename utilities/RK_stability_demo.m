@@ -54,7 +54,10 @@ function plotStabilityRegion(box, R, N, methodName, fileName, xBoundary, yBounda
     % create plots for visual diagnostics
     figure();
     hold on;
-    contourf(x, y, R, [0.0, 1.0]);
+    % shade only the stable region |R| <= 1
+    Rstable = R;
+    Rstable(R > 1.0) = NaN;
+    contourf(x, y, Rstable, [0.0, 1.0]);
     plot(xBoundary, yBoundary, 'k-', 'LineWidth', 1.25);
     plot([box(1), box(2)], [0, 0], 'k--');
     plot([0, 0], [box(3), box(4)], 'k--');
