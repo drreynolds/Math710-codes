@@ -1,26 +1,17 @@
-% MATLAB teaching demo for LMM stability.
+% Script that calls LMM_stability to plot overlaid stability regions for
+% Adams-Bashforth, Adams-Moulton, and Backwards Differentiation Formulas.
 %
 % Daniel R. Reynolds
 % Math & Stat @ UMBC
 %
 clear
-% get the thetas resolution from the command line, otherwise set to 1000
-nthetas = str2double(input('Enter the number of thetas samples nthetas >= 2 [default 1000]: ', 's'));
-if ~isfinite(nthetas) || ~isreal(nthetas) || nthetas ~= round(nthetas) || nthetas < 2
-    fprintf('Invalid or missing nthetas, using the default value 1000\n');
-    nthetas = 1000;
-end
 
 % set LMM coefficients for each method
 methods = lmmTables();
 
 % set the thetas resolution
+nthetas = 1000;
 thetas = linspace(0, 2*pi, nthetas).';
-
-fprintf('\nLinear multistep stability boundary samples:\n');
-printSample('AB1', thetas, methods.AB1.a, methods.AB1.b);
-printSample('AM2', thetas, methods.AM2.a, methods.AM2.b);
-printSample('BDF2', thetas, methods.BDF2.a, methods.BDF2.b);
 
 % set the bounding box for plots in the complex plane
 box = [-6, 2, -4, 4];
@@ -72,11 +63,6 @@ function entry = tableEntry(a, b)
     entry.b = b;
 end
 
-function printSample(name, thetas, a, b)
-    [x, y] = LMM_stability(thetas, a, b);
-    fprintf('  %-4s: first = (% .4e,% .4e),  max |eta| = %.4e\n', name, x(1), y(1), max(abs(x + 1i*y)));
-end
-
 function plotFamily(methods, names, thetas, box, alp, plotTitle, fileName, legendLocation)
     % create plots for visual diagnostics
     figure();
@@ -85,7 +71,7 @@ function plotFamily(methods, names, thetas, box, alp, plotTitle, fileName, legen
     for i = 1:numel(names)
         method = methods.(names{i});
         [x, y] = LMM_stability(thetas, method.a, method.b);
-        fill(x, y, colors{i}, 'FaceAlpha', alp, 'EdgeColor', 'none');
+        fill(x, y, colors{i}, 'FaceAlpha', alp, 'EdgeColor', 'none', 'HandleVisibility', 'off');
         plot(x, y, colors{i}, 'DisplayName', sprintf('p=%d', i));
     end
     legend('Location', legendLocation);

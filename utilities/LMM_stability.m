@@ -8,9 +8,9 @@ function [x, y] = LMM_stability(thetas, a, b)
     %           a, b - LMM arrays alpha_i and beta_i
     % Outputs:  x, y - coordinate locations in the complex plane: x+i*y
     %
-% Function to generate and plot the linear stability regions for linear multistep
-% methods.  Includes a "main" that uses this function to plot overlaid stability
-% regions for Adams-Bashforth, Adams-Moulton, and Backwards Differentiation Formulas.
+% Function to generate the linear stability region boundary for linear multistep
+% methods.  See LMM_stability_demo.m for a script that uses this function to plot
+% overlaid stability regions for Adams-Bashforth, Adams-Moulton, and BDF methods.
 %
 % Daniel R. Reynolds
 % Math & Stat @ UMBC

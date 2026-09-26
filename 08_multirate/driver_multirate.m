@@ -57,43 +57,33 @@ ff = @(t, y) [0, 0; epsilon, -1] ...
     * [(-1 + y(1)^2 - r(t)) / (2*y(1)); (-2 + y(2)^2 - s(t, w)) / (2*y(2))] ...
     + [0; sdot(t, w)/(2*y(2))];
 
-runLT = true;
-runSM = true;
-runMRI = true;
+% Lie-Trotter subcycling evolves slow dynamics once per macro step and
+% fast dynamics with h = H/w substeps.
+runFamily('Lie-Trotter-Subcycling-1', Hvals, w, Y0, Ytrue, tvals, ...
+    @(h,H) LTSubcycling(fs, ERK.ERK1(), ERK(ff, ERK.ERK1(), h), H));
 
-if runLT
-    % Lie-Trotter subcycling evolves slow dynamics once per macro step and
-    % fast dynamics with h = H/w substeps.
-    runFamily('Lie-Trotter-Subcycling-1', Hvals, w, Y0, Ytrue, tvals, ...
-        @(h,H) LTSubcycling(fs, ERK.ERK1(), ERK(ff, ERK.ERK1(), h), H));
+runFamily('Lie-Trotter-Subcycling-2', Hvals, w, Y0, Ytrue, tvals, ...
+    @(h,H) LTSubcycling(fs, ERK.ERK2(), ERK(ff, ERK.ERK2(), h), H));
 
-    runFamily('Lie-Trotter-Subcycling-2', Hvals, w, Y0, Ytrue, tvals, ...
-        @(h,H) LTSubcycling(fs, ERK.ERK2(), ERK(ff, ERK.ERK2(), h), H));
-end
+% Strang-Marchuk variants symmetrize the slow/fast splitting.
+runFamily('Strang-Marchuk-Subcycling-1', Hvals, w, Y0, Ytrue, tvals, ...
+    @(h,H) SMSubcycling(fs, ERK.ERK1(), ERK(ff, ERK.ERK1(), h), H));
 
-if runSM
-    % Strang-Marchuk variants symmetrize the slow/fast splitting.
-    runFamily('Strang-Marchuk-Subcycling-1', Hvals, w, Y0, Ytrue, tvals, ...
-        @(h,H) SMSubcycling(fs, ERK.ERK1(), ERK(ff, ERK.ERK1(), h), H));
+runFamily('Strang-Marchuk-2', Hvals, w, Y0, Ytrue, tvals, ...
+    @(h,H) SMSubcycling(fs, ERK.ERK2(), ERK(ff, ERK.ERK2(), h), H));
 
-    runFamily('Strang-Marchuk-2', Hvals, w, Y0, Ytrue, tvals, ...
-        @(h,H) SMSubcycling(fs, ERK.ERK2(), ERK(ff, ERK.ERK2(), h), H));
+runFamily('Strang-Marchuk-3', Hvals, w, Y0, Ytrue, tvals, ...
+    @(h,H) SMSubcycling(fs, ERK.ERK3(), ERK(ff, ERK.ERK3(), h), H));
 
-    runFamily('Strang-Marchuk-3', Hvals, w, Y0, Ytrue, tvals, ...
-        @(h,H) SMSubcycling(fs, ERK.ERK3(), ERK(ff, ERK.ERK3(), h), H));
-end
+% MRI-GARK methods couple slow stages to a fast IVP solve over each stage interval.
+runFamily('MRI-GARK-ERK22a', Hvals, w, Y0, Ytrue, tvals, ...
+    @(h,H) MRI(Y0, fs, ff, MRI.MRIGARKERK22a(), ERK(ff, ERK.ERK2(), h), H));
 
-if runMRI
-    % MRI-GARK methods couple slow stages to a fast IVP solve over each stage interval.
-    runFamily('MRI-GARK-ERK22a', Hvals, w, Y0, Ytrue, tvals, ...
-        @(h,H) MRI(Y0, fs, ff, MRI.MRIGARKERK22a(), ERK(ff, ERK.ERK2(), h), H));
+runFamily('MRI-GARK-ERK33a', Hvals, w, Y0, Ytrue, tvals, ...
+    @(h,H) MRI(Y0, fs, ff, MRI.MRIGARKERK33a(), ERK(ff, ERK.ERK3(), h), H));
 
-    runFamily('MRI-GARK-ERK33a', Hvals, w, Y0, Ytrue, tvals, ...
-        @(h,H) MRI(Y0, fs, ff, MRI.MRIGARKERK33a(), ERK(ff, ERK.ERK3(), h), H));
-
-    runFamily('MRI-GARK-ERK45a', Hvals, w, Y0, Ytrue, tvals, ...
-        @(h,H) MRI(Y0, fs, ff, MRI.MRIGARKERK45a(), ERK(ff, ERK.ERK4(), h), H));
-end
+runFamily('MRI-GARK-ERK45a', Hvals, w, Y0, Ytrue, tvals, ...
+    @(h,H) MRI(Y0, fs, ff, MRI.MRIGARKERK45a(), ERK(ff, ERK.ERK4(), h), H));
 
 function runFamily(name, Hvals, w, Y0, Ytrue, tvals, buildStepper)
     % store errors for convergence-rate estimates

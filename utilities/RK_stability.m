@@ -20,9 +20,9 @@ function [X, Y, R] = RK_stability(B, box, N)
     %        each value into |R(eta)|, and plot the contour of this function
     %        having value 1.
     %
-% Function to generate and plot the linear stability regions for Runge--Kutta
-% methods.  Includes a simple "main" that uses this function to plot the
-% stability region for forward and backward Euler (when posed as RK methods).
+% Function to generate the linear stability region for Runge--Kutta methods.
+% See RK_stability_demo.m for a script that uses this function to plot the
+% stability regions for several explicit and implicit Runge--Kutta methods.
 %
 % Daniel R. Reynolds
 % Math & Stat @ UMBC

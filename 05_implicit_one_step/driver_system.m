@@ -1,16 +1,18 @@
-function driver_system(N)
-% Main routine to test the forward Euler method on a system of ODEs
+% Script to test various DIRK and IRK methods on a system of ODEs
 %    y' = f(t,y), t in [0,1],
 %    y(0) = y0.
 %
 % Daniel R. Reynolds
 % Math & Stat @ UMBC
 %
+clear
 here = fileparts(mfilename('fullpath'));
 addpath(fullfile(here, '..', 'shared'));
 
-% get optional inputs, otherwise use default values
-if nargin < 1 || isempty(N)
+% get problem size from the command line, otherwise set to 5
+N = str2double(input('Enter the problem size N >= 1 [default 5]: ', 's'));
+if ~isfinite(N) || ~isreal(N) || N ~= round(N) || N < 1
+    fprintf('Invalid or missing N, using the default value 5\n');
     N = 5;
 end
 fprintf('\nRunning system ODE problem with N = %d\n', N);
@@ -68,7 +70,6 @@ runTest(GL3, 'Gauss-Legendre-3', hvals, Ytrue, tspan);
 
 GL6 = IRK(@(~,y) A*y, solver, IRK.GaussLegendre6());
 runTest(GL6, 'Gauss-Legendre-6', hvals, Ytrue, tspan);
-end
 
 function runTest(stepper, name, hvals, Ytrue, tspan)
     % store errors for convergence-rate estimates

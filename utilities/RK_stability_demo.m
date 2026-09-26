@@ -1,4 +1,5 @@
-% MATLAB teaching demo for RK stability.
+% Script that calls RK_stability to plot the stability regions for forward
+% Euler, ERK4, backward Euler, and the Crouzeix & Raviart 3rd-order DIRK method.
 %
 % Daniel R. Reynolds
 % Math & Stat @ UMBC
@@ -8,12 +9,8 @@ here = fileparts(mfilename('fullpath'));
 addpath(fullfile(here, '..', '04_explicit_one_step'));
 addpath(fullfile(here, '..', '05_implicit_one_step'));
 
-% get the plot resolution from the command line, otherwise set to 100
-N = str2double(input('Enter the plot resolution N >= 2 [default 100]: ', 's'));
-if ~isfinite(N) || ~isreal(N) || N ~= round(N) || N < 2
-    fprintf('Invalid or missing N, using the default value 100\n');
-    N = 100;
-end
+% set the plot resolution
+N = 100;
 
 methods = {
     'Forward Euler',        forwardEulerTable(),          [-3.0, 1.0, -2.0, 2.0],    'FE_stability.png';
@@ -22,15 +19,12 @@ methods = {
     'CrouzeixRaviart3',     DIRK.CrouzeixRaviart3(),      [-10.0, 10.0, -10.0, 10.0], 'CR3_stability.png'
 };
 
-fprintf('\nRunge-Kutta stability boundary samples:\n');
 for i = 1:size(methods, 1)
     name = methods{i, 1};
     B = methods{i, 2};
     box = methods{i, 3};
     fileName = methods{i, 4};
     [x, y, R] = RK_stability(B, box, N);
-    fprintf('  %-16s: boundary points = %4d,  sampled min/max |R| = %.4e / %.4e\n', ...
-        name, numel(x), min(R(:)), max(R(:)));
     plotStabilityRegion(box, R, N, name, fileName, x, y);
 end
 

@@ -18,108 +18,218 @@ if ~isfinite(lam) || ~isreal(lam) || lam >= 0
     lam = -10.0;
 end
 
+% create BVP object
 bvp = BVP(lam);
-% Map from physical/component space to linear algebra index space.
-% interval: physical interval index, location: 0=left, 1=midpoint, 2=right,
-% component: 0=u or 1=u'.
+
+% utility routine to map from physical/component space to linear algebra index space
+%    interval:  physical interval index [1 <= interval <= N]
+%    location:  location in interval [0=left, 1=midpoint, 2=right]
+%    component: solution component at this location [0=u, 1=u']
 index = @(interval, location, component) 4*(interval-1) + 2*location + component + 1;
 
+% test 'index' function by outputting mapping for small N
 fprintf("Test output from 'index' function for N = 3, M = 14:\n");
 for interval = 1:3
     fprintf('\n  interval  %d , (loc,comp,idx):\n', interval);
     for location = 0:2
         for component = 0:1
-            fprintf('  ( %d ,  %d ,  %d )\n', location, component, index(interval, location, component)-1);
+            fprintf('  ( %d ,  %d ,  %d )\n', location, component, index(interval,location,component)-1);
         end
     end
 end
 
-% loop over spatial or temporal resolutions for tests
-Nvals = [100, 1000, 10000];
+% loop over spatial resolutions for tests
+N = [100, 1000, 10000];
+for n = N
 
-% run each requested resolution
-for n = Nvals
-    fprintf('\nImplicit Lobatto-3 FD method for BVP with lambda = %.1f,  N = %d\n', lam, n);
+    % output problem information
+    fprintf('\nImplicit Lobatto-3 FD method for BVP with lambda = %.1f,  N = %i\n', lam, n);
 
+    % compute/store analytical solution
     t = zeros(n+1, 1);
-    t(1) = 0.0;
-    t(end) = 1.0;
-    for j = 1:(n-1)
+    t(1) = 0;
+    t(n+1) = 1.0;
+    for j = 1:n-1
         t(j+1) = 0.5*(1-cos((2*j-1)*pi/(2*(n-1))));
     end
-    % compute and store the analytical solution
     utrue = bvp.utrue(t);
 
-    M = 4*n + 2;
-    maxEntries = 22*n + 2;
-    % create matrix and right-hand-side storage
-    Arows = zeros(maxEntries, 1);
-    Acols = zeros(maxEntries, 1);
-    Avals = zeros(maxEntries, 1);
-    rhs = zeros(M, 1);
+    % set integer for overall linear algebra problem size
+    M = 4*n+2;
 
-    % set up the linear system
-    % index(interval,location,component) maps interval data into the global
-    % algebraic vector, with location 0=left, 1=midpoint, 2=right and
-    % component 0=u, 1=u'.
+    % create matrix and right-hand side vectors
+    Arows = zeros(22*n+2, 1);
+    Acols = zeros(22*n+2, 1);
+    Avals = zeros(22*n+2, 1);
+    b = zeros(M, 1);
+
+    % set up linear system
+    %    recall 'index' usage: index(interval,location,component)
+    %      interval:  physical interval index [1 <= interval <= N]
+    %      location:  location in interval [0=left, 1=midpoint, 2=right]
+    %      component: solution component at this location [0=u, 1=u']
     idx = 1;
-    [Arows, Acols, Avals, idx] = addEntries(Arows, Acols, Avals, idx, 1, index(1, 0, 0), 1.0);
-    rhs(1) = bvp.ua;
-    [Arows, Acols, Avals, idx] = addEntries(Arows, Acols, Avals, idx, 2, index(n, 2, 0), 1.0);
-    rhs(2) = bvp.ub;
+    Arows(idx) = 1;       % A(1,index(1,0,0))
+    Acols(idx) = index(1,0,0);
+    Avals(idx) = 1.0;
+    idx = idx + 1;
+    b(1) = bvp.ua;
+
+    Arows(idx) = 2;       % A(2,index(n,2,0))
+    Acols(idx) = index(n,2,0);
+    Avals(idx) = 1.0;
+    idx = idx + 1;
+    b(2) = bvp.ub;
 
     irow = 3;
     for j = 1:n
+
+        % setup interval-specific information
         tl = t(j);
         tr = t(j+1);
         th = 0.5*(tl+tr);
         h = tr-tl;
 
-        % First interpolation equation for this Lobatto interval.
-        cols = [index(j, 0, 0), index(j, 0, 1), index(j, 1, 0), index(j, 1, 1), index(j, 2, 1)];
-        vals = [-24.0, -5.0*h, 24.0, -8.0*h, h];
-        [Arows, Acols, Avals, idx] = addEntries(Arows, Acols, Avals, idx, irow, cols, vals);
+        % setup first equation for this interval:
+        %    -24*y_{j-1,0} - 5*h*y_{j-1,1} + 24*y_{j-1/2,0} - 8*h*y_{j-1/2,1} + h*y_{j,1} = 0
+        Arows(idx) = irow;       % A(irow,index(j,0,0))
+        Acols(idx) = index(j,0,0);
+        Avals(idx) = -24;
+        idx = idx + 1;
+
+        Arows(idx) = irow;       % A(irow,index(j,0,1))
+        Acols(idx) = index(j,0,1);
+        Avals(idx) = -5*h;
+        idx = idx + 1;
+
+        Arows(idx) = irow;       % A(irow,index(j,1,0))
+        Acols(idx) = index(j,1,0);
+        Avals(idx) = 24;
+        idx = idx + 1;
+
+        Arows(idx) = irow;       % A(irow,index(j,1,1))
+        Acols(idx) = index(j,1,1);
+        Avals(idx) = -8*h;
+        idx = idx + 1;
+
+        Arows(idx) = irow;       % A(irow,index(j,2,1))
+        Acols(idx) = index(j,2,1);
+        Avals(idx) = h;
+        idx = idx + 1;
+
+        b(irow) = 0;
         irow = irow + 1;
 
-        % Enforce the differential equation using the left/mid/right Lobatto data.
-        cols = [index(j, 0, 0), index(j, 0, 1), index(j, 1, 0), index(j, 1, 1), index(j, 2, 0), index(j, 2, 1)];
-        vals = [-5.0*h*bvp.q(tl), -(24.0 + 5.0*h*bvp.p(tl)), -8.0*h*bvp.q(th), ...
-            24.0 - 8.0*h*bvp.p(th), h*bvp.q(tr), h*bvp.p(tr)];
-        [Arows, Acols, Avals, idx] = addEntries(Arows, Acols, Avals, idx, irow, cols, vals);
-        rhs(irow) = h*(5.0*bvp.r(tl) + 8.0*bvp.r(th) - bvp.r(tr));
+        % setup second equation for this interval:
+        %    -5*h*q_{j-1}*y_{j-1,0} - (24+5*h*p_{j-1})*y_{j-1,1} - 8*h*q_{j-1/2}*y_{j-1/2,0}
+        %      + (24-8*h*p_{j-1/2})*y_{j-1/2,1} + h*q_{j}*y_{j,0} + h*p_{j}*y_{j,1} = h*(5*r_{j-1}+8*r_{j-1/2}-r_{j})
+        Arows(idx) = irow;       % A(irow,index(j,0,0))
+        Acols(idx) = index(j,0,0);
+        Avals(idx) = -5*h*bvp.q(tl);
+        idx = idx + 1;
+
+        Arows(idx) = irow;       % A(irow,index(j,0,1))
+        Acols(idx) = index(j,0,1);
+        Avals(idx) = -(24 + 5*h*bvp.p(tl));
+        idx = idx + 1;
+
+        Arows(idx) = irow;       % A(irow,index(j,1,0))
+        Acols(idx) = index(j,1,0);
+        Avals(idx) = -8*h*bvp.q(th);
+        idx = idx + 1;
+
+        Arows(idx) = irow;       % A(irow,index(j,1,1))
+        Acols(idx) = index(j,1,1);
+        Avals(idx) = (24-8*h*bvp.p(th));
+        idx = idx + 1;
+
+        Arows(idx) = irow;       % A(irow,index(j,2,0))
+        Acols(idx) = index(j,2,0);
+        Avals(idx) = h*bvp.q(tr);
+        idx = idx + 1;
+
+        Arows(idx) = irow;       % A(irow,index(j,2,1))
+        Acols(idx) = index(j,2,1);
+        Avals(idx) = h*bvp.p(tr);
+        idx = idx + 1;
+
+        b(irow) = h*(5*bvp.r(tl) + 8*bvp.r(th) - bvp.r(tr));
         irow = irow + 1;
 
-        % Second interpolation equation for this Lobatto interval.
-        cols = [index(j, 0, 0), index(j, 0, 1), index(j, 1, 1), index(j, 2, 0), index(j, 2, 1)];
-        vals = [-6.0, -h, -4.0*h, 6.0, -h];
-        [Arows, Acols, Avals, idx] = addEntries(Arows, Acols, Avals, idx, irow, cols, vals);
+        % setup third equation for this interval:
+        %    -6*y_{j-1,0} - h*y_{j-1,1} - 4*h*y_{j-1/2,1} + 6*y_{j,0} - h*y_{j,1} = 0
+        Arows(idx) = irow;       % A(irow,index(j,0,0))
+        Acols(idx) = index(j,0,0);
+        Avals(idx) = -6;
+        idx = idx + 1;
+
+        Arows(idx) = irow;       % A(irow,index(j,0,1))
+        Acols(idx) = index(j,0,1);
+        Avals(idx) = -h;
+        idx = idx + 1;
+
+        Arows(idx) = irow;       % A(irow,index(j,1,1))
+        Acols(idx) = index(j,1,1);
+        Avals(idx) = -4*h;
+        idx = idx + 1;
+
+        Arows(idx) = irow;       % A(irow,index(j,2,0))
+        Acols(idx) = index(j,2,0);
+        Avals(idx) = 6;
+        idx = idx + 1;
+
+        Arows(idx) = irow;       % A(irow,index(j,2,1))
+        Acols(idx) = index(j,2,1);
+        Avals(idx) = -h;
+        idx = idx + 1;
+
+        b(irow) = 0;
         irow = irow + 1;
 
-        % Enforce the differential equation with Simpson-like endpoint weights.
-        cols = [index(j, 0, 0), index(j, 0, 1), index(j, 1, 0), index(j, 1, 1), index(j, 2, 0), index(j, 2, 1)];
-        vals = [-h*bvp.q(tl), -(6.0 + h*bvp.p(tl)), -4.0*h*bvp.q(th), ...
-            -4.0*h*bvp.p(th), -h*bvp.q(tr), 6.0 - h*bvp.p(tr)];
-        [Arows, Acols, Avals, idx] = addEntries(Arows, Acols, Avals, idx, irow, cols, vals);
-        rhs(irow) = h*(bvp.r(tl) + 4.0*bvp.r(th) + bvp.r(tr));
+        % setup fourth equation for this interval:
+        %    -h*q_{j-1}*y_{j-1,0} - (6+h*p_{j-1})*y_{j-1,1} - 4*h*q_{j-1/2}*y_{j-1/2,0} - 4*h*p_{j-1/2}*y_{j-1/2,1}
+        %       - h*q_j*y_{j,0} + (6-h*p_j)*y_{j,1} = h*(r_{j-1} + 4*r_{j-1/2} + r_{j})
+        Arows(idx) = irow;       % A(irow,index(j,0,0))
+        Acols(idx) = index(j,0,0);
+        Avals(idx) = -h*bvp.q(tl);
+        idx = idx + 1;
+
+        Arows(idx) = irow;       % A(irow,index(j,0,1))
+        Acols(idx) = index(j,0,1);
+        Avals(idx) = -(6 + h*bvp.p(tl));
+        idx = idx + 1;
+
+        Arows(idx) = irow;       % A(irow,index(j,1,0))
+        Acols(idx) = index(j,1,0);
+        Avals(idx) = -4*h*bvp.q(th);
+        idx = idx + 1;
+
+        Arows(idx) = irow;       % A(irow,index(j,1,1))
+        Acols(idx) = index(j,1,1);
+        Avals(idx) = -4*h*bvp.p(th);
+        idx = idx + 1;
+
+        Arows(idx) = irow;       % A(irow,index(j,2,0))
+        Acols(idx) = index(j,2,0);
+        Avals(idx) = -h*bvp.q(tr);
+        idx = idx + 1;
+
+        Arows(idx) = irow;       % A(irow,index(j,2,1))
+        Acols(idx) = index(j,2,1);
+        Avals(idx) = (6-h*bvp.p(tr));
+        idx = idx + 1;
+
+        b(irow) = h*(bvp.r(tl) + 4*bvp.r(th) + bvp.r(tr));
         irow = irow + 1;
     end
 
-    % create sparse matrix from accumulated entries
-    A = sparse(Arows(1:idx-1), Acols(1:idx-1), Avals(1:idx-1), M, M);
-    % solve linear system for the numerical solution
-    y = A \ rhs;
+    A = sparse(Arows, Acols, Avals, M, M);
 
-    u = y(index(1:n+1, 0, 0));
-    % output maximum error against the analytical solution
-    uerr = abs(u - utrue);
-    fprintf('  Maximum BVP solution error = %.4e\n', norm(uerr, inf));
-end
+    % solve linear system for BVP solution
+    y = A \ b;
 
-function [Arows, Acols, Avals, idx] = addEntries(Arows, Acols, Avals, idx, row, cols, vals)
-    nvals = numel(vals);
-    entries = idx:(idx+nvals-1);
-    Arows(entries) = row;
-    Acols(entries) = cols(:);
-    Avals(entries) = vals(:);
-    idx = idx + nvals;
+    % output maximum error
+    u = y(index(1:n+1,0,0));
+    uerr = abs(u-utrue);
+    fprintf('  Maximum BVP solution error = %.4e\n', max(uerr));
 end

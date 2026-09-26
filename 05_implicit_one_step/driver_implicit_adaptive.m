@@ -19,59 +19,114 @@ atol = 1e-12;
 tspan = linspace(t0, tf, Nout+1).';
 solver = ImplicitSolver(@J, 20, 1e-9, 1e-12, 3);
 
-% Compare several embedded DIRK pairs with increasing formal order.
-methods = {
-    'DIRK21', AdaptDIRK.SDIRK21();
-    'DIRK32', AdaptDIRK.ESDIRK32();
-    'DIRK43', AdaptDIRK.ESDIRK43();
-    'DIRK54', AdaptDIRK.ESDIRK54()
-};
-
 % Use a high-accuracy reference solution when the host MATLAB has ode15s available.
 Yref = referenceSolution(tspan);
-solutions = cell(size(methods,1), 1);
-histories = cell(size(methods,1), 1);
-nsteps = zeros(size(methods,1), 1);
 
-for imethod = 1:size(methods,1)
-    name = methods{imethod,1};
-    B = methods{imethod,2};
-    % Reuse the same nonlinear solver settings while swapping the DIRK tableau.
-    stepper = AdaptDIRK(@f, y0, solver, B, rtol, atol, [], [], [], [], [], true);
+% create adaptive DIRK solvers
+AD21 = AdaptDIRK(@f, y0, solver, AdaptDIRK.SDIRK21(), rtol, atol, [], [], [], [], [], true);
+AD32 = AdaptDIRK(@f, y0, solver, AdaptDIRK.ESDIRK32(), rtol, atol, [], [], [], [], [], true);
+AD43 = AdaptDIRK(@f, y0, solver, AdaptDIRK.ESDIRK43(), rtol, atol, [], [], [], [], [], true);
+AD54 = AdaptDIRK(@f, y0, solver, AdaptDIRK.ESDIRK54(), rtol, atol, [], [], [], [], [], true);
 
-    fprintf('\nAdaptive %s solver:\n', name);
-    [Y, success] = stepper.Evolve(tspan, y0);
-    if ~success
-        fprintf('  solve failed\n');
-    end
-    histories{imethod} = stepper.get_step_history();
-    solutions{imethod} = Y;
-    nsteps(imethod) = stepper.get_num_steps();
-    err = norm(Y - Yref, 1);
-    fprintf('  steps = %5d  fails = %2d, error = %.2e\n\n', ...
-        stepper.get_num_steps(), stepper.get_num_error_failures(), err);
-    solver.reset();
+% adaptive tests
+fprintf('\nAdaptive DIRK21 solver:\n');
+[Y_AD21, success] = AD21.Evolve(tspan, y0);
+if ~success
+    fprintf('  solve failed\n');
 end
+step_hist_AD21 = AD21.get_step_history();
+err_AD21 = norm(Y_AD21 - Yref, 1);
+fprintf('  steps = %5d  fails = %2d, error = %.2e\n\n', ...
+    AD21.get_num_steps(), AD21.get_num_error_failures(), err_AD21);
+solver.reset();
 
-for imethod = 1:size(methods,1)
-    name = methods{imethod,1};
-    Y = solutions{imethod};
-    % create plots for visual diagnostics
-    figure();
-    plot(tspan, Y);
-    xlabel('t');
-    ylabel('y');
-    title(sprintf('Oregonator Solution (%s, %d steps)', name, nsteps(imethod)));
-    saveas(gcf, sprintf('adaptive_%s.png', lower(name)));
+fprintf('\nAdaptive DIRK32 solver:\n');
+[Y_AD32, success] = AD32.Evolve(tspan, y0);
+if ~success
+    fprintf('  solve failed\n');
 end
+step_hist_AD32 = AD32.get_step_history();
+err_AD32 = norm(Y_AD32 - Yref, 1);
+fprintf('  steps = %5d  fails = %2d, error = %.2e\n\n', ...
+    AD32.get_num_steps(), AD32.get_num_error_failures(), err_AD32);
+solver.reset();
 
-colors = {'b', 'k', 'g', 'm'};
+fprintf('\nAdaptive DIRK43 solver:\n');
+[Y_AD43, success] = AD43.Evolve(tspan, y0);
+if ~success
+    fprintf('  solve failed\n');
+end
+step_hist_AD43 = AD43.get_step_history();
+err_AD43 = norm(Y_AD43 - Yref, 1);
+fprintf('  steps = %5d  fails = %2d, error = %.2e\n\n', ...
+    AD43.get_num_steps(), AD43.get_num_error_failures(), err_AD43);
+solver.reset();
+
+fprintf('\nAdaptive DIRK54 solver:\n');
+[Y_AD54, success] = AD54.Evolve(tspan, y0);
+if ~success
+    fprintf('  solve failed\n');
+end
+step_hist_AD54 = AD54.get_step_history();
+err_AD54 = norm(Y_AD54 - Yref, 1);
+fprintf('  steps = %5d  fails = %2d, error = %.2e\n\n', ...
+    AD54.get_num_steps(), AD54.get_num_error_failures(), err_AD54);
+solver.reset();
+
+% create plots for adaptive runs
+figure();
+plot(tspan, Y_AD21);
+xlabel('t');
+ylabel('y');
+title(sprintf('Oregonator Solution (DIRK21, %d steps)', AD21.get_num_steps()));
+saveas(gcf, 'adaptive_dirk21.png');
+
+figure();
+plot(tspan, Y_AD32);
+xlabel('t');
+ylabel('y');
+title(sprintf('Oregonator Solution (DIRK32, %d steps)', AD32.get_num_steps()));
+saveas(gcf, 'adaptive_dirk32.png');
+
+figure();
+plot(tspan, Y_AD43);
+xlabel('t');
+ylabel('y');
+title(sprintf('Oregonator Solution (DIRK43, %d steps)', AD43.get_num_steps()));
+saveas(gcf, 'adaptive_dirk43.png');
+
+figure();
+plot(tspan, Y_AD54);
+xlabel('t');
+ylabel('y');
+title(sprintf('Oregonator Solution (DIRK54, %d steps)', AD54.get_num_steps()));
+saveas(gcf, 'adaptive_dirk54.png');
+
 figure();
 hold on;
-for imethod = 1:size(methods,1)
-    hist = histories{imethod};
-    plot(hist.t, hist.h, [colors{imethod} '-'], 'DisplayName', methods{imethod,1});
-    plotFailures(hist, colors{imethod});
+plot(step_hist_AD21.t, step_hist_AD21.h, 'b-', 'DisplayName', 'DIRK21');
+plot(step_hist_AD32.t, step_hist_AD32.h, 'k-', 'DisplayName', 'DIRK32');
+plot(step_hist_AD43.t, step_hist_AD43.h, 'g-', 'DisplayName', 'DIRK43');
+plot(step_hist_AD54.t, step_hist_AD54.h, 'm-', 'DisplayName', 'DIRK54');
+for i = 1:numel(step_hist_AD21.t)
+    if step_hist_AD21.err(i) > 1.0
+        plot(step_hist_AD21.t(i), step_hist_AD21.h(i), 'bx', 'HandleVisibility', 'off');
+    end
+end
+for i = 1:numel(step_hist_AD32.t)
+    if step_hist_AD32.err(i) > 1.0
+        plot(step_hist_AD32.t(i), step_hist_AD32.h(i), 'kx', 'HandleVisibility', 'off');
+    end
+end
+for i = 1:numel(step_hist_AD43.t)
+    if step_hist_AD43.err(i) > 1.0
+        plot(step_hist_AD43.t(i), step_hist_AD43.h(i), 'gx', 'HandleVisibility', 'off');
+    end
+end
+for i = 1:numel(step_hist_AD54.t)
+    if step_hist_AD54.err(i) > 1.0
+        plot(step_hist_AD54.t(i), step_hist_AD54.h(i), 'mx', 'HandleVisibility', 'off');
+    end
 end
 hold off;
 xlabel('t');
@@ -129,12 +184,4 @@ function val = J(~, y)
     val = [-k1*y(2) + k2 - 2.0*k3*y(1), -k1*y(1) + k4, 0; ...
            -k1*y(2), -k1*y(1) - k4, k5; ...
            k2, 0, -k5];
-end
-
-function plotFailures(step_hist, color)
-    % Mark rejected steps on the adaptive step-size history.
-    idx = step_hist.err > 1.0;
-    if any(idx)
-        plot(step_hist.t(idx), step_hist.h(idx), [color 'x'], 'HandleVisibility', 'off');
-    end
 end
