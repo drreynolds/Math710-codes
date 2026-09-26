@@ -19,9 +19,6 @@ from Implicit_LMM import *
 t0 = 0.0
 tf = 5.0
 
-# flag to switch between dense and iterative linear solvers
-iterative = False
-
 # problem-defining functions
 def ytrue(t):
     """ Generates a numpy array containing the true solution to the IVP at a given input t. """
@@ -37,10 +34,7 @@ def Jv(t,y,v,lam):
     return np.array( [lam*v[0]] )
 
 # construct implicit solver
-if (iterative):
-    solver = ImplicitSolver(Jv, solver_type='gmres', maxiter=20, rtol=1e-9, atol=1e-12)
-else:
-    solver = ImplicitSolver(J, solver_type='dense', maxiter=20, rtol=1e-9, atol=1e-12, Jfreq=2)
+solver = ImplicitSolver(J, solver_type='dense', maxiter=20, rtol=1e-9, atol=1e-12, Jfreq=2)
 
 # shared testing data
 Nout = 6   # includes initial condition

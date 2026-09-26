@@ -31,11 +31,6 @@ from LTSubcycling import *
 from SMSubcycling import *
 from MRI import *
 
-# methods to test
-runLT = True
-runSM = True
-runMRI = True
-
 # KPR problem parameters
 Tf = 5
 Nt = 25
@@ -46,7 +41,6 @@ G = -10
 
 # slow step sizes to try
 Hvals = np.array([0.1, 0.05, 0.025, 0.01, 0.005, 0.0025])
-errs = np.zeros(Hvals.size)
 
 # KPR component functions
 def r(t):
@@ -90,210 +84,50 @@ def ff(t, y):
                         (-2 + v**2 - s(t)) / (2 * v)])
             + np.array([0, sdot(t) / (2 * v)]))
 
-if (runLT):
-    # Lie-Trotter-1
-    print("\nLie-Trotter-Subcycling-1:")
+def runFamily(name, Hvals, w, Y0, Ytrue, tvals, buildStepper):
+    # store errors for convergence-rate estimates
+    errs = np.zeros(Hvals.size)
+    print("\n%s:" % (name))
     for idx, H in enumerate(Hvals):
-
-        # set fast time step size
         h = H/w
-
-        # create fast and slow steppers
-        E1 = ERK(ff, ERK1(), h)
-        LT1 = LTSubcycling(fs, ERK1(), E1, H)
-
-        # set initial condition and call stepper
-        y0 = Ytrue[0,:]
+        stepper = buildStepper(h, H)
+        fast = stepper.FastSolver
         print("  H = %f, h = %f:" % (H, h))
-        Y, success = LT1.Evolve(tvals, y0)
-
-        # output solution, errors, and overall error
-        Yerr = np.abs(Y-Ytrue)
-        errs[idx] = np.linalg.norm(Yerr,np.inf)
+        Y, success = stepper.Evolve(tvals, Y0)
+        errs[idx] = np.linalg.norm(np.abs(Y-Ytrue),np.inf)
+        if (not success):
+            print("  solve failed")
         print("   steps (s,f) = (%i, %i)  nrhs (s,f) = (%i, %i)  err = %.1e" %
-            (LT1.get_num_steps(), E1.get_num_steps(), LT1.get_num_rhs(), E1.get_num_rhs(), errs[idx]))
-    orders = np.log(errs[0:-2]/errs[1:-1])/np.log(Hvals[0:-2]/Hvals[1:-1])
-    print('estimated order: ', np.mean(orders))
+            (stepper.get_num_steps(), fast.get_num_steps(), stepper.get_num_rhs(), fast.get_num_rhs(), errs[idx]))
 
+    if (Hvals.size > 2):
+        orders = np.log(errs[0:-2]/errs[1:-1])/np.log(Hvals[0:-2]/Hvals[1:-1])
+        print('estimated order: ', np.mean(orders))
 
-    # Lie-Trotter-2
-    print("\nLie-Trotter-Subcycling-2:")
-    for idx, H in enumerate(Hvals):
+# Lie-Trotter subcycling evolves slow dynamics once per macro step and
+# fast dynamics with h = H/w substeps.
+runFamily('Lie-Trotter-Subcycling-1', Hvals, w, Y0, Ytrue, tvals,
+    lambda h, H: LTSubcycling(fs, ERK1(), ERK(ff, ERK1(), h), H))
 
-        # set fast time step size
-        h = H/w
+runFamily('Lie-Trotter-Subcycling-2', Hvals, w, Y0, Ytrue, tvals,
+    lambda h, H: LTSubcycling(fs, ERK2(), ERK(ff, ERK2(), h), H))
 
-        # create fast and slow steppers
-        E2 = ERK(ff, ERK2(), h)
-        LT2 = LTSubcycling(fs, ERK2(), E2, H)
+# Strang-Marchuk variants symmetrize the slow/fast splitting.
+runFamily('Strang-Marchuk-Subcycling-1', Hvals, w, Y0, Ytrue, tvals,
+    lambda h, H: SMSubcycling(fs, ERK1(), ERK(ff, ERK1(), h), H))
 
-        # set initial condition and call stepper
-        y0 = Ytrue[0,:]
-        print("  H = %f, h = %f:" % (H, h))
-        Y, success = LT2.Evolve(tvals, y0)
+runFamily('Strang-Marchuk-2', Hvals, w, Y0, Ytrue, tvals,
+    lambda h, H: SMSubcycling(fs, ERK2(), ERK(ff, ERK2(), h), H))
 
-        # output solution, errors, and overall error
-        Yerr = np.abs(Y-Ytrue)
-        errs[idx] = np.linalg.norm(Yerr,np.inf)
-        print("   steps (s,f) = (%i, %i)  nrhs (s,f) = (%i, %i)  err = %.1e" %
-            (LT2.get_num_steps(), E2.get_num_steps(), LT2.get_num_rhs(), E2.get_num_rhs(), errs[idx]))
-    orders = np.log(errs[0:-2]/errs[1:-1])/np.log(Hvals[0:-2]/Hvals[1:-1])
-    print('estimated order: ', np.mean(orders))
+runFamily('Strang-Marchuk-3', Hvals, w, Y0, Ytrue, tvals,
+    lambda h, H: SMSubcycling(fs, ERK3(), ERK(ff, ERK3(), h), H))
 
+# MRI-GARK methods couple slow stages to a fast IVP solve over each stage interval.
+runFamily('MRI-GARK-ERK22a', Hvals, w, Y0, Ytrue, tvals,
+    lambda h, H: MRI(Y0, fs, ff, MRIGARKERK22a(), ERK(ff, ERK2(), h), H))
 
-if (runSM):
-    # Strang-Marchuk-1
-    print("\nStrang-Marchuk-Subcycling-1:")
-    for idx, H in enumerate(Hvals):
+runFamily('MRI-GARK-ERK33a', Hvals, w, Y0, Ytrue, tvals,
+    lambda h, H: MRI(Y0, fs, ff, MRIGARKERK33a(), ERK(ff, ERK3(), h), H))
 
-        # set fast time step size
-        h = H/w
-
-        # create fast and slow steppers
-        E1 = ERK(ff, ERK1(), h)
-        SM1 = SMSubcycling(fs, ERK1(), E1, H)
-
-        # set initial condition and call stepper
-        y0 = Ytrue[0,:]
-        print("  H = %f, h = %f:" % (H, h))
-        Y, success = SM1.Evolve(tvals, y0)
-
-        # output solution, errors, and overall error
-        Yerr = np.abs(Y-Ytrue)
-        errs[idx] = np.linalg.norm(Yerr,np.inf)
-        print("   steps (s,f) = (%i, %i)  nrhs (s,f) = (%i, %i)  err = %.1e" %
-            (SM1.get_num_steps(), E1.get_num_steps(), SM1.get_num_rhs(), E1.get_num_rhs(), errs[idx]))
-    orders = np.log(errs[0:-2]/errs[1:-1])/np.log(Hvals[0:-2]/Hvals[1:-1])
-    print('estimated order: ', np.mean(orders))
-
-
-    # Strang-Marchuk-2
-    print("\nStrang-Marchuk-2:")
-    for idx, H in enumerate(Hvals):
-
-        # set fast time step size
-        h = H/w
-
-        # create fast and slow steppers
-        E2 = ERK(ff, ERK2(), h)
-        SM2 = SMSubcycling(fs, ERK2(), E2, H)
-
-        # set initial condition and call stepper
-        y0 = Ytrue[0,:]
-        print("  H = %f, h = %f:" % (H, h))
-        Y, success = SM2.Evolve(tvals, y0)
-
-        # output solution, errors, and overall error
-        Yerr = np.abs(Y-Ytrue)
-        errs[idx] = np.linalg.norm(Yerr,np.inf)
-        print("   steps (s,f) = (%i, %i)  nrhs (s,f) = (%i, %i)  err = %.1e" %
-            (SM2.get_num_steps(), E2.get_num_steps(), SM2.get_num_rhs(), E2.get_num_rhs(), errs[idx]))
-    orders = np.log(errs[0:-2]/errs[1:-1])/np.log(Hvals[0:-2]/Hvals[1:-1])
-    print('estimated order: ', np.mean(orders))
-
-
-    # Strang-Marchuk-3
-    print("\nStrang-Marchuk-3:")
-    for idx, H in enumerate(Hvals):
-
-        # set fast time step size
-        h = H/w
-
-        # create fast and slow steppers
-        E3 = ERK(ff, ERK3(), h)
-        SM3 = SMSubcycling(fs, ERK3(), E3, H)
-
-        # set initial condition and call stepper
-        y0 = Ytrue[0,:]
-        print("  H = %f, h = %f:" % (H, h))
-        Y, success = SM3.Evolve(tvals, y0)
-
-        # output solution, errors, and overall error
-        Yerr = np.abs(Y-Ytrue)
-        errs[idx] = np.linalg.norm(Yerr,np.inf)
-        print("   steps (s,f) = (%i, %i)  nrhs (s,f) = (%i, %i)  err = %.1e" %
-            (SM3.get_num_steps(), E3.get_num_steps(), SM3.get_num_rhs(), E3.get_num_rhs(), errs[idx]))
-    orders = np.log(errs[0:-2]/errs[1:-1])/np.log(Hvals[0:-2]/Hvals[1:-1])
-    print('estimated order: ', np.mean(orders))
-
-
-if (runMRI):
-    # MRI-GARK-ERK22a
-    print("\nMRI-GARK-ERK22a:")
-    for idx, H in enumerate(Hvals):
-
-        # set fast time step size
-        h = H/w
-
-        # set initial condition
-        y0 = Ytrue[0,:]
-
-        # create fast and slow steppers
-        E2 = ERK(ff, ERK2(), h)
-        MRI2 = MRI(y0, fs, ff, MRIGARKERK22a(), E2, H)
-
-        # call stepper
-        print("  H = %f, h = %f:" % (H, h))
-        Y, success = MRI2.Evolve(tvals, y0)
-
-        # output solution, errors, and overall error
-        Yerr = np.abs(Y-Ytrue)
-        errs[idx] = np.linalg.norm(Yerr,np.inf)
-        print("   steps (s,f) = (%i, %i)  nrhs (s,f) = (%i, %i)  err = %.1e" %
-            (MRI2.get_num_steps(), E2.get_num_steps(), MRI2.get_num_rhs(), E2.get_num_rhs(), errs[idx]))
-    orders = np.log(errs[0:-2]/errs[1:-1])/np.log(Hvals[0:-2]/Hvals[1:-1])
-    print('estimated order: ', np.mean(orders))
-
-
-    # MRI-GARK-ERK33a
-    print("\nMRI-GARK-ERK33a:")
-    for idx, H in enumerate(Hvals):
-
-        # set fast time step size
-        h = H/w
-
-        # set initial condition
-        y0 = Ytrue[0,:]
-
-        # create fast and slow steppers
-        E3 = ERK(ff, ERK3(), h)
-        MRI3 = MRI(y0, fs, ff, MRIGARKERK33a(), E3, H)
-
-        # call stepper
-        print("  H = %f, h = %f:" % (H, h))
-        Y, success = MRI3.Evolve(tvals, y0)
-
-        # output solution, errors, and overall error
-        Yerr = np.abs(Y-Ytrue)
-        errs[idx] = np.linalg.norm(Yerr,np.inf)
-        print("   steps (s,f) = (%i, %i)  nrhs (s,f) = (%i, %i)  err = %.1e" %
-            (MRI3.get_num_steps(), E3.get_num_steps(), MRI3.get_num_rhs(), E3.get_num_rhs(), errs[idx]))
-    orders = np.log(errs[0:-2]/errs[1:-1])/np.log(Hvals[0:-2]/Hvals[1:-1])
-    print('estimated order: ', np.mean(orders))
-
-
-    # MRI-GARK-ERK45a
-    print("\nMRI-GARK-ERK45a:")
-    for idx, H in enumerate(Hvals):
-
-        # set fast time step size
-        h = H/w
-
-        # set initial condition
-        y0 = Ytrue[0,:]
-
-        # create fast and slow steppers
-        E4 = ERK(ff, ERK4(), h)
-        MRI4 = MRI(y0, fs, ff, MRIGARKERK45a(), E4, H)
-
-        # call stepper
-        print("  H = %f, h = %f:" % (H, h))
-        Y, success = MRI4.Evolve(tvals, y0)
-
-        # output solution, errors, and overall error
-        Yerr = np.abs(Y-Ytrue)
-        errs[idx] = np.linalg.norm(Yerr,np.inf)
-        print("   steps (s,f) = (%i, %i)  nrhs (s,f) = (%i, %i)  err = %.1e" %
-            (MRI4.get_num_steps(), E4.get_num_steps(), MRI4.get_num_rhs(), E4.get_num_rhs(), errs[idx]))
-    orders = np.log(errs[0:-2]/errs[1:-1])/np.log(Hvals[0:-2]/Hvals[1:-1])
-    print('estimated order: ', np.mean(orders))
+runFamily('MRI-GARK-ERK45a', Hvals, w, Y0, Ytrue, tvals,
+    lambda h, H: MRI(Y0, fs, ff, MRIGARKERK45a(), ERK(ff, ERK4(), h), H))

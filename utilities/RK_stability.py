@@ -88,8 +88,8 @@ def RK_stability(B, box, N=1000):
 
 
 if __name__ == '__main__':
-    ''' Driver that calls RK_stability to plot the stability regions for
-        forward and backward Euler.'''
+    ''' Driver that calls RK_stability to plot the stability regions for forward
+        Euler, ERK4, backward Euler, and the Crouzeix & Raviart 3rd-order DIRK method.'''
 
     A = np.zeros((1,1))
     b = np.zeros(1)

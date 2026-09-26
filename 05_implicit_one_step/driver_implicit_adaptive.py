@@ -76,6 +76,8 @@ AD54 = AdaptDIRK(f, y0, solver, ESDIRK54(), rtol=rtol, atol=atol, save_step_hist
 # adaptive tests
 print("\nAdaptive DIRK21 solver:")
 Y_AD21, success = AD21.Evolve(tspan, y0)
+if (not success):
+    print("  solve failed")
 step_hist_AD21 = AD21.get_step_history()
 err_AD21 = np.linalg.norm(Y_AD21 - np.transpose(yref), 1)
 print("  steps = %5i  fails = %2i, error = %.2e\n" %
@@ -84,6 +86,8 @@ solver.reset()
 
 print("\nAdaptive DIRK32 solver:")
 Y_AD32, success = AD32.Evolve(tspan, y0)
+if (not success):
+    print("  solve failed")
 step_hist_AD32 = AD32.get_step_history()
 err_AD32 = np.linalg.norm(Y_AD32 - np.transpose(yref), 1)
 print("  steps = %5i  fails = %2i, error = %.2e\n" %
@@ -92,6 +96,8 @@ solver.reset()
 
 print("\nAdaptive DIRK43 solver:")
 Y_AD43, success = AD43.Evolve(tspan, y0)
+if (not success):
+    print("  solve failed")
 step_hist_AD43 = AD43.get_step_history()
 err_AD43 = np.linalg.norm(Y_AD43 - np.transpose(yref), 1)
 print("  steps = %5i  fails = %2i, error = %.2e\n" %
@@ -100,6 +106,8 @@ solver.reset()
 
 print("\nAdaptive DIRK54 solver:")
 Y_AD54, success = AD54.Evolve(tspan, y0)
+if (not success):
+    print("  solve failed")
 step_hist_AD54 = AD54.get_step_history()
 err_AD54 = np.linalg.norm(Y_AD54 - np.transpose(yref), 1)
 print("  steps = %5i  fails = %2i, error = %.2e\n" %

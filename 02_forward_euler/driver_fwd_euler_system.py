@@ -76,6 +76,6 @@ for idx, h in enumerate(hvals):
         for i in range(Nout):
             print("    y(%.1f) = " % (tspan[i]), Y[i,:])
     print("  overall:  steps = %5i  abserr = %9.2e  relerr = %9.2e" %
-          (FE.get_num_steps(), errs[idx], np.linalg.norm(Yerr/Ytrue,np.inf)))
+          (FE.get_num_steps(), errs[idx], np.linalg.norm(Yerr/np.maximum(np.abs(Ytrue),1e-14),np.inf)))
 orders = np.log(errs[0:-2]/errs[1:-1])/np.log(hvals[0:-2]/hvals[1:-1])
 print('estimated order: max = ', np.max(orders), ',  avg = ', np.average(orders))

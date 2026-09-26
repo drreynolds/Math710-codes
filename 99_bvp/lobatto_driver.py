@@ -55,9 +55,7 @@ for n in N:
     t[n] = 1.0
     for j in range(1,n):
         t[j] = 0.5*(1-np.cos((2*j-1)*np.pi/(2*(n-1))))
-    utrue = np.zeros(n+1)
-    for j in range(n+1):
-        utrue[j] = bvp.utrue(t[j])
+    utrue = bvp.utrue(t)
 
     # set integer for overall linear algebra problem size
     M = 4*n+2
@@ -233,8 +231,6 @@ for n in N:
     y = spsolve(A,b)
 
     # output maximum error
-    u = np.zeros(n+1)
-    for j in range(n+1):
-        u[j] = y[index(j+1,0,0)]
+    u = y[index(np.arange(1,n+2),0,0)]
     uerr = np.abs(u-utrue)
     print("  Maximum BVP solution error = %.4e" % (np.max(uerr)))

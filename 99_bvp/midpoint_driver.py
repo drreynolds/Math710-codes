@@ -40,9 +40,7 @@ for n in N:
     t[n] = 1.0
     for j in range(1,n):
         t[j] = 0.5*(1-np.cos((2*j-1)*np.pi/(2*(n-1))))
-    utrue = np.zeros(n+1)
-    for j in range(n+1):
-      utrue[j] = bvp.utrue(t[j])
+    utrue = bvp.utrue(t)
 
     # create matrix and right-hand side vectors
     Arows = np.zeros(8*(n+1))
@@ -128,8 +126,6 @@ for n in N:
     y = spsolve(A,b)
 
     # output maximum error
-    u = np.zeros(n+1)
-    for j in range(n+1):
-        u[j] = y[2*j]
+    u = y[0::2]
     uerr = np.abs(u-utrue)
     print("  Maximum BVP solution error = %.4e" % (np.max(uerr)))

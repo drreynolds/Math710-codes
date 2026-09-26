@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Main routine to test the forward Euler method on a system of ODEs
+# Script to test various DIRK and IRK methods on a system of ODEs
 #    y' = f(t,y), t in [0,1],
 #    y(0) = y0.
 #
@@ -37,9 +37,6 @@ t0 = 0.0
 tf = 1.0
 y0 = np.random.random_sample(N)
 
-# flag to switch between dense and iterative linear solvers
-iterative = False
-
 # problem-defining functions
 def f(t,y):
     """ ODE RHS function """
@@ -47,9 +44,6 @@ def f(t,y):
 def J(t,y):
     """ Jacobian (in dense matrix format) of the right-hand side function, J(t,y) = df/dy """
     return A
-def Jv(t,y,v):
-    """ Jacobian-vector-product of the right-hand side function, J(t,y) = (df/dy)@v """
-    return A@v
 def ytrue(t):
     """ Analytical solution """
     eD = np.zeros((N,N))       # construct the matrix exponential
@@ -58,10 +52,7 @@ def ytrue(t):
     return (V @ (eD @ (Vinv @ y0)))  # ytrue = V exp(D*t) V^{-1} y0
 
 # construct implicit solver
-if (iterative):
-    solver = ImplicitSolver(Jv, solver_type='gmres', maxiter=20, rtol=1e-12, atol=1e-14)
-else:
-    solver = ImplicitSolver(J, solver_type='dense', maxiter=20, rtol=1e-12, atol=1e-14, Jfreq=2)
+solver = ImplicitSolver(J, solver_type='dense', maxiter=20, rtol=1e-12, atol=1e-14, Jfreq=2)
 
 # shared testing data
 Nout = 3   # includes initial condition

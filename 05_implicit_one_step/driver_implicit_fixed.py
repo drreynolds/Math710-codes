@@ -21,9 +21,6 @@ from IRK import *
 t0 = 0.0
 tf = 5.0
 
-# flag to switch between dense and iterative linear solvers
-iterative = True
-
 # problem-defining functions
 def ytrue(t):
     """ Generates a numpy array containing the true solution to the IVP at a given input t. """
