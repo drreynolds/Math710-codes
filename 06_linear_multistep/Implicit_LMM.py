@@ -18,7 +18,7 @@ sys.path.append('..')
 from shared.ImplicitSolver import *
 
 class Implicit_LMM:
-    """
+    r"""
     Fixed stepsize implicit linear multistep class
 
     The four required arguments when constructing an implicit linear
@@ -60,7 +60,7 @@ class Implicit_LMM:
         Usage: t, success = implicit_lmm_step(t, args)
 
         Utility routine to take a single implicit LMM time step,
-        where the inputs `t` is overwritten by the updated value.
+        where the input `t` is overwritten by the updated value.
         args is used for optional parameters of the RHS.
         If success==True then the step succeeded; otherwise it failed.
         """
@@ -99,6 +99,10 @@ class Implicit_LMM:
         """ Returns the accumulated number of steps """
         return self.steps
 
+    def get_num_solves(self):
+        """ Returns the accumulated number of implicit solves """
+        return self.steps
+
     def Evolve(self, tspan, y0, h=0.0, args=()):
         """
         Usage: Y, success = Evolve(tspan, y0, h, args)
@@ -123,7 +127,7 @@ class Implicit_LMM:
                      false if an integration step failed [bool]
         """
 
-        # set time step for evoluation based on input-vs-stored value
+        # set time step for evolution based on input-vs-stored value
         if (h != 0.0):
             self.h = h
 

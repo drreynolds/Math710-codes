@@ -15,7 +15,7 @@
 import numpy as np
 
 class Explicit_LMM:
-    """
+    r"""
     Fixed stepsize explicit linear multistep class
 
     The three required arguments when constructing an explicit linear

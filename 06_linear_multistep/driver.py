@@ -83,9 +83,12 @@ def RunTest(stepper, prevsteps, name, implicit):
                 else:
                     print("  steps = %4i  Nrhs = %6i  abserr = %8.2e" %
                           (stepper.get_num_steps(), stepper.get_num_rhs(), errs[idx]))
-        orders = np.log(errs[0:-2]/errs[1:-1])/np.log(hvals[0:-2]/hvals[1:-1])
-        print('    estimated order:  max = %.2f,  avg = %.2f' %
-              (np.max(orders), np.average(orders)))
+            else:
+                print("  solve failed  abserr = %8.2e" % (errs[idx]))
+        if (hvals.size > 2):
+            orders = np.log(errs[0:-2]/errs[1:-1])/np.log(hvals[0:-2]/hvals[1:-1])
+            print('    estimated order:  max = %.2f,  avg = %.2f' %
+                  (np.max(orders), np.average(orders)))
 
 
 # Adams-Bashforth-1

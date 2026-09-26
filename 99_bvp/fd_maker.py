@@ -6,7 +6,7 @@
 # Math & Stat @ UMBC
 
 def fd_maker(stencil, deriv):
-    """
+    r"""
     Usage: coeffs, errorterm = fd_maker(stencil, deriv)
 
     Utility to compute classical finite difference approximation to a requested derivative
