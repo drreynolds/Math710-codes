@@ -193,7 +193,7 @@ classdef DIRK < handle
                 t = tspan(iout-1);
 
                 % March internally until the next requested output time is reached.
-                for n = 1:N %#ok<NASGU>
+                for n = 1:N
                     [t, y, success] = self.dirk_step(t, y, hcur, args);
                     if ~success
                         fprintf('DIRK::Evolve error in time step at t = %g\n', t);
@@ -215,6 +215,8 @@ classdef DIRK < handle
             %
             % Utility routine to return the DIRK table corresponding to
             % Alexander's 3-stage O(h^3) method.
+            %
+            % Reference: Alexander, SIAM J. Numer. Anal. 14 (1977), doi:10.1137/0714068.
             %
             % Outputs: B.A holds the Runge--Kutta stage coefficients
             %          B.b holds the Runge--Kutta solution weights
@@ -238,6 +240,8 @@ classdef DIRK < handle
             % Utility routine to return the DIRK table corresponding to
             % Crouzeix & Raviart's 3-stage O(h^4) method.
             %
+            % TODO: add citation
+            %
             % Outputs: B.A holds the Runge--Kutta stage coefficients
             %          B.b holds the Runge--Kutta solution weights
             %          B.c holds the Runge--Kutta abscissae
@@ -258,6 +262,10 @@ classdef DIRK < handle
             %
             % Utility routine to return the SDIRK table corresponding to
             % a 5-stage, 5th-order method.
+            %
+            % Reference: Kennedy & Carpenter, Diagonally implicit Runge--Kutta methods
+            %            for ordinary differential equations. A review,
+            %            NASA/TM-2016-219173 (2016).
             %
             % Outputs: B.A holds the Runge--Kutta stage coefficients
             %          B.b holds the Runge--Kutta solution weights
@@ -280,6 +288,8 @@ classdef DIRK < handle
             % Utility routine to return the EDDIRK table corresponding to
             % a 4th-order accurate method with semilinear order 4.
             %
+            % TODO: add citation
+            %
             % Outputs: B.A holds the Runge--Kutta stage coefficients
             %          B.b holds the Runge--Kutta solution weights
             %          B.c holds the Runge--Kutta abscissae
@@ -299,7 +309,17 @@ classdef DIRK < handle
         % Additional diagonally-implicit Runge--Kutta tables.
 
         function B = IRK11()
-            % Utility routine to return the DIRK table IRK-1-1.
+            % Usage: B = IRK11()
+            %
+            % Utility routine to return the DIRK table corresponding to the IRK-1-1
+            % method.
+            %
+            % TODO: add citation
+            %
+            % Outputs: B.A holds the Runge--Kutta stage coefficients
+            %          B.b holds the Runge--Kutta solution weights
+            %          B.c holds the Runge--Kutta abscissae
+            %          B.p holds the Runge--Kutta method order
 
             B.A = 1;
             B.b = 1;
@@ -308,7 +328,18 @@ classdef DIRK < handle
         end
 
         function B = Ascher232SDIRK()
-            % Utility routine to return the DIRK table Ascher(2,3,2)-SDIRK.
+            % Usage: B = Ascher232SDIRK()
+            %
+            % Utility routine to return the DIRK table corresponding to the
+            % Ascher(2,3,2)-SDIRK method.
+            %
+            % Reference: Ascher, Ruuth & Spiteri, Appl. Numer. Math. 25 (1997),
+            %            doi:10.1016/S0168-9274(97)00056-1.
+            %
+            % Outputs: B.A holds the Runge--Kutta stage coefficients
+            %          B.b holds the Runge--Kutta solution weights
+            %          B.c holds the Runge--Kutta abscissae
+            %          B.p holds the Runge--Kutta method order
 
             B.A = [0, 0, 0; ...
                    0, 0.29289321881345243, 0; ...
@@ -319,7 +350,17 @@ classdef DIRK < handle
         end
 
         function B = LobattoIIIA22IRK()
-            % Utility routine to return the DIRK table LobattoIIIA-2-2-IRK.
+            % Usage: B = LobattoIIIA22IRK()
+            %
+            % Utility routine to return the DIRK table corresponding to the
+            % LobattoIIIA-2-2-IRK method.
+            %
+            % TODO: add citation
+            %
+            % Outputs: B.A holds the Runge--Kutta stage coefficients
+            %          B.b holds the Runge--Kutta solution weights
+            %          B.c holds the Runge--Kutta abscissae
+            %          B.p holds the Runge--Kutta method order
 
             B.A = [0, 0; ...
                    0.5, 0.5];
@@ -329,7 +370,18 @@ classdef DIRK < handle
         end
 
         function B = SSP222SDIRK()
-            % Utility routine to return the DIRK table SSP2(2,2,2)-SDIRK.
+            % Usage: B = SSP222SDIRK()
+            %
+            % Utility routine to return the DIRK table corresponding to the
+            % SSP2(2,2,2)-SDIRK method.
+            %
+            % Reference: Pareschi & Russo, J. Sci. Comput. 25 (2005),
+            %            doi:10.1007/BF02728986.
+            %
+            % Outputs: B.A holds the Runge--Kutta stage coefficients
+            %          B.b holds the Runge--Kutta solution weights
+            %          B.c holds the Runge--Kutta abscissae
+            %          B.p holds the Runge--Kutta method order
 
             B.A = [0.29289321881345254, 0; ...
                    0.41421356237309492, 0.29289321881345254];
@@ -339,7 +391,18 @@ classdef DIRK < handle
         end
 
         function B = SSP2332Lpm1SDIRK()
-            % Utility routine to return the DIRK table SSP2(3,3,2)-lpm1-SDIRK.
+            % Usage: B = SSP2332Lpm1SDIRK()
+            %
+            % Utility routine to return the DIRK table corresponding to the
+            % SSP2(3,3,2)-lpm1-SDIRK method.
+            %
+            % Reference: Higueras, Happenhofer, Koch & Kupka, J. Comput. Appl. Math. 272
+            %            (2014), doi:10.1016/j.cam.2014.05.011.
+            %
+            % Outputs: B.A holds the Runge--Kutta stage coefficients
+            %          B.b holds the Runge--Kutta solution weights
+            %          B.c holds the Runge--Kutta abscissae
+            %          B.p holds the Runge--Kutta method order
 
             B.A = [0.18181818181818182, 0, 0; ...
                    0.30363851025008048, 0.18181818181818182, 0; ...
@@ -350,7 +413,18 @@ classdef DIRK < handle
         end
 
         function B = SSP2332Lpm2SDIRK()
-            % Utility routine to return the DIRK table SSP2(3,3,2)-lpm2-SDIRK.
+            % Usage: B = SSP2332Lpm2SDIRK()
+            %
+            % Utility routine to return the DIRK table corresponding to the
+            % SSP2(3,3,2)-lpm2-SDIRK method.
+            %
+            % Reference: Higueras, Happenhofer, Koch & Kupka, J. Comput. Appl. Math. 272
+            %            (2014), doi:10.1016/j.cam.2014.05.011.
+            %
+            % Outputs: B.A holds the Runge--Kutta stage coefficients
+            %          B.b holds the Runge--Kutta solution weights
+            %          B.c holds the Runge--Kutta abscissae
+            %          B.p holds the Runge--Kutta method order
 
             B.A = [0.18181818181818182, 0, 0; ...
                    0.19406461307287753, 0.18181818181818182, 0; ...
@@ -361,7 +435,18 @@ classdef DIRK < handle
         end
 
         function B = SSP2332LpumSDIRK()
-            % Utility routine to return the DIRK table SSP2(3,3,2)-lpum-SDIRK.
+            % Usage: B = SSP2332LpumSDIRK()
+            %
+            % Utility routine to return the DIRK table corresponding to the
+            % SSP2(3,3,2)-lpum-SDIRK method.
+            %
+            % Reference: Higueras, Happenhofer, Koch & Kupka, J. Comput. Appl. Math. 272
+            %            (2014), doi:10.1016/j.cam.2014.05.011.
+            %
+            % Outputs: B.A holds the Runge--Kutta stage coefficients
+            %          B.b holds the Runge--Kutta solution weights
+            %          B.c holds the Runge--Kutta abscissae
+            %          B.p holds the Runge--Kutta method order
 
             B.A = [0.18181818181818182, 0, 0; ...
                    0.26623376623376621, 0.18181818181818182, 0; ...
@@ -372,7 +457,18 @@ classdef DIRK < handle
         end
 
         function B = SSP2332aDIRK()
-            % Utility routine to return the DIRK table SSP2(3,3,2)-a-DIRK.
+            % Usage: B = SSP2332aDIRK()
+            %
+            % Utility routine to return the DIRK table corresponding to the
+            % SSP2(3,3,2)-a-DIRK method.
+            %
+            % Reference: Pareschi & Russo, J. Sci. Comput. 25 (2005),
+            %            doi:10.1007/BF02728986.
+            %
+            % Outputs: B.A holds the Runge--Kutta stage coefficients
+            %          B.b holds the Runge--Kutta solution weights
+            %          B.c holds the Runge--Kutta abscissae
+            %          B.p holds the Runge--Kutta method order
 
             B.A = [0.25, 0, 0; ...
                    0, 0.25, 0; ...
@@ -382,19 +478,19 @@ classdef DIRK < handle
             B.p = 2;
         end
 
-        function B = SSP2332bDIRK()
-            % Utility routine to return the DIRK table SSP2(3,3,2)-b-DIRK.
-
-            B.A = [0.20000000000000001, 0, 0; ...
-                   0.10000000000000001, 0.20000000000000001, 0; ...
-                   0.33333333333333331, 0.33333333333333331, 0.33333333333333331];
-            B.b = [0.33333333333333331; 0.33333333333333331; 0.33333333333333331];
-            B.c = [0.20000000000000001; 0.29999999999999999; 1];
-            B.p = 2;
-        end
-
         function B = SSP3332SDIRK()
-            % Utility routine to return the DIRK table SSP3(3,3,2)-SDIRK.
+            % Usage: B = SSP3332SDIRK()
+            %
+            % Utility routine to return the DIRK table corresponding to the
+            % SSP3(3,3,2)-SDIRK method.
+            %
+            % Reference: Pareschi & Russo, J. Sci. Comput. 25 (2005),
+            %            doi:10.1007/BF02728986.
+            %
+            % Outputs: B.A holds the Runge--Kutta stage coefficients
+            %          B.b holds the Runge--Kutta solution weights
+            %          B.c holds the Runge--Kutta abscissae
+            %          B.p holds the Runge--Kutta method order
 
             B.A = [0.29289321881345254, 0, 0; ...
                    0.41421356237309492, 0.29289321881345254, 0; ...
@@ -405,7 +501,19 @@ classdef DIRK < handle
         end
 
         function B = DBM53ESDIRK()
-            % Utility routine to return the DIRK table DBM-5-3-ESDIRK.
+            % Usage: B = DBM53ESDIRK()
+            %
+            % Utility routine to return the DIRK table corresponding to the
+            % DBM-5-3-ESDIRK method.
+            %
+            % Reference: the DBM453 method of Vogl, Steyer, Reynolds, Ullrich &
+            %            Woodward, J. Adv. Model. Earth Syst. 11 (2019),
+            %            doi:10.1029/2019MS001700.
+            %
+            % Outputs: B.A holds the Runge--Kutta stage coefficients
+            %          B.b holds the Runge--Kutta solution weights
+            %          B.c holds the Runge--Kutta abscissae
+            %          B.p holds the Runge--Kutta method order
 
             B.A = [0, 0, 0, 0, 0; ...
                    -0.2228498531852541, 0.32591194130117246, 0, 0, 0; ...
@@ -418,7 +526,18 @@ classdef DIRK < handle
         end
 
         function B = Ascher233SDIRK()
-            % Utility routine to return the DIRK table Ascher(2,3,3)-SDIRK.
+            % Usage: B = Ascher233SDIRK()
+            %
+            % Utility routine to return the DIRK table corresponding to the
+            % Ascher(2,3,3)-SDIRK method.
+            %
+            % Reference: Ascher, Ruuth & Spiteri, Appl. Numer. Math. 25 (1997),
+            %            doi:10.1016/S0168-9274(97)00056-1.
+            %
+            % Outputs: B.A holds the Runge--Kutta stage coefficients
+            %          B.b holds the Runge--Kutta solution weights
+            %          B.c holds the Runge--Kutta abscissae
+            %          B.p holds the Runge--Kutta method order
 
             B.A = [0, 0, 0; ...
                    0, 0.78867513459481275, 0; ...
@@ -429,7 +548,18 @@ classdef DIRK < handle
         end
 
         function B = Ascher343SDIRK()
-            % Utility routine to return the DIRK table Ascher(3,4,3)-SDIRK.
+            % Usage: B = Ascher343SDIRK()
+            %
+            % Utility routine to return the DIRK table corresponding to the
+            % Ascher(3,4,3)-SDIRK method.
+            %
+            % Reference: Ascher, Ruuth & Spiteri, Appl. Numer. Math. 25 (1997),
+            %            doi:10.1016/S0168-9274(97)00056-1.
+            %
+            % Outputs: B.A holds the Runge--Kutta stage coefficients
+            %          B.b holds the Runge--Kutta solution weights
+            %          B.c holds the Runge--Kutta abscissae
+            %          B.p holds the Runge--Kutta method order
 
             B.A = [0, 0, 0, 0; ...
                    0, 0.435866521508459, 0, 0; ...
@@ -441,7 +571,18 @@ classdef DIRK < handle
         end
 
         function B = Ascher443SDIRK()
-            % Utility routine to return the DIRK table Ascher(4,4,3)-SDIRK.
+            % Usage: B = Ascher443SDIRK()
+            %
+            % Utility routine to return the DIRK table corresponding to the
+            % Ascher(4,4,3)-SDIRK method.
+            %
+            % Reference: Ascher, Ruuth & Spiteri, Appl. Numer. Math. 25 (1997),
+            %            doi:10.1016/S0168-9274(97)00056-1.
+            %
+            % Outputs: B.A holds the Runge--Kutta stage coefficients
+            %          B.b holds the Runge--Kutta solution weights
+            %          B.c holds the Runge--Kutta abscissae
+            %          B.p holds the Runge--Kutta method order
 
             B.A = [0.5, 0, 0, 0; ...
                    0.16666666666666666, 0.5, 0, 0; ...
@@ -453,7 +594,18 @@ classdef DIRK < handle
         end
 
         function B = Cooper4ESDIRK()
-            % Utility routine to return the DIRK table Cooper4-ESDIRK.
+            % Usage: B = Cooper4ESDIRK()
+            %
+            % Utility routine to return the DIRK table corresponding to the
+            % Cooper4-ESDIRK method.
+            %
+            % Reference: the order-3 methods with mu = 1/2 in Cooper & Sayfy, Math.
+            %            Comp. 40 (1983), doi:10.1090/S0025-5718-1983-0679441-1.
+            %
+            % Outputs: B.A holds the Runge--Kutta stage coefficients
+            %          B.b holds the Runge--Kutta solution weights
+            %          B.c holds the Runge--Kutta abscissae
+            %          B.p holds the Runge--Kutta method order
 
             B.A = [0, 0, 0, 0; ...
                    -0.12200846792814619, 0.78867513459481275, 0, 0; ...
@@ -464,19 +616,19 @@ classdef DIRK < handle
             B.p = 3;
         end
 
-        function B = SSP3333ESDIRK()
-            % Utility routine to return the DIRK table SSP3(3,3,3)-ESDIRK.
-
-            B.A = [0, 0, 0; ...
-                   0.93333333333333335, 0.066666666666666666, 0; ...
-                   0.23333333333333334, 0.20000000000000001, 0.066666666666666666];
-            B.b = [0.16666666666666666; 0.16666666666666666; 0.66666666666666663];
-            B.c = [0; 1; 0.5];
-            B.p = 3;
-        end
-
         function B = SSP3433SDIRK()
-            % Utility routine to return the DIRK table SSP3(4,3,3)-SDIRK.
+            % Usage: B = SSP3433SDIRK()
+            %
+            % Utility routine to return the DIRK table corresponding to the
+            % SSP3(4,3,3)-SDIRK method.
+            %
+            % Reference: Pareschi & Russo, J. Sci. Comput. 25 (2005),
+            %            doi:10.1007/BF02728986.
+            %
+            % Outputs: B.A holds the Runge--Kutta stage coefficients
+            %          B.b holds the Runge--Kutta solution weights
+            %          B.c holds the Runge--Kutta abscissae
+            %          B.p holds the Runge--Kutta method order
 
             B.A = [0.24169426078820999, 0, 0, 0; ...
                    -0.24169426078820999, 0.24169426078820999, 0, 0; ...
@@ -488,7 +640,18 @@ classdef DIRK < handle
         end
 
         function B = EDIRK33()
-            % Utility routine to return the DIRK table EDIRK-3-3.
+            % Usage: B = EDIRK33()
+            %
+            % Utility routine to return the DIRK table corresponding to the EDIRK-3-3
+            % method.
+            %
+            % Reference: Sect. 3.2.3 of Conde, Gottlieb, Grant & Shadid, J. Sci. Comput.
+            %            73 (2017), doi:10.1007/s10915-017-0560-2.
+            %
+            % Outputs: B.A holds the Runge--Kutta stage coefficients
+            %          B.b holds the Runge--Kutta solution weights
+            %          B.c holds the Runge--Kutta abscissae
+            %          B.p holds the Runge--Kutta method order
 
             B.A = [0, 0, 0; ...
                    0, 1, 0; ...
@@ -499,7 +662,18 @@ classdef DIRK < handle
         end
 
         function B = ESDIRK33()
-            % Utility routine to return the DIRK table ESDIRK-3-3.
+            % Usage: B = ESDIRK33()
+            %
+            % Utility routine to return the DIRK table corresponding to the ESDIRK-3-3
+            % method.
+            %
+            % Reference: Sect. 3.2.3 of Conde, Gottlieb, Grant & Shadid, J. Sci. Comput.
+            %            73 (2017), doi:10.1007/s10915-017-0560-2.
+            %
+            % Outputs: B.A holds the Runge--Kutta stage coefficients
+            %          B.b holds the Runge--Kutta solution weights
+            %          B.c holds the Runge--Kutta abscissae
+            %          B.p holds the Runge--Kutta method order
 
             B.A = [0, 0, 0; ...
                    0.21132486540518713, 0.78867513459481264, 0; ...
@@ -510,7 +684,19 @@ classdef DIRK < handle
         end
 
         function B = SDIRK45L1SA()
-            % Utility routine to return the DIRK table SDIRK4()5L[1]SA.
+            % Usage: B = SDIRK45L1SA()
+            %
+            % Utility routine to return the DIRK table corresponding to the
+            % SDIRK4()5L[1]SA method.
+            %
+            % Reference: Table 22 of Kennedy & Carpenter, Diagonally implicit
+            %            Runge--Kutta methods for ordinary differential equations. A
+            %            review, NASA/TM-2016-219173 (2016).
+            %
+            % Outputs: B.A holds the Runge--Kutta stage coefficients
+            %          B.b holds the Runge--Kutta solution weights
+            %          B.c holds the Runge--Kutta abscissae
+            %          B.p holds the Runge--Kutta method order
 
             B.A = [0.25, 0, 0, 0, 0; ...
                    -0.10355339059327379, 0.25, 0, 0, 0; ...
@@ -523,7 +709,17 @@ classdef DIRK < handle
         end
 
         function B = LobattoIII34IRK()
-            % Utility routine to return the DIRK table LobattoIII-3-4-IRK.
+            % Usage: B = LobattoIII34IRK()
+            %
+            % Utility routine to return the DIRK table corresponding to the
+            % LobattoIII-3-4-IRK method.
+            %
+            % TODO: add citation
+            %
+            % Outputs: B.A holds the Runge--Kutta stage coefficients
+            %          B.b holds the Runge--Kutta solution weights
+            %          B.c holds the Runge--Kutta abscissae
+            %          B.p holds the Runge--Kutta method order
 
             B.A = [0, 0, 0; ...
                    0.25, 0.25, 0; ...
@@ -534,25 +730,45 @@ classdef DIRK < handle
         end
 
         function B = Cooper6ESDIRK()
-            % Utility routine to return the DIRK table Cooper6-ESDIRK.
+            % Usage: B = Cooper6ESDIRK()
+            %
+            % Utility routine to return the DIRK table corresponding to the
+            % Cooper6-ESDIRK method.
+            %
+            % Reference: the first of the order-4 methods in Cooper & Sayfy, Math. Comp.
+            %            40 (1983), doi:10.1090/S0025-5718-1983-0679441-1.
+            %
+            % Outputs: B.A holds the Runge--Kutta stage coefficients
+            %          B.b holds the Runge--Kutta solution weights
+            %          B.c holds the Runge--Kutta abscissae
+            %          B.p holds the Runge--Kutta method order
 
             B.A = [0, 0, 0, 0, 0, 0; ...
-                   -0.56857902129999993, 1.0685790212999999, 0, 0, 0, 0; ...
-                   0.25, -0.81857902129999993, 1.0685790212999999, 0, 0, 0; ...
-                   0.25, 0.53428951064999997, -1.35286853195, 1.0685790212999999, 0, 0; ...
-                   0, -2.1371580425999999, 4.4425653319328866, -1.3054072893328863, 0, 0; ...
+                   -0.5685790213016289, 1.0685790213016289, 0, 0, 0, 0; ...
+                   0.25, -0.8185790213016289, 1.0685790213016289, 0, 0, 0; ...
+                   0.25, 0.5342895106508144, -1.3528685319524434, 1.0685790213016289, 0, 0; ...
+                   0, -2.1371580426032577, 4.442565331935536, -1.3054072893322786, 0, 0; ...
                    0.16666666666666666, 0, 0, 0.66666666666666663, 0.16666666666666666, 0];
             B.b = [0.16666666666666666; 0; 0; 0.66666666666666663; 0.16666666666666666; 0];
             B.c = [0; 0.5; 0.5; 0.5; 1; 1];
-            B.p = 5;
+            B.p = 4;
         end
 
         function B = WSO32()
-            % Return the 4-stage, third-order, WSO-2 L-stable DIRK method.
+            % Usage: B = WSO32()
             %
-            % Coefficients are from Ketcheson, Seibold, Shirokoff, and Zhou (2020),
-            % ``DIRK Schemes with High Weak Stage Order'', Sect. 3,
-            % doi:10.1007/978-3-030-39647-3_36.
+            % Utility routine to return the DIRK table corresponding to the 4-stage,
+            % third-order, WSO-2 L-stable DIRK method.
+            %
+            % Reference: Sect. 3 of Ketcheson, Seibold, Shirokoff & Zhou, DIRK Schemes
+            %            with High Weak Stage Order, Lecture Notes in Computational
+            %            Science and Engineering (2020),
+            %            doi:10.1007/978-3-030-39647-3_36.
+            %
+            % Outputs: B.A holds the Runge--Kutta stage coefficients
+            %          B.b holds the Runge--Kutta solution weights
+            %          B.c holds the Runge--Kutta abscissae
+            %          B.p holds the Runge--Kutta method order
 
             B.A = [0.01900072890, 0, 0, 0; ...
                    0.40434605601, 0.38435717512, 0, 0; ...
@@ -564,11 +780,20 @@ classdef DIRK < handle
         end
 
         function B = WSO33()
-            % Return the 4-stage, third-order, WSO-3 L-stable DIRK method.
+            % Usage: B = WSO33()
             %
-            % Coefficients are from Ketcheson, Seibold, Shirokoff, and Zhou (2020),
-            % ``DIRK Schemes with High Weak Stage Order'', Sect. 3,
-            % doi:10.1007/978-3-030-39647-3_36.
+            % Utility routine to return the DIRK table corresponding to the 4-stage,
+            % third-order, WSO-3 L-stable DIRK method.
+            %
+            % Reference: Sect. 3 of Ketcheson, Seibold, Shirokoff & Zhou, DIRK Schemes
+            %            with High Weak Stage Order, Lecture Notes in Computational
+            %            Science and Engineering (2020),
+            %            doi:10.1007/978-3-030-39647-3_36.
+            %
+            % Outputs: B.A holds the Runge--Kutta stage coefficients
+            %          B.b holds the Runge--Kutta solution weights
+            %          B.c holds the Runge--Kutta abscissae
+            %          B.p holds the Runge--Kutta method order
 
             B.A = [0.13756543551, 0, 0, 0; ...
                    0.56695122794, 0.23483888782, 0, 0; ...
@@ -580,11 +805,20 @@ classdef DIRK < handle
         end
 
         function B = WSO43()
-            % Return the 6-stage, fourth-order, WSO-3 L-stable DIRK method.
+            % Usage: B = WSO43()
             %
-            % Coefficients are from Ketcheson, Seibold, Shirokoff, and Zhou (2020),
-            % ``DIRK Schemes with High Weak Stage Order'', Sect. 3,
-            % doi:10.1007/978-3-030-39647-3_36.
+            % Utility routine to return the DIRK table corresponding to the 6-stage,
+            % fourth-order, WSO-3 L-stable DIRK method.
+            %
+            % Reference: Sect. 3 of Ketcheson, Seibold, Shirokoff & Zhou, DIRK Schemes
+            %            with High Weak Stage Order, Lecture Notes in Computational
+            %            Science and Engineering (2020),
+            %            doi:10.1007/978-3-030-39647-3_36.
+            %
+            % Outputs: B.A holds the Runge--Kutta stage coefficients
+            %          B.b holds the Runge--Kutta solution weights
+            %          B.c holds the Runge--Kutta abscissae
+            %          B.p holds the Runge--Kutta method order
 
             B.A = [0.079672377876931, 0, 0, 0, 0, 0; ...
                    0.328355391763968, 0.136009256546967, 0, 0, 0, 0; ...
@@ -595,6 +829,94 @@ classdef DIRK < handle
             B.b = B.A(end,:).';
             B.c = sum(B.A, 2);
             B.p = 4;
+        end
+
+        function B = Ascher111SDIRK()
+            % Usage: B = Ascher111SDIRK()
+            %
+            % Utility routine to return the padded SDIRK table corresponding to
+            % the implicit component of the ARS(1,1,1) method.
+            %
+            % Reference: Ascher, Ruuth & Spiteri, Appl. Numer. Math. 25 (1997),
+            %            doi:10.1016/S0168-9274(97)00056-1.
+            %
+            % Outputs: B.A holds the Runge--Kutta stage coefficients
+            %          B.b holds the Runge--Kutta solution weights
+            %          B.c holds the Runge--Kutta abscissae
+            %          B.p holds the Runge--Kutta method order
+
+            B.A = [0, 0; ...
+                   0, 1];
+            B.b = [0; 1];
+            B.c = [0; 1];
+            B.p = 1;
+        end
+
+        function B = Ascher122SDIRK()
+            % Usage: B = Ascher122SDIRK()
+            %
+            % Utility routine to return the padded SDIRK table corresponding to
+            % the implicit component of the ARS(1,2,2) method.
+            %
+            % Reference: Ascher, Ruuth & Spiteri, Appl. Numer. Math. 25 (1997),
+            %            doi:10.1016/S0168-9274(97)00056-1.
+            %
+            % Outputs: B.A holds the Runge--Kutta stage coefficients
+            %          B.b holds the Runge--Kutta solution weights
+            %          B.c holds the Runge--Kutta abscissae
+            %          B.p holds the Runge--Kutta method order
+
+            B.A = [0, 0; ...
+                   0, 0.5];
+            B.b = [0; 1];
+            B.c = [0; 0.5];
+            B.p = 2;
+        end
+
+        function B = Ascher443PaddedSDIRK()
+            % Usage: B = Ascher443PaddedSDIRK()
+            %
+            % Utility routine to return the padded SDIRK table corresponding to
+            % the implicit component of the ARS(4,4,3) method.
+            %
+            % Reference: Ascher, Ruuth & Spiteri, Appl. Numer. Math. 25 (1997),
+            %            doi:10.1016/S0168-9274(97)00056-1.
+            %
+            % Outputs: B.A holds the Runge--Kutta stage coefficients
+            %          B.b holds the Runge--Kutta solution weights
+            %          B.c holds the Runge--Kutta abscissae
+            %          B.p holds the Runge--Kutta method order
+
+            B.A = [0, 0, 0, 0, 0; ...
+                   0, 0.5, 0, 0, 0; ...
+                   0, 0.16666666666666666, 0.5, 0, 0; ...
+                   0, -0.5, 0.5, 0.5, 0; ...
+                   0, 1.5, -1.5, 0.5, 0.5];
+            B.b = [0; 1.5; -1.5; 0.5; 0.5];
+            B.c = [0; 0.5; 0.66666666666666663; 0.5; 1];
+            B.p = 3;
+        end
+
+        function B = ARKCouplingESDIRK3()
+            % Usage: B = ARKCouplingESDIRK3()
+            %
+            % Utility routine to return the ESDIRK table corresponding to
+            % the third-order ESDIRK method from the ARK coupling example.
+            %
+            % TODO: add citation
+            %
+            % Outputs: B.A holds the Runge--Kutta stage coefficients
+            %          B.b holds the Runge--Kutta solution weights
+            %          B.c holds the Runge--Kutta abscissae
+            %          B.p holds the Runge--Kutta method order
+
+            B.A = [0, 0, 0, 0; ...
+                   1/6, 1/3, 0, 0; ...
+                   0.5, -1/3, 1/3, 0; ...
+                   -2/3, 2/3, 2/3, 1/3];
+            B.b = [1/6; 0; 2/3; 1/6];
+            B.c = [0; 0.5; 0.5; 1];
+            B.p = 3;
         end
 
     end

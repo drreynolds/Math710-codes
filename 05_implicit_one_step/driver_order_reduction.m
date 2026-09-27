@@ -6,10 +6,10 @@
 %
 % Daniel R. Reynolds
 % Math & Stat @ UMBC
+
 clear
 
-here = fileparts(mfilename('fullpath'));
-addpath(fullfile(here, '..', 'shared'));
+addpath('../shared');
 
 % problem time interval and parameters
 t0 = 0.0;

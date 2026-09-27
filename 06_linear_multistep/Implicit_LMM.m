@@ -197,7 +197,7 @@ classdef Implicit_LMM < handle
                 N = round((tspan(iout)-tspan(iout-1))/self.h);
                 t = tspan(iout-1);
                 % March internally until the next requested output time is reached.
-                for n = 1:N %#ok<NASGU>
+                for n = 1:N
                     [t, success] = self.implicit_lmm_step(t, args);
                     if ~success
                         fprintf('implicit_lmm error in time step at t = %g\n', t);

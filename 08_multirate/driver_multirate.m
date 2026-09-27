@@ -19,10 +19,9 @@
 %
 % Daniel R. Reynolds
 % Math & Stat @ UMBC
-%
+
 clear
-here = fileparts(mfilename('fullpath'));
-addpath(fullfile(here, '..', '04_explicit_one_step'));
+addpath('../04_explicit_one_step');
 
 Tf = 5;
 Nt = 25;

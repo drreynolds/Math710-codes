@@ -3,11 +3,10 @@
 %
 % Daniel R. Reynolds
 % Math & Stat @ UMBC
-%
+
 clear
-here = fileparts(mfilename('fullpath'));
-addpath(fullfile(here, '..', '04_explicit_one_step'));
-addpath(fullfile(here, '..', '05_implicit_one_step'));
+addpath('../04_explicit_one_step');
+addpath('../05_implicit_one_step');
 
 % set the plot resolution
 N = 100;

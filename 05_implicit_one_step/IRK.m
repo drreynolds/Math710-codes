@@ -194,7 +194,7 @@ classdef IRK < handle
                 t = tspan(iout-1);
 
                 % March internally until the next requested output time is reached.
-                for n = 1:N %#ok<NASGU>
+                for n = 1:N
                     [t, y, success] = self.irk_step(t, y, args);
                     if ~success
                         fprintf('IRK::Evolve error in time step at t = %g\n', t);

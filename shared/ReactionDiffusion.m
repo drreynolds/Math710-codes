@@ -52,7 +52,29 @@ classdef ReactionDiffusion
             val = p.D*u + 1./(1+u.^2) + ReactionDiffusion.Phi(p.xgrid, t);
         end
 
-        function val = J(t, u) %#ok<INUSD>
+        function val = fE(t, u)
+            % Explicit reaction portion of the right-hand side.
+
+            u = u(:);
+            val = 1./(1+u.^2);
+        end
+
+        function val = fI(t, u)
+            % Implicit diffusion and forcing portion of the right-hand side.
+
+            p = ReactionDiffusion.problem();
+            u = u(:);
+            val = p.D*u + ReactionDiffusion.Phi(p.xgrid, t);
+        end
+
+        function val = JI(t, u)
+            % Jacobian of the implicit diffusion and forcing portion of the right-hand side.
+
+            p = ReactionDiffusion.problem();
+            val = p.D;
+        end
+
+        function val = J(t, u)
             % Jacobian (in sparse matrix format) of the right-hand side
             % function, J(t,y) = df/dy, for the IVP.
 

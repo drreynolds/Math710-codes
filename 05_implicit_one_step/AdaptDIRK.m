@@ -386,6 +386,9 @@ classdef AdaptDIRK < handle
             % Utility routine to return the SDIRK table corresponding to
             % an embedded method with order 2 and embedding order 1.
             %
+            % Reference: base method (implicit portion of IMEX-SSP2(2,2,2)): Pareschi &
+            %            Russo, J. Sci. Comput. 25 (2005), doi:10.1007/BF02728986.
+            %
             % Outputs: B.A holds the stage coefficients
             %          B.b holds the solution weights
             %          B.c holds the abscissae
@@ -403,7 +406,20 @@ classdef AdaptDIRK < handle
         end
 
         function B = ESDIRK324L2SA()
-            % Utility routine to return the embedded DIRK table ESDIRK3(2)4L[2]SA.
+            % Usage: B = ESDIRK324L2SA()
+            %
+            % Utility routine to return the embedded DIRK table corresponding to the
+            % ESDIRK3(2)4L[2]SA method.
+            %
+            % Reference: eqs. (27)-(28) of Kennedy & Carpenter, Appl. Numer. Math. 146
+            %            (2019), doi:10.1016/j.apnum.2019.07.008.
+            %
+            % Outputs: B.A holds the stage coefficients
+            %          B.b holds the solution weights
+            %          B.c holds the abscissae
+            %          B.d holds the embedding weights
+            %          B.p holds the method order
+            %          B.q holds the embedding order
 
             gamma = 0.43586652150845899941601945;
             gamma2 = gamma*gamma;
@@ -442,6 +458,10 @@ classdef AdaptDIRK < handle
             % Utility routine to return the an ESDIRK table corresponding to
             % a 5-stage, 3rd-order method with 2nd-order embedding.
             %
+            % Reference: Table 10 of Kennedy & Carpenter, Diagonally implicit
+            %            Runge--Kutta methods for ordinary differential equations. A
+            %            review, NASA/TM-2016-219173 (2016).
+            %
             % Outputs: B.A holds the stage coefficients
             %          B.b holds the solution weights
             %          B.c holds the abscissae
@@ -466,6 +486,9 @@ classdef AdaptDIRK < handle
             %
             % Utility routine to return the an ESDIRK table corresponding to
             % a 7-stage, 4th-order method with 3rd-order embedding.
+            %
+            % Reference: Table 10 of Kennedy & Carpenter, Appl. Numer. Math. 146 (2019),
+            %            doi:10.1016/j.apnum.2019.07.008.
             %
             % Outputs: B.A holds the stage coefficients
             %          B.b holds the solution weights
@@ -503,6 +526,9 @@ classdef AdaptDIRK < handle
             % Utility routine to return the an ESDIRK table corresponding to
             % a 7-stage, 5th-order method with 4th-order embedding.
             %
+            % Reference: Table 11 of Kennedy & Carpenter, Appl. Numer. Math. 146 (2019),
+            %            doi:10.1016/j.apnum.2019.07.008.
+            %
             % Outputs: B.A holds the stage coefficients
             %          B.b holds the solution weights
             %          B.c holds the abscissae
@@ -539,6 +565,8 @@ classdef AdaptDIRK < handle
             % Utility routine to return the ESDIRK table corresponding to
             % a fourth-order method a semilinear order 3.
             %
+            % TODO: add citation
+            %
             % Outputs: B.A holds the stage coefficients
             %          B.b holds the solution weights
             %          B.c holds the abscissae
@@ -567,6 +595,8 @@ classdef AdaptDIRK < handle
             % Utility routine to return the EDDIRK table corresponding to
             % a 5th-order accurate method with semilinear order 4.
             %
+            % TODO: add citation
+            %
             % Outputs: B.A holds the stage coefficients
             %          B.b holds the solution weights
             %          B.c holds the abscissae
@@ -593,7 +623,20 @@ classdef AdaptDIRK < handle
         % Additional embedded diagonally-implicit Runge--Kutta tables.
 
         function B = Ascher222SDIRK()
-            % Utility routine to return the embedded DIRK table Ascher(2,2,2)-SDIRK.
+            % Usage: B = Ascher222SDIRK()
+            %
+            % Utility routine to return the embedded DIRK table corresponding to the
+            % Ascher(2,2,2)-SDIRK method.
+            %
+            % Reference: Ascher, Ruuth & Spiteri, Appl. Numer. Math. 25 (1997),
+            %            doi:10.1016/S0168-9274(97)00056-1.
+            %
+            % Outputs: B.A holds the stage coefficients
+            %          B.b holds the solution weights
+            %          B.c holds the abscissae
+            %          B.d holds the embedding weights
+            %          B.p holds the method order
+            %          B.q holds the embedding order
 
             B.A = [0, 0, 0; ...
                    0, 0.29289321881345243, 0; ...
@@ -606,7 +649,23 @@ classdef AdaptDIRK < handle
         end
 
         function B = SSP32DIRK()
-            % Utility routine to return the embedded DIRK table SSP(3,2)-DIRK.
+            % Usage: B = SSP32DIRK()
+            %
+            % Utility routine to return the embedded DIRK table corresponding to the
+            % SSP(3,2)-DIRK method.
+            %
+            % References: method: Pareschi & Russo, J. Sci. Comput. 25 (2005),
+            %             doi:10.1007/BF02728986.
+            %             embedding: SUNDIALS ARKODE documentation, table
+            %             ARKODE_SSP_DIRK_3_1_2,
+            %             https://sundials.readthedocs.io/en/latest/arkode/Butcher_link.html#c.ARKODE_SSP_DIRK_3_1_2.
+            %
+            % Outputs: B.A holds the stage coefficients
+            %          B.b holds the solution weights
+            %          B.c holds the abscissae
+            %          B.d holds the embedding weights
+            %          B.p holds the method order
+            %          B.q holds the embedding order
 
             B.A = [0.25, 0, 0; ...
                    0, 0.25, 0; ...
@@ -619,7 +678,21 @@ classdef AdaptDIRK < handle
         end
 
         function B = TRBDF2ESDIRK()
-            % Utility routine to return the embedded DIRK table TRBDF2-ESDIRK.
+            % Usage: B = TRBDF2ESDIRK()
+            %
+            % Utility routine to return the embedded DIRK table corresponding to the
+            % TRBDF2-ESDIRK method.
+            %
+            % Reference: Bank, Coughran, Fichtner, Grosse, Rose & Smith, IEEE Trans.
+            %            Comput.-Aided Des. Integr. Circuits Syst. 4 (1985),
+            %            doi:10.1109/TCAD.1985.1270142.
+            %
+            % Outputs: B.A holds the stage coefficients
+            %          B.b holds the solution weights
+            %          B.c holds the abscissae
+            %          B.d holds the embedding weights
+            %          B.p holds the method order
+            %          B.q holds the embedding order
 
             B.A = [0, 0, 0; ...
                    0.29289321881345243, 0.29289321881345243, 0; ...
@@ -632,7 +705,19 @@ classdef AdaptDIRK < handle
         end
 
         function B = TRX2ESDIRK()
-            % Utility routine to return the embedded DIRK table TRX2-ESDIRK.
+            % Usage: B = TRX2ESDIRK()
+            %
+            % Utility routine to return the embedded DIRK table corresponding to the
+            % TRX2-ESDIRK method.
+            %
+            % TODO: add citation
+            %
+            % Outputs: B.A holds the stage coefficients
+            %          B.b holds the solution weights
+            %          B.c holds the abscissae
+            %          B.d holds the embedding weights
+            %          B.p holds the method order
+            %          B.q holds the embedding order
 
             B.A = [0, 0, 0; ...
                    0.25, 0.25, 0; ...
@@ -645,7 +730,21 @@ classdef AdaptDIRK < handle
         end
 
         function B = BillingtonSDIRK()
-            % Utility routine to return the embedded DIRK table Billington-SDIRK.
+            % Usage: B = BillingtonSDIRK()
+            %
+            % Utility routine to return the embedded DIRK table corresponding to the
+            % Billington-SDIRK method.
+            %
+            % Reference: Billington, Type-insensitive codes for the solution of stiff
+            %            and nonstiff systems of ordinary differential equations,
+            %            Master's thesis, University of Manchester (1983).
+            %
+            % Outputs: B.A holds the stage coefficients
+            %          B.b holds the solution weights
+            %          B.c holds the abscissae
+            %          B.d holds the embedding weights
+            %          B.p holds the method order
+            %          B.q holds the embedding order
 
             B.A = [0.29289321881300001, 0, 0; ...
                    0.79898987322299997, 0.29289321881300001, 0; ...
@@ -658,7 +757,19 @@ classdef AdaptDIRK < handle
         end
 
         function B = SDIRK22()
-            % Utility routine to return the embedded DIRK table SDIRK-2-2.
+            % Usage: B = SDIRK22()
+            %
+            % Utility routine to return the embedded DIRK table corresponding to the
+            % SDIRK-2-2 method.
+            %
+            % TODO: add citation
+            %
+            % Outputs: B.A holds the stage coefficients
+            %          B.b holds the solution weights
+            %          B.c holds the abscissae
+            %          B.d holds the embedding weights
+            %          B.p holds the method order
+            %          B.q holds the embedding order
 
             B.A = [0.29289321881345254, 0; ...
                    0.70710678118654746, 0.29289321881345254];
@@ -670,7 +781,19 @@ classdef AdaptDIRK < handle
         end
 
         function B = SDIRK21Alt()
-            % Utility routine to return the embedded DIRK table SDIRK-2-1.
+            % Usage: B = SDIRK21Alt()
+            %
+            % Utility routine to return the embedded DIRK table corresponding to the
+            % SDIRK-2-1 method.
+            %
+            % TODO: add citation
+            %
+            % Outputs: B.A holds the stage coefficients
+            %          B.b holds the solution weights
+            %          B.c holds the abscissae
+            %          B.d holds the embedding weights
+            %          B.p holds the method order
+            %          B.q holds the embedding order
 
             B.A = [1, 0; ...
                    -1, 1];
@@ -682,7 +805,20 @@ classdef AdaptDIRK < handle
         end
 
         function B = ARK232SDIRK()
-            % Utility routine to return the embedded DIRK table ARK(2,3,2)-SDIRK.
+            % Usage: B = ARK232SDIRK()
+            %
+            % Utility routine to return the embedded DIRK table corresponding to the
+            % ARK(2,3,2)-SDIRK method.
+            %
+            % Reference: Giraldo, Kelly & Constantinescu, SIAM J. Sci. Comput. 35
+            %            (2013), doi:10.1137/120876034.
+            %
+            % Outputs: B.A holds the stage coefficients
+            %          B.b holds the solution weights
+            %          B.c holds the abscissae
+            %          B.d holds the embedding weights
+            %          B.p holds the method order
+            %          B.q holds the embedding order
 
             B.A = [0, 0, 0; ...
                    0.29289321881345254, 0.29289321881345254, 0; ...
@@ -695,7 +831,20 @@ classdef AdaptDIRK < handle
         end
 
         function B = SSP2332LspumSDIRK()
-            % Utility routine to return the embedded DIRK table SSP2(3,3,2)-lspum-SDIRK.
+            % Usage: B = SSP2332LspumSDIRK()
+            %
+            % Utility routine to return the embedded DIRK table corresponding to the
+            % SSP2(3,3,2)-lspum-SDIRK method.
+            %
+            % Reference: Higueras, Happenhofer, Koch & Kupka, J. Comput. Appl. Math. 272
+            %            (2014), doi:10.1016/j.cam.2014.05.011.
+            %
+            % Outputs: B.A holds the stage coefficients
+            %          B.b holds the solution weights
+            %          B.c holds the abscissae
+            %          B.d holds the embedding weights
+            %          B.p holds the method order
+            %          B.q holds the embedding order
 
             B.A = [0.18181818181818182, 0, 0; ...
                    0.44372294372294374, 0.18181818181818182, 0; ...
@@ -708,7 +857,20 @@ classdef AdaptDIRK < handle
         end
 
         function B = GiraldoARK2ESDIRK()
-            % Utility routine to return the embedded DIRK table Giraldo-ARK2-ESDIRK.
+            % Usage: B = GiraldoARK2ESDIRK()
+            %
+            % Utility routine to return the embedded DIRK table corresponding to the
+            % Giraldo-ARK2-ESDIRK method.
+            %
+            % Reference: Giraldo, Kelly & Constantinescu, SIAM J. Sci. Comput. 35
+            %            (2013), doi:10.1137/120876034.
+            %
+            % Outputs: B.A holds the stage coefficients
+            %          B.b holds the solution weights
+            %          B.c holds the abscissae
+            %          B.d holds the embedding weights
+            %          B.p holds the method order
+            %          B.q holds the embedding order
 
             B.A = [0, 0, 0; ...
                    0.29289321881345254, 0.29289321881345254, 0; ...
@@ -721,7 +883,20 @@ classdef AdaptDIRK < handle
         end
 
         function B = ARK324L2SAESDIRK()
-            % Utility routine to return the embedded DIRK table ARK3(2)4L[2]SA-ESDIRK.
+            % Usage: B = ARK324L2SAESDIRK()
+            %
+            % Utility routine to return the embedded DIRK table corresponding to the
+            % ARK3(2)4L[2]SA-ESDIRK method.
+            %
+            % Reference: Kennedy & Carpenter, Appl. Numer. Math. 44 (2003),
+            %            doi:10.1016/S0168-9274(02)00138-1.
+            %
+            % Outputs: B.A holds the stage coefficients
+            %          B.b holds the solution weights
+            %          B.c holds the abscissae
+            %          B.d holds the embedding weights
+            %          B.p holds the method order
+            %          B.q holds the embedding order
 
             B.A = [0, 0, 0, 0; ...
                    0.435866521508459, 0.435866521508459, 0, 0; ...
@@ -735,7 +910,20 @@ classdef AdaptDIRK < handle
         end
 
         function B = SSP43ESDIRK()
-            % Utility routine to return the embedded DIRK table SSP(4,3)-ESDIRK.
+            % Usage: B = SSP43ESDIRK()
+            %
+            % Utility routine to return the embedded DIRK table corresponding to the
+            % SSP(4,3)-ESDIRK method.
+            %
+            % Reference: SUNDIALS ARKODE documentation, table ARKODE_ESDIRK_4_2_3,
+            %            https://sundials.readthedocs.io/en/latest/arkode/Butcher_link.html#c.ARKODE_ESDIRK_4_2_3.
+            %
+            % Outputs: B.A holds the stage coefficients
+            %          B.b holds the solution weights
+            %          B.c holds the abscissae
+            %          B.d holds the embedding weights
+            %          B.p holds the method order
+            %          B.q holds the embedding order
 
             B.A = [0, 0, 0, 0; ...
                    0.064133478491540996, 0.435866521508459, 0, 0; ...
@@ -748,27 +936,21 @@ classdef AdaptDIRK < handle
             B.q = 2;
         end
 
-        function B = SSP93ESDIRK()
-            % Utility routine to return the embedded DIRK table SSP(9,3)-ESDIRK.
-
-            B.A = [0, 0, 0, 0, 0, 0, 0, 0, 0; ...
-                   -0.13333333333333333, 0.29999999999999999, 0, 0, 0, 0, 0, 0, 0; ...
-                   -0.16666666666666666, 0.5, 0, 0, 0, 0, 0, 0, 0; ...
-                   0, 0.5, 0, 0, 0, 0, 0, 0, 0; ...
-                   -0.13333333333333333, 0.5, 0, 0, 0.29999999999999999, 0, 0, 0, 0; ...
-                   0.71171262257828627, 0.5, 0, 0, -0.37837928924495295, 0, 0, 0, 0; ...
-                   0.09687786960514233, 0.0031221303948576677, 0, 0, 0.10000000000000001, 0, 0.29999999999999999, 0, 0; ...
-                   0.29753779100391703, 0.0031221303948576677, 0, 0, 0.10000000000000001, 0, 0.26600674526789198, 0, 0; ...
-                   0.1642044576705837, 0.0031221303948576677, 0, 0, 0.10000000000000001, 0, 0.26600674526789198, 0, 0.29999999999999999];
-            B.b = [2.956328689492326; -4.8668065590974683; 0; 0; 2.4104778696051423; 0; 2.1375524596615505; 0; -1.6375524596615505];
-            B.c = [0; 0.16666666666666666; 0.33333333333333331; 0.5; 0.66666666666666663; 0.83333333333333337; 0.5; 0.66666666666666663; 0.83333333333333337];
-            B.d = [0.097223140495867763; 0.23970247933884298; 0; 0; 0.77107438016528929; 0; -0.108; 0; 0];
-            B.p = 3;
-            B.q = 2;
-        end
-
         function B = Kvaerno423ESDIRK()
-            % Utility routine to return the embedded DIRK table Kvaerno(4,2,3)-ESDIRK.
+            % Usage: B = Kvaerno423ESDIRK()
+            %
+            % Utility routine to return the embedded DIRK table corresponding to the
+            % Kvaerno(4,2,3)-ESDIRK method.
+            %
+            % Reference: Kvaerno, BIT Numer. Math. 44 (2004),
+            %            doi:10.1023/B:BITN.0000046811.70614.38.
+            %
+            % Outputs: B.A holds the stage coefficients
+            %          B.b holds the solution weights
+            %          B.c holds the abscissae
+            %          B.d holds the embedding weights
+            %          B.p holds the method order
+            %          B.q holds the embedding order
 
             B.A = [0, 0, 0, 0; ...
                    0.43586652149999999, 0.43586652149999999, 0, 0; ...
@@ -782,7 +964,21 @@ classdef AdaptDIRK < handle
         end
 
         function B = ESDIRK32I5L2SA()
-            % Utility routine to return the embedded DIRK table ESDIRK3(2I)5L[2]SA.
+            % Usage: B = ESDIRK32I5L2SA()
+            %
+            % Utility routine to return the embedded DIRK table corresponding to the
+            % ESDIRK3(2I)5L[2]SA method.
+            %
+            % Reference: Table 11 of Kennedy & Carpenter, Diagonally implicit
+            %            Runge--Kutta methods for ordinary differential equations. A
+            %            review, NASA/TM-2016-219173 (2016).
+            %
+            % Outputs: B.A holds the stage coefficients
+            %          B.b holds the solution weights
+            %          B.c holds the abscissae
+            %          B.d holds the embedding weights
+            %          B.p holds the method order
+            %          B.q holds the embedding order
 
             B.A = [0, 0, 0, 0, 0; ...
                    0.22500000000000001, 0.22500000000000001, 0, 0, 0; ...
@@ -797,7 +993,20 @@ classdef AdaptDIRK < handle
         end
 
         function B = ARK436L2SAESDIRK()
-            % Utility routine to return the embedded DIRK table ARK4(3)6L[2]SA-ESDIRK.
+            % Usage: B = ARK436L2SAESDIRK()
+            %
+            % Utility routine to return the embedded DIRK table corresponding to the
+            % ARK4(3)6L[2]SA-ESDIRK method.
+            %
+            % Reference: Kennedy & Carpenter, Appl. Numer. Math. 44 (2003),
+            %            doi:10.1016/S0168-9274(02)00138-1.
+            %
+            % Outputs: B.A holds the stage coefficients
+            %          B.b holds the solution weights
+            %          B.c holds the abscissae
+            %          B.d holds the embedding weights
+            %          B.p holds the method order
+            %          B.q holds the embedding order
 
             B.A = [0, 0, 0, 0, 0, 0; ...
                    0.25, 0.25, 0, 0, 0, 0; ...
@@ -813,7 +1022,21 @@ classdef AdaptDIRK < handle
         end
 
         function B = ESDIRK436L2SA()
-            % Utility routine to return the embedded DIRK table ESDIRK4(3)6L[2]SA.
+            % Usage: B = ESDIRK436L2SA()
+            %
+            % Utility routine to return the embedded DIRK table corresponding to the
+            % ESDIRK4(3)6L[2]SA method.
+            %
+            % Reference: Table 16 of Kennedy & Carpenter, Diagonally implicit
+            %            Runge--Kutta methods for ordinary differential equations. A
+            %            review, NASA/TM-2016-219173 (2016).
+            %
+            % Outputs: B.A holds the stage coefficients
+            %          B.b holds the solution weights
+            %          B.c holds the abscissae
+            %          B.d holds the embedding weights
+            %          B.p holds the method order
+            %          B.q holds the embedding order
 
             B.A = [0, 0, 0, 0, 0, 0; ...
                    0.25, 0.25, 0, 0, 0, 0; ...
@@ -829,7 +1052,21 @@ classdef AdaptDIRK < handle
         end
 
         function B = ESDIRK43I6L2SA()
-            % Utility routine to return the embedded DIRK table ESDIRK4(3I)6L[2]SA.
+            % Usage: B = ESDIRK43I6L2SA()
+            %
+            % Utility routine to return the embedded DIRK table corresponding to the
+            % ESDIRK4(3I)6L[2]SA method.
+            %
+            % Reference: Table 17 of Kennedy & Carpenter, Diagonally implicit
+            %            Runge--Kutta methods for ordinary differential equations. A
+            %            review, NASA/TM-2016-219173 (2016).
+            %
+            % Outputs: B.A holds the stage coefficients
+            %          B.b holds the solution weights
+            %          B.c holds the abscissae
+            %          B.d holds the embedding weights
+            %          B.p holds the method order
+            %          B.q holds the embedding order
 
             B.A = [0, 0, 0, 0, 0, 0; ...
                    0.25, 0.25, 0, 0, 0, 0; ...
@@ -845,7 +1082,21 @@ classdef AdaptDIRK < handle
         end
 
         function B = QESDIRK436L2SA()
-            % Utility routine to return the embedded DIRK table QESDIRK4(3)6L[2]SA.
+            % Usage: B = QESDIRK436L2SA()
+            %
+            % Utility routine to return the embedded DIRK table corresponding to the
+            % QESDIRK4(3)6L[2]SA method.
+            %
+            % Reference: Table 20 of Kennedy & Carpenter, Diagonally implicit
+            %            Runge--Kutta methods for ordinary differential equations. A
+            %            review, NASA/TM-2016-219173 (2016).
+            %
+            % Outputs: B.A holds the stage coefficients
+            %          B.b holds the solution weights
+            %          B.c holds the abscissae
+            %          B.d holds the embedding weights
+            %          B.p holds the method order
+            %          B.q holds the embedding order
 
             B.A = [0, 0, 0, 0, 0, 0; ...
                    0.10666666666666667, 0.10666666666666667, 0, 0, 0, 0; ...
@@ -861,7 +1112,20 @@ classdef AdaptDIRK < handle
         end
 
         function B = ARK437L2SAESDIRK()
-            % Utility routine to return the embedded DIRK table ARK4(3)7L[2]SA-ESDIRK.
+            % Usage: B = ARK437L2SAESDIRK()
+            %
+            % Utility routine to return the embedded DIRK table corresponding to the
+            % ARK4(3)7L[2]SA-ESDIRK method.
+            %
+            % Reference: Kennedy & Carpenter, Appl. Numer. Math. 136 (2019),
+            %            doi:10.1016/j.apnum.2018.10.007.
+            %
+            % Outputs: B.A holds the stage coefficients
+            %          B.b holds the solution weights
+            %          B.c holds the abscissae
+            %          B.d holds the embedding weights
+            %          B.p holds the method order
+            %          B.q holds the embedding order
 
             B.A = [0, 0, 0, 0, 0, 0, 0; ...
                    0.1235, 0.1235, 0, 0, 0, 0, 0; ...
@@ -878,7 +1142,20 @@ classdef AdaptDIRK < handle
         end
 
         function B = Cash524SDIRK()
-            % Utility routine to return the embedded DIRK table Cash(5,2,4)-SDIRK.
+            % Usage: B = Cash524SDIRK()
+            %
+            % Utility routine to return the embedded DIRK table corresponding to the
+            % Cash(5,2,4)-SDIRK method.
+            %
+            % Reference: Cash, IMA J. Appl. Math. 24 (1979),
+            %            doi:10.1093/imamat/24.3.293.
+            %
+            % Outputs: B.A holds the stage coefficients
+            %          B.b holds the solution weights
+            %          B.c holds the abscissae
+            %          B.d holds the embedding weights
+            %          B.p holds the method order
+            %          B.q holds the embedding order
 
             B.A = [0.43586652150799998, 0, 0, 0, 0; ...
                    -1.1358665214999999, 0.43586652150799998, 0, 0, 0; ...
@@ -893,7 +1170,20 @@ classdef AdaptDIRK < handle
         end
 
         function B = Cash534SDIRK()
-            % Utility routine to return the embedded DIRK table Cash(5,3,4)-SDIRK.
+            % Usage: B = Cash534SDIRK()
+            %
+            % Utility routine to return the embedded DIRK table corresponding to the
+            % Cash(5,3,4)-SDIRK method.
+            %
+            % Reference: Cash, IMA J. Appl. Math. 24 (1979),
+            %            doi:10.1093/imamat/24.3.293.
+            %
+            % Outputs: B.A holds the stage coefficients
+            %          B.b holds the solution weights
+            %          B.c holds the abscissae
+            %          B.d holds the embedding weights
+            %          B.p holds the method order
+            %          B.q holds the embedding order
 
             B.A = [0.43586652150799998, 0, 0, 0, 0; ...
                    -1.1358665214999999, 0.43586652150799998, 0, 0, 0; ...
@@ -908,7 +1198,20 @@ classdef AdaptDIRK < handle
         end
 
         function B = Kvaerno534ESDIRK()
-            % Utility routine to return the embedded DIRK table Kvaerno(5,3,4)-ESDIRK.
+            % Usage: B = Kvaerno534ESDIRK()
+            %
+            % Utility routine to return the embedded DIRK table corresponding to the
+            % Kvaerno(5,3,4)-ESDIRK method.
+            %
+            % Reference: Kvaerno, BIT Numer. Math. 44 (2004),
+            %            doi:10.1023/B:BITN.0000046811.70614.38.
+            %
+            % Outputs: B.A holds the stage coefficients
+            %          B.b holds the solution weights
+            %          B.c holds the abscissae
+            %          B.d holds the embedding weights
+            %          B.p holds the method order
+            %          B.q holds the embedding order
 
             B.A = [0, 0, 0, 0, 0; ...
                    0.43586652149999999, 0.43586652149999999, 0, 0, 0; ...
@@ -923,7 +1226,20 @@ classdef AdaptDIRK < handle
         end
 
         function B = SDIRK54Table()
-            % Utility routine to return the embedded DIRK table SDIRK-5-4.
+            % Usage: B = SDIRK54Table()
+            %
+            % Utility routine to return the embedded DIRK table corresponding to the
+            % SDIRK-5-4 method.
+            %
+            % Reference: Hairer & Wanner, Solving Ordinary Differential Equations II,
+            %            2nd ed., Springer (1996), doi:10.1007/978-3-642-05221-7.
+            %
+            % Outputs: B.A holds the stage coefficients
+            %          B.b holds the solution weights
+            %          B.c holds the abscissae
+            %          B.d holds the embedding weights
+            %          B.p holds the method order
+            %          B.q holds the embedding order
 
             B.A = [0.25, 0, 0, 0, 0; ...
                    0.5, 0.25, 0, 0, 0; ...
@@ -938,7 +1254,21 @@ classdef AdaptDIRK < handle
         end
 
         function B = ESDIRK536L2SA()
-            % Utility routine to return the embedded DIRK table ESDIRK5(3)6L[2]SA.
+            % Usage: B = ESDIRK536L2SA()
+            %
+            % Utility routine to return the embedded DIRK table corresponding to the
+            % ESDIRK5(3)6L[2]SA method.
+            %
+            % Reference: Table 23 of Kennedy & Carpenter, Diagonally implicit
+            %            Runge--Kutta methods for ordinary differential equations. A
+            %            review, NASA/TM-2016-219173 (2016).
+            %
+            % Outputs: B.A holds the stage coefficients
+            %          B.b holds the solution weights
+            %          B.c holds the abscissae
+            %          B.d holds the embedding weights
+            %          B.p holds the method order
+            %          B.q holds the embedding order
 
             B.A = [0, 0, 0, 0, 0, 0; ...
                    0.27805384113645232, 0.27805384113645232, 0, 0, 0, 0; ...
@@ -954,7 +1284,21 @@ classdef AdaptDIRK < handle
         end
 
         function B = ESDIRK547L2SA()
-            % Utility routine to return the embedded DIRK table ESDIRK5(4)7L[2]SA.
+            % Usage: B = ESDIRK547L2SA()
+            %
+            % Utility routine to return the embedded DIRK table corresponding to the
+            % ESDIRK5(4)7L[2]SA method.
+            %
+            % Reference: Table 25 of Kennedy & Carpenter, Diagonally implicit
+            %            Runge--Kutta methods for ordinary differential equations. A
+            %            review, NASA/TM-2016-219173 (2016).
+            %
+            % Outputs: B.A holds the stage coefficients
+            %          B.b holds the solution weights
+            %          B.c holds the abscissae
+            %          B.d holds the embedding weights
+            %          B.p holds the method order
+            %          B.q holds the embedding order
 
             B.A = [0, 0, 0, 0, 0, 0, 0; ...
                    0.184, 0.184, 0, 0, 0, 0, 0; ...
@@ -971,7 +1315,20 @@ classdef AdaptDIRK < handle
         end
 
         function B = ARK548L2SAESDIRK()
-            % Utility routine to return the embedded DIRK table ARK5(4)8L[2]SA-ESDIRK.
+            % Usage: B = ARK548L2SAESDIRK()
+            %
+            % Utility routine to return the embedded DIRK table corresponding to the
+            % ARK5(4)8L[2]SA-ESDIRK method.
+            %
+            % Reference: Kennedy & Carpenter, Appl. Numer. Math. 44 (2003),
+            %            doi:10.1016/S0168-9274(02)00138-1.
+            %
+            % Outputs: B.A holds the stage coefficients
+            %          B.b holds the solution weights
+            %          B.c holds the abscissae
+            %          B.d holds the embedding weights
+            %          B.p holds the method order
+            %          B.q holds the embedding order
 
             B.A = [0, 0, 0, 0, 0, 0, 0, 0; ...
                    0.20499999999999999, 0.20499999999999999, 0, 0, 0, 0, 0, 0; ...
@@ -989,7 +1346,20 @@ classdef AdaptDIRK < handle
         end
 
         function B = ARK548L2SAbESDIRK()
-            % Utility routine to return the embedded DIRK table ARK5(4)8L[2]SAb-ESDIRK.
+            % Usage: B = ARK548L2SAbESDIRK()
+            %
+            % Utility routine to return the embedded DIRK table corresponding to the
+            % ARK5(4)8L[2]SAb-ESDIRK method.
+            %
+            % Reference: Kennedy & Carpenter, Appl. Numer. Math. 136 (2019),
+            %            doi:10.1016/j.apnum.2018.10.007.
+            %
+            % Outputs: B.A holds the stage coefficients
+            %          B.b holds the solution weights
+            %          B.c holds the abscissae
+            %          B.d holds the embedding weights
+            %          B.p holds the method order
+            %          B.q holds the embedding order
 
             B.A = [0, 0, 0, 0, 0, 0, 0, 0; ...
                    0.22222222222222221, 0.22222222222222221, 0, 0, 0, 0, 0, 0; ...
@@ -1007,7 +1377,20 @@ classdef AdaptDIRK < handle
         end
 
         function B = Kvaerno745ESDIRK()
-            % Utility routine to return the embedded DIRK table Kvaerno(7,4,5)-ESDIRK.
+            % Usage: B = Kvaerno745ESDIRK()
+            %
+            % Utility routine to return the embedded DIRK table corresponding to the
+            % Kvaerno(7,4,5)-ESDIRK method.
+            %
+            % Reference: Kvaerno, BIT Numer. Math. 44 (2004),
+            %            doi:10.1023/B:BITN.0000046811.70614.38.
+            %
+            % Outputs: B.A holds the stage coefficients
+            %          B.b holds the solution weights
+            %          B.c holds the abscissae
+            %          B.d holds the embedding weights
+            %          B.p holds the method order
+            %          B.q holds the embedding order
 
             B.A = [0, 0, 0, 0, 0, 0, 0; ...
                    0.26000000000000001, 0.26000000000000001, 0, 0, 0, 0, 0; ...

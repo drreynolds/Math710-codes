@@ -2,10 +2,9 @@
 %
 % Daniel R. Reynolds
 % Math & Stat @ UMBC
-%
+
 clear
-here = fileparts(mfilename('fullpath'));
-addpath(fullfile(here, '..', 'shared'));
+addpath('../shared');
 
 % Initial data and tolerances for the stiff Oregonator kinetics test.
 y0 = [5.025e-11; 6e-7; 7.236e-8];

@@ -5,11 +5,10 @@
 %
 % Daniel R. Reynolds
 % Math & Stat @ UMBC
-%
+
 clear
-here = fileparts(mfilename('fullpath'));
-addpath(fullfile(here, '..', 'shared'));
-addpath(fullfile(here, '..', '03_simple_implicit'));
+addpath('../shared');
+addpath('../03_simple_implicit');
 
 t0 = 0.0;
 tf = 5.0;

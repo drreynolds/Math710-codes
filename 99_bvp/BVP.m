@@ -44,11 +44,11 @@ classdef BVP
                 + 2*self.lam*pi*sin(pi*t);
         end
 
-        function val = p(self, t) %#ok<INUSD>
+        function val = p(self, t)
             val = 2*self.lam;
         end
 
-        function val = q(self, t) %#ok<INUSD>
+        function val = q(self, t)
             val = -self.lam^2;
         end
 
