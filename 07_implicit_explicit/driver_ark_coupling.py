@@ -19,14 +19,16 @@
 #                               matches the ESDIRK (order 3)
 #
 # Since fI is linear, each implicit stage requires only a linear solve.
-# This driver uses its own small fixed-step ARK routine; once ARK.py is
-# added to this folder, that routine should be replaced by the ARK class.
 #
 # Daniel R. Reynolds
 # Math & Stat @ UMBC
 
 import numpy as np
 from scipy.integrate import solve_ivp
+import sys
+sys.path.append('..')
+from shared.ImplicitSolver import *
+from ARK import *
 
 # problem time interval and parameters
 t0 = 0.0
@@ -41,81 +43,39 @@ def fE(t,y):
 def fI(t,y):
     """ Implicit portion of the right-hand side """
     return lam*y
+def JI(t,y):
+    """ Jacobian of the implicit portion of the right-hand side """
+    return lam*np.eye(y.size)
 
 # reference solution
 ref = solve_ivp(lambda t,y: fE(t,y)+fI(t,y), (t0,tf), y0, method='DOP853',
                 rtol=1e-13, atol=1e-14).y[:,-1]
-
-# Butcher tables
-def Heun():
-    A = np.array(((0.0, 0.0), (1.0, 0.0)))
-    b = np.array((0.5, 0.5))
-    return {'A': A, 'b': b, 'c': np.sum(A,1)}
-def ExplicitMidpoint():
-    A = np.array(((0.0, 0.0), (0.5, 0.0)))
-    b = np.array((0.0, 1.0))
-    return {'A': A, 'b': b, 'c': np.sum(A,1)}
-def ImplicitMidpointPadded():
-    A = np.array(((0.0, 0.0), (0.0, 0.5)))
-    b = np.array((0.0, 1.0))
-    return {'A': A, 'b': b, 'c': np.sum(A,1)}
-def RK4():
-    A = np.array(((0.0, 0.0, 0.0, 0.0), (0.5, 0.0, 0.0, 0.0),
-                  (0.0, 0.5, 0.0, 0.0), (0.0, 0.0, 1.0, 0.0)))
-    b = np.array((1.0/6.0, 1.0/3.0, 1.0/3.0, 1.0/6.0))
-    return {'A': A, 'b': b, 'c': np.sum(A,1)}
-def ERK3():
-    A = np.array(((0.0, 0.0, 0.0, 0.0), (0.5, 0.0, 0.0, 0.0),
-                  (0.0, 0.5, 0.0, 0.0), (1.0, 0.0, 0.0, 0.0)))
-    b = np.array((1.0/6.0, 0.0, 2.0/3.0, 1.0/6.0))
-    return {'A': A, 'b': b, 'c': np.sum(A,1)}
-def ESDIRK3():
-    A = np.array(((0.0, 0.0, 0.0, 0.0), (1.0/6.0, 1.0/3.0, 0.0, 0.0),
-                  (0.5, -1.0/3.0, 1.0/3.0, 0.0), (-2.0/3.0, 2.0/3.0, 2.0/3.0, 1.0/3.0)))
-    b = np.array((1.0/6.0, 0.0, 2.0/3.0, 1.0/6.0))
-    return {'A': A, 'b': b, 'c': np.sum(A,1)}
-
-def ark_evolve(BE, BI, h):
-    """
-    Usage: y = ark_evolve(BE, BI, h)
-
-    Fixed-step ARK evolution of the test problem over [t0,tf], using the
-    explicit table BE for fE and the implicit table BI for the linear fI.
-    """
-    AE, bE, cE = BE['A'], BE['b'], BE['c']
-    AI, bI, cI = BI['A'], BI['b'], BI['c']
-    s = bE.size
-    N = int(round((tf-t0)/h))
-    t = t0
-    y = y0.copy()
-    for n in range(N):
-        FE = []
-        FI = []
-        for i in range(s):
-            a = y.copy()
-            for j in range(i):
-                a += h*(AE[i,j]*FE[j] + AI[i,j]*FI[j])
-            z = a / (1.0 - h*AI[i,i]*lam)
-            FE.append(fE(t+cE[i]*h, z))
-            FI.append(fI(t+cI[i]*h, z))
-        for j in range(s):
-            y += h*(bE[j]*FE[j] + bI[j]*FI[j])
-        t += h
-    return y
 
 # test runner function
 hvals = 0.1 / 2.0**np.arange(6)
 errs = np.zeros(hvals.size)
 def RunTest(BE, BI, name):
     print("\n", name, " tests:", sep='')
+    solver = ImplicitSolver(JI, solver_type='dense', maxiter=8,
+                            rtol=1e-12, atol=1e-14)
+    stepper = ARK(fE, fI, solver, BE, BI)
     for idx, h in enumerate(hvals):
-        errs[idx] = np.linalg.norm(ark_evolve(BE, BI, h) - ref, np.inf)
-        print("    h = %.5f:  abserr = %8.2e" % (h, errs[idx]))
+        stepper.reset()
+        stepper.sol.reset()
+        Y, success = stepper.Evolve(np.array([t0,tf]), y0, h)
+        errs[idx] = np.linalg.norm(Y[-1,:] - ref, np.inf)
+        if (success):
+            print("    h = %.5f:  solves = %4i  abserr = %8.2e" %
+                  (h, stepper.get_num_solves(), errs[idx]))
     orders = np.log(errs[0:-1]/errs[1:])/np.log(hvals[0:-1]/hvals[1:])
     print('    estimated order:  max = %.2f,  avg = %.2f' %
           (np.max(orders), np.average(orders)))
 
-RunTest(Heun(), ImplicitMidpointPadded(), 'Heun + implicit midpoint')
-RunTest(ExplicitMidpoint(), ImplicitMidpointPadded(), 'ARS(1,2,2)')
-RunTest(RK4(), ESDIRK3(), 'RK4 + ESDIRK3')
-RunTest(ERK3(), ESDIRK3(), 'ERK3 + ESDIRK3')
+BE, BI = HeunImplicitMidpoint()
+RunTest(BE, BI, 'Heun + implicit midpoint')
+BE, BI = ARS122()
+RunTest(BE, BI, 'ARS(1,2,2)')
+BE, BI = RK4ESDIRK3()
+RunTest(BE, BI, 'RK4 + ESDIRK3')
+BE, BI = ERK3ESDIRK3()
+RunTest(BE, BI, 'ERK3 + ESDIRK3')

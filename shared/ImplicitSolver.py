@@ -70,7 +70,7 @@ class ImplicitSolver:
                 return LinearOperator((y.size,y.size), matvec=Jsolve)
         elif (self.solver_type == 'sparse'):
             def J(y):
-                Jac = identity(y.size) + gamma*self.f_y(t,y,*args)
+                Jac = identity(y.size, format='csc') + gamma*self.f_y(t,y,*args)
                 try:
                     Jfactored = factorized(Jac)
                 except:

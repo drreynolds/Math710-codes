@@ -156,6 +156,8 @@ def ERK1():
 
     Utility routine to return the ERK table corresponding to forward Euler, posed as an ERK method.
 
+    Reference: Euler, Institutiones calculi integralis, Vol. 1 (1768).
+
     Outputs: B['A'] holds the Runge--Kutta stage coefficients
              B['b'] holds the Runge--Kutta solution weights
              B['c'] holds the Runge--Kutta abcissae
@@ -173,6 +175,8 @@ def Heun():
     Usage: B = Heun()
 
     Utility routine to return the ERK table corresponding to Heun's method.
+
+    TODO: add citation
 
     Outputs: B['A'] holds the Runge--Kutta stage coefficients
              B['b'] holds the Runge--Kutta solution weights
@@ -196,6 +200,8 @@ def ERK2():
     Utility routine to return the ERK table corresponding
     to the standard 2nd-order ERK method.
 
+    Reference: Runge, Math. Ann. 46 (1895), doi:10.1007/BF01446807.
+
     Outputs: B['A'] holds the Runge--Kutta stage coefficients
              B['b'] holds the Runge--Kutta solution weights
              B['c'] holds the Runge--Kutta abcissae
@@ -217,6 +223,8 @@ def ERK3():
 
     Utility routine to return the ERK table corresponding
     to the standard 3rd-order ERK method.
+
+    TODO: add citation
 
     Outputs: B['A'] holds the Runge--Kutta stage coefficients
              B['b'] holds the Runge--Kutta solution weights
@@ -241,6 +249,8 @@ def ERK4():
     Utility routine to return the ERK table corresponding
     to the standard 4th-order ERK method.
 
+    Reference: Kutta, Z. Math. Phys. 46:435--453 (1901).
+
     Outputs: B['A'] holds the Runge--Kutta stage coefficients
              B['b'] holds the Runge--Kutta solution weights
              B['c'] holds the Runge--Kutta abcissae
@@ -261,7 +271,19 @@ def ERK4():
 # Additional non-embedded explicit Runge--Kutta tables.
 
 def ERK11():
-    """Utility routine to return the ERK table ERK-1-1."""
+    """
+    Usage: B = ERK11()
+
+    Utility routine to return the ERK table corresponding to the ERK-1-1
+    method.
+
+    Reference: Euler, Institutiones calculi integralis, Vol. 1 (1768).
+
+    Outputs: B['A'] holds the Runge--Kutta stage coefficients
+             B['b'] holds the Runge--Kutta solution weights
+             B['c'] holds the Runge--Kutta abcissae
+             B['p'] holds the Runge--Kutta method order
+    """
     A = np.array(((0,),), dtype=float)
     b = np.array((1,), dtype=float)
     c = np.array((0,), dtype=float)
@@ -270,7 +292,20 @@ def ERK11():
     return B
 
 def Ascher232ERK():
-    """Utility routine to return the ERK table Ascher(2,3,2)-ERK."""
+    """
+    Usage: B = Ascher232ERK()
+
+    Utility routine to return the ERK table corresponding to the
+    Ascher(2,3,2)-ERK method.
+
+    Reference: Ascher, Ruuth & Spiteri, Appl. Numer. Math. 25 (1997),
+               doi:10.1016/S0168-9274(97)00056-1.
+
+    Outputs: B['A'] holds the Runge--Kutta stage coefficients
+             B['b'] holds the Runge--Kutta solution weights
+             B['c'] holds the Runge--Kutta abcissae
+             B['p'] holds the Runge--Kutta method order
+    """
     A = np.array((
         (0, 0, 0),
         (0.29289321881345243, 0, 0),
@@ -283,7 +318,20 @@ def Ascher232ERK():
     return B
 
 def ERK22():
-    """Utility routine to return the ERK table ERK-2-2."""
+    """
+    Usage: B = ERK22()
+
+    Utility routine to return the ERK table corresponding to the ERK-2-2
+    method.
+
+    Reference: Ralston, Math. Comp. 16 (1962),
+               doi:10.1090/S0025-5718-1962-0150954-0.
+
+    Outputs: B['A'] holds the Runge--Kutta stage coefficients
+             B['b'] holds the Runge--Kutta solution weights
+             B['c'] holds the Runge--Kutta abcissae
+             B['p'] holds the Runge--Kutta method order
+    """
     A = np.array((
         (0, 0),
         (0.66666666666666663, 0)
@@ -295,7 +343,19 @@ def ERK22():
     return B
 
 def LobattoIII22IRK():
-    """Utility routine to return the ERK table LobattoIII-2-2-IRK."""
+    """
+    Usage: B = LobattoIII22IRK()
+
+    Utility routine to return the ERK table corresponding to the
+    LobattoIII-2-2-IRK method.
+
+    TODO: add citation
+
+    Outputs: B['A'] holds the Runge--Kutta stage coefficients
+             B['b'] holds the Runge--Kutta solution weights
+             B['c'] holds the Runge--Kutta abcissae
+             B['p'] holds the Runge--Kutta method order
+    """
     A = np.array((
         (0, 0),
         (1, 0)
@@ -307,7 +367,20 @@ def LobattoIII22IRK():
     return B
 
 def SSP222ERK():
-    """Utility routine to return the ERK table SSP2(2,2,2)-ERK."""
+    """
+    Usage: B = SSP222ERK()
+
+    Utility routine to return the ERK table corresponding to the
+    SSP2(2,2,2)-ERK method.
+
+    Reference: Pareschi & Russo, J. Sci. Comput. 25 (2005),
+               doi:10.1007/BF02728986.
+
+    Outputs: B['A'] holds the Runge--Kutta stage coefficients
+             B['b'] holds the Runge--Kutta solution weights
+             B['c'] holds the Runge--Kutta abcissae
+             B['p'] holds the Runge--Kutta method order
+    """
     A = np.array((
         (0, 0),
         (1, 0)
@@ -319,7 +392,20 @@ def SSP222ERK():
     return B
 
 def SSP2332Lpm1ERK():
-    """Utility routine to return the ERK table SSP2(3,3,2)-lpm1-ERK."""
+    """
+    Usage: B = SSP2332Lpm1ERK()
+
+    Utility routine to return the ERK table corresponding to the
+    SSP2(3,3,2)-lpm1-ERK method.
+
+    Reference: Higueras, Happenhofer, Koch & Kupka, J. Comput. Appl. Math. 272
+               (2014), doi:10.1016/j.cam.2014.05.011.
+
+    Outputs: B['A'] holds the Runge--Kutta stage coefficients
+             B['b'] holds the Runge--Kutta solution weights
+             B['c'] holds the Runge--Kutta abcissae
+             B['p'] holds the Runge--Kutta method order
+    """
     A = np.array((
         (0, 0, 0),
         (0.5, 0, 0),
@@ -332,7 +418,20 @@ def SSP2332Lpm1ERK():
     return B
 
 def SSP2332Lpm2ERK():
-    """Utility routine to return the ERK table SSP2(3,3,2)-lpm2-ERK."""
+    """
+    Usage: B = SSP2332Lpm2ERK()
+
+    Utility routine to return the ERK table corresponding to the
+    SSP2(3,3,2)-lpm2-ERK method.
+
+    Reference: Higueras, Happenhofer, Koch & Kupka, J. Comput. Appl. Math. 272
+               (2014), doi:10.1016/j.cam.2014.05.011.
+
+    Outputs: B['A'] holds the Runge--Kutta stage coefficients
+             B['b'] holds the Runge--Kutta solution weights
+             B['c'] holds the Runge--Kutta abcissae
+             B['p'] holds the Runge--Kutta method order
+    """
     A = np.array((
         (0, 0, 0),
         (0.5, 0, 0),
@@ -345,7 +444,20 @@ def SSP2332Lpm2ERK():
     return B
 
 def SSP2332LpumERK():
-    """Utility routine to return the ERK table SSP2(3,3,2)-lpum-ERK."""
+    """
+    Usage: B = SSP2332LpumERK()
+
+    Utility routine to return the ERK table corresponding to the
+    SSP2(3,3,2)-lpum-ERK method.
+
+    Reference: Higueras, Happenhofer, Koch & Kupka, J. Comput. Appl. Math. 272
+               (2014), doi:10.1016/j.cam.2014.05.011.
+
+    Outputs: B['A'] holds the Runge--Kutta stage coefficients
+             B['b'] holds the Runge--Kutta solution weights
+             B['c'] holds the Runge--Kutta abcissae
+             B['p'] holds the Runge--Kutta method order
+    """
     A = np.array((
         (0, 0, 0),
         (0.5, 0, 0),
@@ -358,20 +470,20 @@ def SSP2332LpumERK():
     return B
 
 def SSP2332aERK():
-    """Utility routine to return the ERK table SSP2(3,3,2)-a-ERK."""
-    A = np.array((
-        (0, 0, 0),
-        (0.5, 0, 0),
-        (0.5, 0.5, 0)
-    ), dtype=float)
-    b = np.array((0.33333333333333331, 0.33333333333333331, 0.33333333333333331), dtype=float)
-    c = np.array((0, 0.5, 1), dtype=float)
-    p = 2
-    B = {'A': A, 'b':b, 'c':c, 'p': p}
-    return B
+    """
+    Usage: B = SSP2332aERK()
 
-def SSP2332bERK():
-    """Utility routine to return the ERK table SSP2(3,3,2)-b-ERK."""
+    Utility routine to return the ERK table corresponding to the
+    SSP2(3,3,2)-a-ERK method.
+
+    Reference: Pareschi & Russo, J. Sci. Comput. 25 (2005),
+               doi:10.1007/BF02728986.
+
+    Outputs: B['A'] holds the Runge--Kutta stage coefficients
+             B['b'] holds the Runge--Kutta solution weights
+             B['c'] holds the Runge--Kutta abcissae
+             B['p'] holds the Runge--Kutta method order
+    """
     A = np.array((
         (0, 0, 0),
         (0.5, 0, 0),
@@ -384,7 +496,21 @@ def SSP2332bERK():
     return B
 
 def DBM53ERK():
-    """Utility routine to return the ERK table DBM-5-3-ERK."""
+    """
+    Usage: B = DBM53ERK()
+
+    Utility routine to return the ERK table corresponding to the DBM-5-3-ERK
+    method.
+
+    Reference: the DBM453 method of Vogl, Steyer, Reynolds, Ullrich &
+               Woodward, J. Adv. Model. Earth Syst. 11 (2019),
+               doi:10.1029/2019MS001700.
+
+    Outputs: B['A'] holds the Runge--Kutta stage coefficients
+             B['b'] holds the Runge--Kutta solution weights
+             B['c'] holds the Runge--Kutta abcissae
+             B['p'] holds the Runge--Kutta method order
+    """
     A = np.array((
         (0, 0, 0, 0, 0),
         (0.10306208811591838, 0, 0, 0, 0),
@@ -399,7 +525,20 @@ def DBM53ERK():
     return B
 
 def Ascher233ERK():
-    """Utility routine to return the ERK table Ascher(2,3,3)-ERK."""
+    """
+    Usage: B = Ascher233ERK()
+
+    Utility routine to return the ERK table corresponding to the
+    Ascher(2,3,3)-ERK method.
+
+    Reference: Ascher, Ruuth & Spiteri, Appl. Numer. Math. 25 (1997),
+               doi:10.1016/S0168-9274(97)00056-1.
+
+    Outputs: B['A'] holds the Runge--Kutta stage coefficients
+             B['b'] holds the Runge--Kutta solution weights
+             B['c'] holds the Runge--Kutta abcissae
+             B['p'] holds the Runge--Kutta method order
+    """
     A = np.array((
         (0, 0, 0),
         (0.78867513459481275, 0, 0),
@@ -412,7 +551,20 @@ def Ascher233ERK():
     return B
 
 def Ascher343ERK():
-    """Utility routine to return the ERK table Ascher(3,4,3)-ERK."""
+    """
+    Usage: B = Ascher343ERK()
+
+    Utility routine to return the ERK table corresponding to the
+    Ascher(3,4,3)-ERK method.
+
+    Reference: Ascher, Ruuth & Spiteri, Appl. Numer. Math. 25 (1997),
+               doi:10.1016/S0168-9274(97)00056-1.
+
+    Outputs: B['A'] holds the Runge--Kutta stage coefficients
+             B['b'] holds the Runge--Kutta solution weights
+             B['c'] holds the Runge--Kutta abcissae
+             B['p'] holds the Runge--Kutta method order
+    """
     A = np.array((
         (0, 0, 0, 0),
         (0.435866521508459, 0, 0, 0),
@@ -426,7 +578,20 @@ def Ascher343ERK():
     return B
 
 def Ascher443ERK():
-    """Utility routine to return the ERK table Ascher(4,4,3)-ERK."""
+    """
+    Usage: B = Ascher443ERK()
+
+    Utility routine to return the ERK table corresponding to the
+    Ascher(4,4,3)-ERK method.
+
+    Reference: Ascher, Ruuth & Spiteri, Appl. Numer. Math. 25 (1997),
+               doi:10.1016/S0168-9274(97)00056-1.
+
+    Outputs: B['A'] holds the Runge--Kutta stage coefficients
+             B['b'] holds the Runge--Kutta solution weights
+             B['c'] holds the Runge--Kutta abcissae
+             B['p'] holds the Runge--Kutta method order
+    """
     A = np.array((
         (0, 0, 0, 0, 0),
         (0.5, 0, 0, 0, 0),
@@ -441,7 +606,20 @@ def Ascher443ERK():
     return B
 
 def KnothWolkeERK():
-    """Utility routine to return the ERK table Knoth-Wolke-ERK."""
+    """
+    Usage: B = KnothWolkeERK()
+
+    Utility routine to return the ERK table corresponding to the
+    Knoth-Wolke-ERK method.
+
+    Reference: Knoth & Wolke, Appl. Numer. Math. 28 (1998),
+               doi:10.1016/S0168-9274(98)00051-8.
+
+    Outputs: B['A'] holds the Runge--Kutta stage coefficients
+             B['b'] holds the Runge--Kutta solution weights
+             B['c'] holds the Runge--Kutta abcissae
+             B['p'] holds the Runge--Kutta method order
+    """
     A = np.array((
         (0, 0, 0),
         (0.33333333333333331, 0, 0),
@@ -454,7 +632,20 @@ def KnothWolkeERK():
     return B
 
 def Cooper4ERK():
-    """Utility routine to return the ERK table Cooper4-ERK."""
+    """
+    Usage: B = Cooper4ERK()
+
+    Utility routine to return the ERK table corresponding to the Cooper4-ERK
+    method.
+
+    Reference: the order-3 methods with mu = 1/2 in Cooper & Sayfy, Math.
+               Comp. 40 (1983), doi:10.1090/S0025-5718-1983-0679441-1.
+
+    Outputs: B['A'] holds the Runge--Kutta stage coefficients
+             B['b'] holds the Runge--Kutta solution weights
+             B['c'] holds the Runge--Kutta abcissae
+             B['p'] holds the Runge--Kutta method order
+    """
     A = np.array((
         (0, 0, 0, 0),
         (0.66666666666666663, 0, 0, 0),
@@ -468,20 +659,20 @@ def Cooper4ERK():
     return B
 
 def SSP3332ERK():
-    """Utility routine to return the ERK table SSP3(3,3,2)-ERK."""
-    A = np.array((
-        (0, 0, 0),
-        (1, 0, 0),
-        (0.25, 0.25, 0)
-    ), dtype=float)
-    b = np.array((0.16666666666666666, 0.16666666666666666, 0.66666666666666663), dtype=float)
-    c = np.array((0, 1, 0.5), dtype=float)
-    p = 3
-    B = {'A': A, 'b':b, 'c':c, 'p': p}
-    return B
+    """
+    Usage: B = SSP3332ERK()
 
-def SSP3333ERK():
-    """Utility routine to return the ERK table SSP3(3,3,3)-ERK."""
+    Utility routine to return the ERK table corresponding to the
+    SSP3(3,3,2)-ERK method.
+
+    Reference: Pareschi & Russo, J. Sci. Comput. 25 (2005),
+               doi:10.1007/BF02728986.
+
+    Outputs: B['A'] holds the Runge--Kutta stage coefficients
+             B['b'] holds the Runge--Kutta solution weights
+             B['c'] holds the Runge--Kutta abcissae
+             B['p'] holds the Runge--Kutta method order
+    """
     A = np.array((
         (0, 0, 0),
         (1, 0, 0),
@@ -494,7 +685,20 @@ def SSP3333ERK():
     return B
 
 def SSP3433ERK():
-    """Utility routine to return the ERK table SSP3(4,3,3)-ERK."""
+    """
+    Usage: B = SSP3433ERK()
+
+    Utility routine to return the ERK table corresponding to the
+    SSP3(4,3,3)-ERK method.
+
+    Reference: Pareschi & Russo, J. Sci. Comput. 25 (2005),
+               doi:10.1007/BF02728986.
+
+    Outputs: B['A'] holds the Runge--Kutta stage coefficients
+             B['b'] holds the Runge--Kutta solution weights
+             B['c'] holds the Runge--Kutta abcissae
+             B['p'] holds the Runge--Kutta method order
+    """
     A = np.array((
         (0, 0, 0, 0),
         (0, 0, 0, 0),
@@ -508,7 +712,19 @@ def SSP3433ERK():
     return B
 
 def ThreeEighthRuleERK():
-    """Utility routine to return the ERK table 3/8-Rule-ERK."""
+    """
+    Usage: B = ThreeEighthRuleERK()
+
+    Utility routine to return the ERK table corresponding to the 3/8-Rule-ERK
+    method.
+
+    Reference: Kutta, Z. Math. Phys. 46:435--453 (1901).
+
+    Outputs: B['A'] holds the Runge--Kutta stage coefficients
+             B['b'] holds the Runge--Kutta solution weights
+             B['c'] holds the Runge--Kutta abcissae
+             B['p'] holds the Runge--Kutta method order
+    """
     A = np.array((
         (0, 0, 0, 0),
         (0.33333333333333331, 0, 0, 0),
@@ -522,7 +738,19 @@ def ThreeEighthRuleERK():
     return B
 
 def ERK44():
-    """Utility routine to return the ERK table ERK-4-4."""
+    """
+    Usage: B = ERK44()
+
+    Utility routine to return the ERK table corresponding to the ERK-4-4
+    method.
+
+    Reference: Kutta, Z. Math. Phys. 46:435--453 (1901).
+
+    Outputs: B['A'] holds the Runge--Kutta stage coefficients
+             B['b'] holds the Runge--Kutta solution weights
+             B['c'] holds the Runge--Kutta abcissae
+             B['p'] holds the Runge--Kutta method order
+    """
     A = np.array((
         (0, 0, 0, 0),
         (0.5, 0, 0, 0),
@@ -536,7 +764,20 @@ def ERK44():
     return B
 
 def Cooper6ERK():
-    """Utility routine to return the ERK table Cooper6-ERK."""
+    """
+    Usage: B = Cooper6ERK()
+
+    Utility routine to return the ERK table corresponding to the Cooper6-ERK
+    method.
+
+    Reference: the first of the order-4 methods in Cooper & Sayfy, Math. Comp.
+               40 (1983), doi:10.1090/S0025-5718-1983-0679441-1.
+
+    Outputs: B['A'] holds the Runge--Kutta stage coefficients
+             B['b'] holds the Runge--Kutta solution weights
+             B['c'] holds the Runge--Kutta abcissae
+             B['p'] holds the Runge--Kutta method order
+    """
     A = np.array((
         (0, 0, 0, 0, 0, 0),
         (0.5, 0, 0, 0, 0, 0),
@@ -547,12 +788,24 @@ def Cooper6ERK():
     ), dtype=float)
     b = np.array((0.16666666666666666, 0, 0, 0.66666666666666663, 0.16666666666666666, 0), dtype=float)
     c = np.array((0, 0.5, 0.5, 0.5, 1, 1), dtype=float)
-    p = 5
+    p = 4
     B = {'A': A, 'b':b, 'c':c, 'p': p}
     return B
 
 def Butcher76ERK():
-    """Utility routine to return the ERK table Butcher-7-6-ERK."""
+    """
+    Usage: B = Butcher76ERK()
+
+    Utility routine to return the ERK table corresponding to the
+    Butcher-7-6-ERK method.
+
+    TODO: add citation
+
+    Outputs: B['A'] holds the Runge--Kutta stage coefficients
+             B['b'] holds the Runge--Kutta solution weights
+             B['c'] holds the Runge--Kutta abcissae
+             B['p'] holds the Runge--Kutta method order
+    """
     A = np.array((
         (0, 0, 0, 0, 0, 0, 0),
         (0.33333333333333331, 0, 0, 0, 0, 0, 0),
@@ -569,7 +822,19 @@ def Butcher76ERK():
     return B
 
 def Butcher76bERK():
-    """Utility routine to return the ERK table Butcher-7-6b-ERK."""
+    """
+    Usage: B = Butcher76bERK()
+
+    Utility routine to return the ERK table corresponding to the
+    Butcher-7-6b-ERK method.
+
+    TODO: add citation
+
+    Outputs: B['A'] holds the Runge--Kutta stage coefficients
+             B['b'] holds the Runge--Kutta solution weights
+             B['c'] holds the Runge--Kutta abcissae
+             B['p'] holds the Runge--Kutta method order
+    """
     A = np.array((
         (0, 0, 0, 0, 0, 0, 0),
         (0.40000000000000002, 0, 0, 0, 0, 0, 0),
@@ -586,7 +851,19 @@ def Butcher76bERK():
     return B
 
 def Butcher97ERK():
-    """Utility routine to return the ERK table Butcher-9-7-ERK."""
+    """
+    Usage: B = Butcher97ERK()
+
+    Utility routine to return the ERK table corresponding to the
+    Butcher-9-7-ERK method.
+
+    TODO: add citation
+
+    Outputs: B['A'] holds the Runge--Kutta stage coefficients
+             B['b'] holds the Runge--Kutta solution weights
+             B['c'] holds the Runge--Kutta abcissae
+             B['p'] holds the Runge--Kutta method order
+    """
     A = np.array((
         (0, 0, 0, 0, 0, 0, 0, 0, 0),
         (0.16666666666666666, 0, 0, 0, 0, 0, 0, 0, 0),
@@ -605,7 +882,20 @@ def Butcher97ERK():
     return B
 
 def CooperVerner118ERK():
-    """Utility routine to return the ERK table CooperVerner-11-8-ERK."""
+    """
+    Usage: B = CooperVerner118ERK()
+
+    Utility routine to return the ERK table corresponding to the
+    CooperVerner-11-8-ERK method.
+
+    Reference: Cooper & Verner, SIAM J. Numer. Anal. 9 (1972),
+               doi:10.1137/0709037.
+
+    Outputs: B['A'] holds the Runge--Kutta stage coefficients
+             B['b'] holds the Runge--Kutta solution weights
+             B['c'] holds the Runge--Kutta abcissae
+             B['p'] holds the Runge--Kutta method order
+    """
     A = np.array((
         (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
         (0.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
@@ -623,4 +913,85 @@ def CooperVerner118ERK():
     c = np.array((0, 0.5, 0.5, 0.82732683535398854, 0.82732683535398854, 0.5, 0.17267316464601143, 0.17267316464601143, 0.5, 0.82732683535398854, 1), dtype=float)
     p = 8
     B = {'A': A, 'b':b, 'c':c, 'p': p}
+    return B
+
+
+# Additional explicit tables used by ARK pairs in the lecture notes.
+
+def Ascher111ERK():
+    """
+    Usage: B = Ascher111ERK()
+
+    Utility routine to return the ERK table corresponding to
+    the explicit component of the ARS(1,1,1) method.
+
+    Reference: Ascher, Ruuth & Spiteri, Appl. Numer. Math. 25 (1997),
+               doi:10.1016/S0168-9274(97)00056-1.
+
+    Outputs: B['A'] holds the Runge--Kutta stage coefficients
+             B['b'] holds the Runge--Kutta solution weights
+             B['c'] holds the Runge--Kutta abcissae
+             B['p'] holds the Runge--Kutta method order
+    """
+    A = np.array((
+        (0, 0),
+        (1, 0)
+    ), dtype=float)
+    b = np.array((1, 0), dtype=float)
+    c = np.array((0, 1), dtype=float)
+    p = 1
+    B = {'A': A, 'b': b, 'c': c, 'p': p}
+    return B
+
+
+def Ascher122ERK():
+    """
+    Usage: B = Ascher122ERK()
+
+    Utility routine to return the ERK table corresponding to
+    the explicit component of the ARS(1,2,2) method.
+
+    Reference: Ascher, Ruuth & Spiteri, Appl. Numer. Math. 25 (1997),
+               doi:10.1016/S0168-9274(97)00056-1.
+
+    Outputs: B['A'] holds the Runge--Kutta stage coefficients
+             B['b'] holds the Runge--Kutta solution weights
+             B['c'] holds the Runge--Kutta abcissae
+             B['p'] holds the Runge--Kutta method order
+    """
+    A = np.array((
+        (0, 0),
+        (0.5, 0)
+    ), dtype=float)
+    b = np.array((0, 1), dtype=float)
+    c = np.array((0, 0.5), dtype=float)
+    p = 2
+    B = {'A': A, 'b': b, 'c': c, 'p': p}
+    return B
+
+
+def ARKCouplingERK3():
+    """
+    Usage: B = ARKCouplingERK3()
+
+    Utility routine to return the ERK table corresponding to
+    the third-order explicit method from the ARK coupling example.
+
+    TODO: add citation
+
+    Outputs: B['A'] holds the Runge--Kutta stage coefficients
+             B['b'] holds the Runge--Kutta solution weights
+             B['c'] holds the Runge--Kutta abcissae
+             B['p'] holds the Runge--Kutta method order
+    """
+    A = np.array((
+        (0, 0, 0, 0),
+        (0.5, 0, 0, 0),
+        (0, 0.5, 0, 0),
+        (1, 0, 0, 0)
+    ), dtype=float)
+    b = np.array((1/6, 0, 2/3, 1/6), dtype=float)
+    c = np.array((0, 0.5, 0.5, 1), dtype=float)
+    p = 3
+    B = {'A': A, 'b': b, 'c': c, 'p': p}
     return B

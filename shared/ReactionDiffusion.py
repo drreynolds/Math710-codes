@@ -33,7 +33,7 @@ xgrid = np.linspace(xl+dx, xr-dx, Nx-2)
 diags = [-2*np.ones((Nx-2,),dtype=float)/(dx**2),
          np.ones((Nx-3,),dtype=float)/(dx**2),
          np.ones((Nx-3,),dtype=float)/(dx**2)]
-D = sp.diags_array(diags, offsets=[0,1,-1])
+D = sp.diags_array(diags, offsets=[0,1,-1], format='csc')
 
 # solution and relevant functions
 def utrue(x,t):
@@ -54,12 +54,30 @@ def f(t,u):
     """
     return (D @ u + 1/(1+u**2) + Phi(xgrid,t))
 
+def fE(t,u):
+    """
+    Explicit reaction portion of the right-hand side.
+    """
+    return (1/(1+u**2))
+
+def fI(t,u):
+    """
+    Implicit diffusion and forcing portion of the right-hand side.
+    """
+    return (D @ u + Phi(xgrid,t))
+
+def JI(t,u):
+    """
+    Jacobian of the implicit diffusion and forcing portion of the right-hand side.
+    """
+    return D
+
 def J(t,u):
     """
     Jacobian (in sparse matrix format) of the right-hand side
     function, J(t,y) = df/dy, for the IVP.
     """
-    return (D - sp.diags(2*u/((1+u**2)**2)))
+    return (D - sp.diags_array(2*u/((1+u**2)**2), format='csc'))
 
 def u0():
     """

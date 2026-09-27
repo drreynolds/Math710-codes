@@ -292,6 +292,8 @@ def HeunEuler():
     Utility routine to return the embedded ERK table corresponding
     to the Heun-Euler method.
 
+    TODO: add citation
+
     Outputs: B['A'] holds the stage coefficients
              B['b'] holds the solution weights
              B['c'] holds the abcissae
@@ -317,6 +319,8 @@ def ERK32():
 
     Utility routine to return the embedded ERK table corresponding
     to a 3rd-order ERK method with 2nd-order embedding.
+
+    Reference: base method: Kutta, Z. Math. Phys. 46:435--453 (1901).
 
     Outputs: B['A'] holds the stage coefficients
              B['b'] holds the solution weights
@@ -345,6 +349,9 @@ def BogackiShampine():
     Utility routine to return the embedded ERK table corresponding
     to the Bogacki-Shampine embedded ERK method.
 
+    Reference: Bogacki & Shampine, Appl. Math. Lett. 2 (1989),
+               doi:10.1016/0893-9659(89)90079-7.
+
     Outputs: B['A'] holds the stage coefficients
              B['b'] holds the solution weights
              B['c'] holds the abcissae
@@ -372,6 +379,9 @@ def DormandPrince():
 
     Utility routine to return the embedded ERK table corresponding
     to the Dormand Prince method.
+
+    Reference: Dormand & Prince, J. Comput. Appl. Math. 6 (1980),
+               doi:10.1016/0771-050X(80)90013-3.
 
     Outputs: B['A'] holds the stage coefficients
              B['b'] holds the solution weights
@@ -405,6 +415,10 @@ def Verner65():
     Utility routine to return the embedded ERK table corresponding
     to the a 6th-order ERK method with 5th-order embedding by Verner.
 
+    Reference: Hull, Enright & Jackson, User's guide for DVERK, Technical
+               Report 100, Department of Computer Science, University of
+               Toronto (1976).
+
     Outputs: B['A'] holds the stage coefficients
              B['b'] holds the solution weights
              B['c'] holds the abcissae
@@ -433,7 +447,22 @@ def Verner65():
 # Additional embedded explicit Runge--Kutta tables.
 
 def Ascher222ERK():
-    """Utility routine to return the embedded ERK table Ascher(2,2,2)-ERK."""
+    """
+    Usage: B = Ascher222ERK()
+
+    Utility routine to return the embedded ERK table corresponding to the
+    Ascher(2,2,2)-ERK method.
+
+    Reference: Ascher, Ruuth & Spiteri, Appl. Numer. Math. 25 (1997),
+               doi:10.1016/S0168-9274(97)00056-1.
+
+    Outputs: B['A'] holds the stage coefficients
+             B['b'] holds the solution weights
+             B['c'] holds the abcissae
+             B['d'] holds the embedding weights
+             B['p'] holds the method order
+             B['q'] holds the embedding order
+    """
     A = np.array((
         (0, 0, 0),
         (0.29289321881345243, 0, 0),
@@ -448,7 +477,22 @@ def Ascher222ERK():
     return B
 
 def SSP22ERK():
-    """Utility routine to return the embedded ERK table SSP(2,2)-ERK."""
+    """
+    Usage: B = SSP22ERK()
+
+    Utility routine to return the embedded ERK table corresponding to the
+    SSP(2,2)-ERK method.
+
+    Reference: Fekete, Conde & Shadid, J. Comput. Appl. Math. 412 (2022),
+               doi:10.1016/j.cam.2022.114325.
+
+    Outputs: B['A'] holds the stage coefficients
+             B['b'] holds the solution weights
+             B['c'] holds the abcissae
+             B['d'] holds the embedding weights
+             B['p'] holds the method order
+             B['q'] holds the embedding order
+    """
     A = np.array((
         (0, 0),
         (1, 0)
@@ -462,7 +506,22 @@ def SSP22ERK():
     return B
 
 def SSP32ERK():
-    """Utility routine to return the embedded ERK table SSP(3,2)-ERK."""
+    """
+    Usage: B = SSP32ERK()
+
+    Utility routine to return the embedded ERK table corresponding to the
+    SSP(3,2)-ERK method.
+
+    Reference: Fekete, Conde & Shadid, J. Comput. Appl. Math. 412 (2022),
+               doi:10.1016/j.cam.2022.114325.
+
+    Outputs: B['A'] holds the stage coefficients
+             B['b'] holds the solution weights
+             B['c'] holds the abcissae
+             B['d'] holds the embedding weights
+             B['p'] holds the method order
+             B['q'] holds the embedding order
+    """
     A = np.array((
         (0, 0, 0),
         (0.5, 0, 0),
@@ -477,7 +536,22 @@ def SSP32ERK():
     return B
 
 def SSP42ERK():
-    """Utility routine to return the embedded ERK table SSP(4,2)-ERK."""
+    """
+    Usage: B = SSP42ERK()
+
+    Utility routine to return the embedded ERK table corresponding to the
+    SSP(4,2)-ERK method.
+
+    Reference: Fekete, Conde & Shadid, J. Comput. Appl. Math. 412 (2022),
+               doi:10.1016/j.cam.2022.114325.
+
+    Outputs: B['A'] holds the stage coefficients
+             B['b'] holds the solution weights
+             B['c'] holds the abcissae
+             B['d'] holds the embedding weights
+             B['p'] holds the method order
+             B['q'] holds the embedding order
+    """
     A = np.array((
         (0, 0, 0, 0),
         (0.33333333333333331, 0, 0, 0),
@@ -493,7 +567,22 @@ def SSP42ERK():
     return B
 
 def SSP102ERK():
-    """Utility routine to return the embedded ERK table SSP(10,2)-ERK."""
+    """
+    Usage: B = SSP102ERK()
+
+    Utility routine to return the embedded ERK table corresponding to the
+    SSP(10,2)-ERK method.
+
+    Reference: Fekete, Conde & Shadid, J. Comput. Appl. Math. 412 (2022),
+               doi:10.1016/j.cam.2022.114325.
+
+    Outputs: B['A'] holds the stage coefficients
+             B['b'] holds the solution weights
+             B['c'] holds the abcissae
+             B['d'] holds the embedding weights
+             B['p'] holds the method order
+             B['q'] holds the embedding order
+    """
     A = np.array((
         (0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
         (0.1111111111111111, 0, 0, 0, 0, 0, 0, 0, 0, 0),
@@ -515,7 +604,22 @@ def SSP102ERK():
     return B
 
 def ARK232ERK():
-    """Utility routine to return the embedded ERK table ARK(2,3,2)-ERK."""
+    """
+    Usage: B = ARK232ERK()
+
+    Utility routine to return the embedded ERK table corresponding to the
+    ARK(2,3,2)-ERK method.
+
+    Reference: Giraldo, Kelly & Constantinescu, SIAM J. Sci. Comput. 35
+               (2013), doi:10.1137/120876034.
+
+    Outputs: B['A'] holds the stage coefficients
+             B['b'] holds the solution weights
+             B['c'] holds the abcissae
+             B['d'] holds the embedding weights
+             B['p'] holds the method order
+             B['q'] holds the embedding order
+    """
     A = np.array((
         (0, 0, 0),
         (0.58578643762690508, 0, 0),
@@ -530,7 +634,22 @@ def ARK232ERK():
     return B
 
 def SSP2332LspumERK():
-    """Utility routine to return the embedded ERK table SSP2(3,3,2)-lspum-ERK."""
+    """
+    Usage: B = SSP2332LspumERK()
+
+    Utility routine to return the embedded ERK table corresponding to the
+    SSP2(3,3,2)-lspum-ERK method.
+
+    Reference: Higueras, Happenhofer, Koch & Kupka, J. Comput. Appl. Math. 272
+               (2014), doi:10.1016/j.cam.2014.05.011.
+
+    Outputs: B['A'] holds the stage coefficients
+             B['b'] holds the solution weights
+             B['c'] holds the abcissae
+             B['d'] holds the embedding weights
+             B['p'] holds the method order
+             B['q'] holds the embedding order
+    """
     A = np.array((
         (0, 0, 0),
         (0.83333333333333337, 0, 0),
@@ -545,7 +664,22 @@ def SSP2332LspumERK():
     return B
 
 def GiraldoARK2ERK():
-    """Utility routine to return the embedded ERK table Giraldo-ARK2-ERK."""
+    """
+    Usage: B = GiraldoARK2ERK()
+
+    Utility routine to return the embedded ERK table corresponding to the
+    Giraldo-ARK2-ERK method.
+
+    Reference: Giraldo, Kelly & Constantinescu, SIAM J. Sci. Comput. 35
+               (2013), doi:10.1137/120876034.
+
+    Outputs: B['A'] holds the stage coefficients
+             B['b'] holds the solution weights
+             B['c'] holds the abcissae
+             B['d'] holds the embedding weights
+             B['p'] holds the method order
+             B['q'] holds the embedding order
+    """
     A = np.array((
         (0, 0, 0),
         (0.58578643762690485, 0, 0),
@@ -560,7 +694,22 @@ def GiraldoARK2ERK():
     return B
 
 def ARK324L2SAERK():
-    """Utility routine to return the embedded ERK table ARK3(2)4L[2]SA-ERK."""
+    """
+    Usage: B = ARK324L2SAERK()
+
+    Utility routine to return the embedded ERK table corresponding to the
+    ARK3(2)4L[2]SA-ERK method.
+
+    Reference: Kennedy & Carpenter, Appl. Numer. Math. 44 (2003),
+               doi:10.1016/S0168-9274(02)00138-1.
+
+    Outputs: B['A'] holds the stage coefficients
+             B['b'] holds the solution weights
+             B['c'] holds the abcissae
+             B['d'] holds the embedding weights
+             B['p'] holds the method order
+             B['q'] holds the embedding order
+    """
     A = np.array((
         (0, 0, 0, 0),
         (0.87173304301691801, 0, 0, 0),
@@ -576,7 +725,22 @@ def ARK324L2SAERK():
     return B
 
 def SSP43ERK():
-    """Utility routine to return the embedded ERK table SSP(4,3)-ERK."""
+    """
+    Usage: B = SSP43ERK()
+
+    Utility routine to return the embedded ERK table corresponding to the
+    SSP(4,3)-ERK method.
+
+    Reference: Fekete, Conde & Shadid, J. Comput. Appl. Math. 412 (2022),
+               doi:10.1016/j.cam.2022.114325.
+
+    Outputs: B['A'] holds the stage coefficients
+             B['b'] holds the solution weights
+             B['c'] holds the abcissae
+             B['d'] holds the embedding weights
+             B['p'] holds the method order
+             B['q'] holds the embedding order
+    """
     A = np.array((
         (0, 0, 0, 0),
         (0.5, 0, 0, 0),
@@ -592,7 +756,22 @@ def SSP43ERK():
     return B
 
 def SSP93ERK():
-    """Utility routine to return the embedded ERK table SSP(9,3)-ERK."""
+    """
+    Usage: B = SSP93ERK()
+
+    Utility routine to return the embedded ERK table corresponding to the
+    SSP(9,3)-ERK method.
+
+    Reference: Fekete, Conde & Shadid, J. Comput. Appl. Math. 412 (2022),
+               doi:10.1016/j.cam.2022.114325.
+
+    Outputs: B['A'] holds the stage coefficients
+             B['b'] holds the solution weights
+             B['c'] holds the abcissae
+             B['d'] holds the embedding weights
+             B['p'] holds the method order
+             B['q'] holds the embedding order
+    """
     A = np.array((
         (0, 0, 0, 0, 0, 0, 0, 0, 0),
         (0.16666666666666666, 0, 0, 0, 0, 0, 0, 0, 0),
@@ -613,7 +792,22 @@ def SSP93ERK():
     return B
 
 def SSP163ERK():
-    """Utility routine to return the embedded ERK table SSP(16,3)-ERK."""
+    """
+    Usage: B = SSP163ERK()
+
+    Utility routine to return the embedded ERK table corresponding to the
+    SSP(16,3)-ERK method.
+
+    Reference: Fekete, Conde & Shadid, J. Comput. Appl. Math. 412 (2022),
+               doi:10.1016/j.cam.2022.114325.
+
+    Outputs: B['A'] holds the stage coefficients
+             B['b'] holds the solution weights
+             B['c'] holds the abcissae
+             B['d'] holds the embedding weights
+             B['p'] holds the method order
+             B['q'] holds the embedding order
+    """
     A = np.array((
         (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
         (0.083333333333333329, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
@@ -641,7 +835,24 @@ def SSP163ERK():
     return B
 
 def SSPRK33ShuOsherERK():
-    """Utility routine to return the embedded ERK table SSPRK(3,3)-Shu-Osher-ERK."""
+    """
+    Usage: B = SSPRK33ShuOsherERK()
+
+    Utility routine to return the embedded ERK table corresponding to the
+    SSPRK(3,3)-Shu-Osher-ERK method.
+
+    References: method: Shu & Osher, J. Comput. Phys. 77 (1988),
+                doi:10.1016/0021-9991(88)90177-5.
+                embedding: Fekete, Conde & Shadid, J. Comput. Appl. Math. 412
+                (2022), doi:10.1016/j.cam.2022.114325.
+
+    Outputs: B['A'] holds the stage coefficients
+             B['b'] holds the solution weights
+             B['c'] holds the abcissae
+             B['d'] holds the embedding weights
+             B['p'] holds the method order
+             B['q'] holds the embedding order
+    """
     A = np.array((
         (0, 0, 0),
         (1, 0, 0),
@@ -656,7 +867,22 @@ def SSPRK33ShuOsherERK():
     return B
 
 def ARK436L2SAERK():
-    """Utility routine to return the embedded ERK table ARK4(3)6L[2]SA-ERK."""
+    """
+    Usage: B = ARK436L2SAERK()
+
+    Utility routine to return the embedded ERK table corresponding to the
+    ARK4(3)6L[2]SA-ERK method.
+
+    Reference: Kennedy & Carpenter, Appl. Numer. Math. 44 (2003),
+               doi:10.1016/S0168-9274(02)00138-1.
+
+    Outputs: B['A'] holds the stage coefficients
+             B['b'] holds the solution weights
+             B['c'] holds the abcissae
+             B['d'] holds the embedding weights
+             B['p'] holds the method order
+             B['q'] holds the embedding order
+    """
     A = np.array((
         (0, 0, 0, 0, 0, 0),
         (0.5, 0, 0, 0, 0, 0),
@@ -674,7 +900,22 @@ def ARK436L2SAERK():
     return B
 
 def ARK437L2SAERK():
-    """Utility routine to return the embedded ERK table ARK4(3)7L[2]SA-ERK."""
+    """
+    Usage: B = ARK437L2SAERK()
+
+    Utility routine to return the embedded ERK table corresponding to the
+    ARK4(3)7L[2]SA-ERK method.
+
+    Reference: Kennedy & Carpenter, Appl. Numer. Math. 136 (2019),
+               doi:10.1016/j.apnum.2018.10.007.
+
+    Outputs: B['A'] holds the stage coefficients
+             B['b'] holds the solution weights
+             B['c'] holds the abcissae
+             B['d'] holds the embedding weights
+             B['p'] holds the method order
+             B['q'] holds the embedding order
+    """
     A = np.array((
         (0, 0, 0, 0, 0, 0, 0),
         (0.247, 0, 0, 0, 0, 0, 0),
@@ -693,7 +934,22 @@ def ARK437L2SAERK():
     return B
 
 def SayfyAburub43ERK():
-    """Utility routine to return the embedded ERK table Sayfy-Aburub-4-3-ERK."""
+    """
+    Usage: B = SayfyAburub43ERK()
+
+    Utility routine to return the embedded ERK table corresponding to the
+    Sayfy-Aburub-4-3-ERK method.
+
+    Reference: Sayfy & Aburub, Int. J. Comput. Math. 79 (2002),
+               doi:10.1080/00207160212109.
+
+    Outputs: B['A'] holds the stage coefficients
+             B['b'] holds the solution weights
+             B['c'] holds the abcissae
+             B['d'] holds the embedding weights
+             B['p'] holds the method order
+             B['q'] holds the embedding order
+    """
     A = np.array((
         (0, 0, 0, 0, 0, 0),
         (0.5, 0, 0, 0, 0, 0),
@@ -711,7 +967,22 @@ def SayfyAburub43ERK():
     return B
 
 def SSP104ERK():
-    """Utility routine to return the embedded ERK table SSP(10,4)-ERK."""
+    """
+    Usage: B = SSP104ERK()
+
+    Utility routine to return the embedded ERK table corresponding to the
+    SSP(10,4)-ERK method.
+
+    Reference: Fekete, Conde & Shadid, J. Comput. Appl. Math. 412 (2022),
+               doi:10.1016/j.cam.2022.114325.
+
+    Outputs: B['A'] holds the stage coefficients
+             B['b'] holds the solution weights
+             B['c'] holds the abcissae
+             B['d'] holds the embedding weights
+             B['p'] holds the method order
+             B['q'] holds the embedding order
+    """
     A = np.array((
         (0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
         (0.16666666666666666, 0, 0, 0, 0, 0, 0, 0, 0, 0),
@@ -733,7 +1004,21 @@ def SSP104ERK():
     return B
 
 def Merson43ERK():
-    """Utility routine to return the embedded ERK table Merson-4-3-ERK."""
+    """
+    Usage: B = Merson43ERK()
+
+    Utility routine to return the embedded ERK table corresponding to the
+    Merson-4-3-ERK method.
+
+    TODO: add citation
+
+    Outputs: B['A'] holds the stage coefficients
+             B['b'] holds the solution weights
+             B['c'] holds the abcissae
+             B['d'] holds the embedding weights
+             B['p'] holds the method order
+             B['q'] holds the embedding order
+    """
     A = np.array((
         (0, 0, 0, 0, 0),
         (0.33333333333333331, 0, 0, 0, 0),
@@ -750,7 +1035,22 @@ def Merson43ERK():
     return B
 
 def Zonneveld43ERK():
-    """Utility routine to return the embedded ERK table Zonneveld-4-3-ERK."""
+    """
+    Usage: B = Zonneveld43ERK()
+
+    Utility routine to return the embedded ERK table corresponding to the
+    Zonneveld-4-3-ERK method.
+
+    Reference: Zonneveld, Automatic integration of ordinary differential
+               equations, Report R743, Mathematisch Centrum, Amsterdam (1963).
+
+    Outputs: B['A'] holds the stage coefficients
+             B['b'] holds the solution weights
+             B['c'] holds the abcissae
+             B['d'] holds the embedding weights
+             B['p'] holds the method order
+             B['q'] holds the embedding order
+    """
     A = np.array((
         (0, 0, 0, 0, 0),
         (0.5, 0, 0, 0, 0),
@@ -767,7 +1067,22 @@ def Zonneveld43ERK():
     return B
 
 def ARK548L2SAERK():
-    """Utility routine to return the embedded ERK table ARK5(4)8L[2]SA-ERK."""
+    """
+    Usage: B = ARK548L2SAERK()
+
+    Utility routine to return the embedded ERK table corresponding to the
+    ARK5(4)8L[2]SA-ERK method.
+
+    Reference: Kennedy & Carpenter, Appl. Numer. Math. 44 (2003),
+               doi:10.1016/S0168-9274(02)00138-1.
+
+    Outputs: B['A'] holds the stage coefficients
+             B['b'] holds the solution weights
+             B['c'] holds the abcissae
+             B['d'] holds the embedding weights
+             B['p'] holds the method order
+             B['q'] holds the embedding order
+    """
     A = np.array((
         (0, 0, 0, 0, 0, 0, 0, 0),
         (0.40999999999999998, 0, 0, 0, 0, 0, 0, 0),
@@ -787,7 +1102,22 @@ def ARK548L2SAERK():
     return B
 
 def ARK548L2SAbERK():
-    """Utility routine to return the embedded ERK table ARK5(4)8L[2]SAb-ERK."""
+    """
+    Usage: B = ARK548L2SAbERK()
+
+    Utility routine to return the embedded ERK table corresponding to the
+    ARK5(4)8L[2]SAb-ERK method.
+
+    Reference: Kennedy & Carpenter, Appl. Numer. Math. 136 (2019),
+               doi:10.1016/j.apnum.2018.10.007.
+
+    Outputs: B['A'] holds the stage coefficients
+             B['b'] holds the solution weights
+             B['c'] holds the abcissae
+             B['d'] holds the embedding weights
+             B['p'] holds the method order
+             B['q'] holds the embedding order
+    """
     A = np.array((
         (0, 0, 0, 0, 0, 0, 0, 0),
         (0.44444444444444442, 0, 0, 0, 0, 0, 0, 0),
@@ -807,7 +1137,21 @@ def ARK548L2SAbERK():
     return B
 
 def FehlbergERK():
-    """Utility routine to return the embedded ERK table Fehlberg-ERK."""
+    """
+    Usage: B = FehlbergERK()
+
+    Utility routine to return the embedded ERK table corresponding to the
+    Fehlberg-ERK method.
+
+    Reference: Fehlberg, NASA Technical Report R-315 (1969).
+
+    Outputs: B['A'] holds the stage coefficients
+             B['b'] holds the solution weights
+             B['c'] holds the abcissae
+             B['d'] holds the embedding weights
+             B['p'] holds the method order
+             B['q'] holds the embedding order
+    """
     A = np.array((
         (0, 0, 0, 0, 0, 0),
         (0.25, 0, 0, 0, 0, 0),
@@ -825,7 +1169,22 @@ def FehlbergERK():
     return B
 
 def CashKarpERK():
-    """Utility routine to return the embedded ERK table Cash-Karp-ERK."""
+    """
+    Usage: B = CashKarpERK()
+
+    Utility routine to return the embedded ERK table corresponding to the
+    Cash-Karp-ERK method.
+
+    Reference: Cash & Karp, ACM Trans. Math. Software 16 (1990),
+               doi:10.1145/79505.79507.
+
+    Outputs: B['A'] holds the stage coefficients
+             B['b'] holds the solution weights
+             B['c'] holds the abcissae
+             B['d'] holds the embedding weights
+             B['p'] holds the method order
+             B['q'] holds the embedding order
+    """
     A = np.array((
         (0, 0, 0, 0, 0, 0),
         (0.20000000000000001, 0, 0, 0, 0, 0),
@@ -843,7 +1202,22 @@ def CashKarpERK():
     return B
 
 def Verner65bERK():
-    """Utility routine to return the embedded ERK table Verner-6-5b-ERK."""
+    """
+    Usage: B = Verner65bERK()
+
+    Utility routine to return the embedded ERK table corresponding to the
+    Verner-6-5b-ERK method.
+
+    Reference: Verner, Numer. Algorithms 53 (2010),
+               doi:10.1007/s11075-009-9290-3.
+
+    Outputs: B['A'] holds the stage coefficients
+             B['b'] holds the solution weights
+             B['c'] holds the abcissae
+             B['d'] holds the embedding weights
+             B['p'] holds the method order
+             B['q'] holds the embedding order
+    """
     A = np.array((
         (0, 0, 0, 0, 0, 0, 0, 0, 0),
         (0.059999999999999998, 0, 0, 0, 0, 0, 0, 0, 0),
@@ -864,7 +1238,22 @@ def Verner65bERK():
     return B
 
 def Verner76ERK():
-    """Utility routine to return the embedded ERK table Verner-7-6-ERK."""
+    """
+    Usage: B = Verner76ERK()
+
+    Utility routine to return the embedded ERK table corresponding to the
+    Verner-7-6-ERK method.
+
+    Reference: Verner, Numer. Algorithms 53 (2010),
+               doi:10.1007/s11075-009-9290-3.
+
+    Outputs: B['A'] holds the stage coefficients
+             B['b'] holds the solution weights
+             B['c'] holds the abcissae
+             B['d'] holds the embedding weights
+             B['p'] holds the method order
+             B['q'] holds the embedding order
+    """
     A = np.array((
         (0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
         (0.0050000000000000001, 0, 0, 0, 0, 0, 0, 0, 0, 0),
@@ -886,7 +1275,22 @@ def Verner76ERK():
     return B
 
 def Verner87ERK():
-    """Utility routine to return the embedded ERK table Verner-8-7-ERK."""
+    """
+    Usage: B = Verner87ERK()
+
+    Utility routine to return the embedded ERK table corresponding to the
+    Verner-8-7-ERK method.
+
+    Reference: Verner, Numer. Algorithms 53 (2010),
+               doi:10.1007/s11075-009-9290-3.
+
+    Outputs: B['A'] holds the stage coefficients
+             B['b'] holds the solution weights
+             B['c'] holds the abcissae
+             B['d'] holds the embedding weights
+             B['p'] holds the method order
+             B['q'] holds the embedding order
+    """
     A = np.array((
         (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
         (0.050000000000000003, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
@@ -911,7 +1315,21 @@ def Verner87ERK():
     return B
 
 def Fehlberg87ERK():
-    """Utility routine to return the embedded ERK table Fehlberg-8-7-ERK."""
+    """
+    Usage: B = Fehlberg87ERK()
+
+    Utility routine to return the embedded ERK table corresponding to the
+    Fehlberg-8-7-ERK method.
+
+    Reference: Fehlberg, NASA Technical Report R-287 (1968).
+
+    Outputs: B['A'] holds the stage coefficients
+             B['b'] holds the solution weights
+             B['c'] holds the abcissae
+             B['d'] holds the embedding weights
+             B['p'] holds the method order
+             B['q'] holds the embedding order
+    """
     A = np.array((
         (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
         (0.07407407407407407, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
@@ -936,7 +1354,22 @@ def Fehlberg87ERK():
     return B
 
 def Verner98ERK():
-    """Utility routine to return the embedded ERK table Verner-9-8-ERK."""
+    """
+    Usage: B = Verner98ERK()
+
+    Utility routine to return the embedded ERK table corresponding to the
+    Verner-9-8-ERK method.
+
+    Reference: Verner, Numer. Algorithms 53 (2010),
+               doi:10.1007/s11075-009-9290-3.
+
+    Outputs: B['A'] holds the stage coefficients
+             B['b'] holds the solution weights
+             B['c'] holds the abcissae
+             B['d'] holds the embedding weights
+             B['p'] holds the method order
+             B['q'] holds the embedding order
+    """
     A = np.array((
         (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
         (0.034619999999999998, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
