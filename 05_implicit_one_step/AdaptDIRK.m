@@ -118,18 +118,23 @@ classdef AdaptDIRK < handle
                     self.data = self.data + self.h * self.A(i,j) * self.k(j,:).';
                 end
 
+                % solve the implicit stage (or copy the data for an explicit stage)
                 tstage = t + self.h*self.c(i);
                 gamma = self.h * self.A(i,i);
-                % Define the stage residual for the unknown stage state z_i.
-                F = @(zcur) zcur(:) - self.data(:) - gamma * self.f(tstage, zcur(:), args{:});
-                % Tell the Newton solver to use I - gamma*J for this stage.
-                self.sol.setup_linear_solver(tstage, -gamma, args);
+                if abs(self.A(i,i)) > 1e-14
+                    % Define the stage residual for the unknown stage state z_i.
+                    F = @(zcur) zcur(:) - self.data(:) - gamma * self.f(tstage, zcur(:), args{:});
+                    % Tell the Newton solver to use I - gamma*J for this stage.
+                    self.sol.setup_linear_solver(tstage, -gamma, args);
 
-                % Solve this implicit stage, then store its RHS value.
-                [self.z, ~, success] = self.sol.solve(F, y);
-                self.nsol = self.nsol + 1;
-                if ~success
-                    return;
+                    % Solve this implicit stage, then store its RHS value.
+                    [self.z, ~, success] = self.sol.solve(F, y);
+                    self.nsol = self.nsol + 1;
+                    if ~success
+                        return;
+                    end
+                else
+                    self.z = self.data;
                 end
 
                 self.k(i,:) = self.f(tstage, self.z, args{:}).';
