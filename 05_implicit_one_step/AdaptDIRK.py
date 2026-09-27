@@ -101,16 +101,21 @@ class AdaptDIRK:
             for j in range(i):
                 self.data += self.h * self.A[i,j] * self.k[j,:]
 
-            # construct implicit residual and Jacobian solver for this stage
+            # solve the implicit stage (or copy the data for an explicit stage)
             tstage = t + self.h*self.c[i]
-            F = lambda zcur: zcur - self.data - self.h * self.A[i,i] * self.f(tstage, zcur, *args)
-            self.sol.setup_linear_solver(tstage, -self.h * self.A[i,i], args)
+            if (abs(self.A[i,i]) > 1e-14):
 
-            # perform implicit solve, and return on solver failure
-            self.z, iters, success = self.sol.solve(F, y)
-            self.nsol += 1
-            if (not success):
-                return t, y, False
+                # construct implicit residual and Jacobian solver for this stage
+                F = lambda zcur: zcur - self.data - self.h * self.A[i,i] * self.f(tstage, zcur, *args)
+                self.sol.setup_linear_solver(tstage, -self.h * self.A[i,i], args)
+
+                # perform implicit solve, and return on solver failure
+                self.z, iters, success = self.sol.solve(F, y)
+                self.nsol += 1
+                if (not success):
+                    return t, y, False
+            else:
+                self.z = self.data.copy()
 
             # store RHS at this stage
             self.k[i,:] = self.f(tstage, self.z, *args)
