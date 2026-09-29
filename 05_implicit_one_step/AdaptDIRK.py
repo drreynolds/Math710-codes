@@ -1,6 +1,6 @@
 # AdaptDIRK.py
 #
-# Adaptive-stepsive diagonally-implicit Runge--Kutta solver class
+# Adaptive-stepsize diagonally-implicit Runge--Kutta solver class
 # implementation file.
 #
 # Also contains functions to return specific embedded DIRK Butcher tables.

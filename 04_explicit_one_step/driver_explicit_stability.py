@@ -2,9 +2,9 @@
 #
 # Script to test the forward Euler and some fixed-step ERK methods on the
 # Dahlquist test problem
-#     y' = lambda*y, t in [0,0.5],
+#     y' = lambda*y, t in [0,0.6],
 #     y(0) = 1,
-# for lambda = -100, h in {0.005, 0.01, 0.02, 0.04}
+# for lambda = -70, h in {0.01, 0.02, 0.03, 0.04}
 #
 # Daniel R. Reynolds
 # Math & Stat @ UMBC

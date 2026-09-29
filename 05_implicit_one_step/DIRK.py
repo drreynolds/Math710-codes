@@ -1,6 +1,6 @@
 # DIRK.py
 #
-# Fixed-stepsive diagonally-implicit Runge--Kutta stepper class
+# Fixed-stepsize diagonally-implicit Runge--Kutta stepper class
 # implementation file.
 #
 # Also contains functions to return specific DIRK Butcher tables.
