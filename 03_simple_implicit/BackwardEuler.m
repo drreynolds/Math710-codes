@@ -140,12 +140,8 @@ classdef BackwardEuler < handle
             % iterate over output times, filling the solution history
             for iout = 2:nout
                 dt = tspan(iout) - tspan(iout-1);
-                % Choose enough internal steps that no step exceeds the requested size.
-                N = ceil(dt / self.h);
-                if N < 1
-                    N = 1;
-                end
-                hcur = dt / N;
+                % determine how many internal steps are required, and the actual step size to use
+                [N, hcur] = substeps(dt, self.h);
                 t = tspan(iout-1);
 
                 % March internally until the next requested output time is reached.

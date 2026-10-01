@@ -8,6 +8,7 @@
 % Math & Stat @ UMBC
 %
 clear
+addpath('../utilities');
 t0 = 0.0;
 tf = 0.6;
 lam = -70.0;

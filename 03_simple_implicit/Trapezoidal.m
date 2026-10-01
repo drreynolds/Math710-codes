@@ -40,15 +40,15 @@ classdef Trapezoidal < handle
             end
         end
 
-        function [t, y, success] = trapezoidal_step(self, t, y, args)
-            % Usage: t, y, success = trapezoidal_step(t, y, args)
+        function [t, y, success] = trapezoidal_step(self, t, y, h, args)
+            % Usage: t, y, success = trapezoidal_step(t, y, h, args)
             %
             % Utility routine to take a single trapezoidal time step,
             % where the inputs (t,y) are overwritten by the updated versions.
             % args is used for optional parameters of the RHS.
             % If success==true then the step succeeded; otherwise it failed.
 
-            if nargin < 4
+            if nargin < 5
                 args = {};
             end
             if ~iscell(args)
@@ -57,12 +57,12 @@ classdef Trapezoidal < handle
 
             % Store the old-time RHS contribution before moving to the new time.
             self.fold = self.f(t, y, args{:});
-            t = t + self.h;
+            t = t + h;
             yold = y;
             % Define the trapezoidal residual using both old and new RHS values.
-            F = @(ynew) ynew(:) - yold(:) - 0.5*self.h*self.fold(:) - 0.5*self.h*self.f(t, ynew(:), args{:});
+            F = @(ynew) ynew(:) - yold(:) - 0.5*h*self.fold(:) - 0.5*h*self.f(t, ynew(:), args{:});
             % Tell the Newton solver to use I - h/2*J for this implicit step.
-            self.sol.setup_linear_solver(t, -0.5*self.h, args);
+            self.sol.setup_linear_solver(t, -0.5*h, args);
 
             % Solve the nonlinear residual equation for the new solution.
             [ynew, ~, success] = self.sol.solve(F, y);
@@ -119,14 +119,7 @@ classdef Trapezoidal < handle
                 error('Trapezoidal:Evolve called without specifying a nonzero step size');
             end
 
-            % Verify that each output interval can be reached by an integer number of steps.
             tspan = tspan(:);
-            for n = 1:(numel(tspan)-1)
-                hn = tspan(n+1)-tspan(n);
-                if abs(round(hn/self.h) - (hn/self.h)) > 100*sqrt(eps)*abs(self.h)
-                    error('input values in tspan (%e,%e) are not separated by a multiple of h = %e', tspan(n), tspan(n+1), self.h);
-                end
-            end
 
             % Initialize output storage, with the first row holding the initial condition.
             y = y0(:);
@@ -137,13 +130,13 @@ classdef Trapezoidal < handle
 
             % iterate over output times, filling the solution history
             for iout = 2:nout
-                % The divisibility check above allows this rounded internal step count.
-                N = round((tspan(iout)-tspan(iout-1))/self.h);
+                % determine how many internal steps are required, and the actual step size to use
+                [N, h] = substeps(tspan(iout)-tspan(iout-1), self.h);
                 t = tspan(iout-1);
 
                 % March internally until the next requested output time is reached.
                 for n = 1:N
-                    [t, y, success] = self.trapezoidal_step(t, y, args);
+                    [t, y, success] = self.trapezoidal_step(t, y, h, args);
                     if ~success
                         fprintf('Trapezoidal::Evolve error in time step at t = %g\n', t);
                         return;

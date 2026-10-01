@@ -22,6 +22,7 @@
 % Math & Stat @ UMBC
 %
 clear
+addpath('../utilities');
 addpath('../shared');
 
 % problem time interval and parameters

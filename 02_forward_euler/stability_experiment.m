@@ -6,6 +6,7 @@
 % Daniel R. Reynolds
 % Math & Stat @ UMBC
 clear
+addpath('../utilities');
 
 % problem time interval and Dahlquist parameter
 t0 = 0.0;

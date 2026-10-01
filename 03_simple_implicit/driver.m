@@ -7,6 +7,7 @@
 % Math & Stat @ UMBC
 %
 clear
+addpath('../utilities');
 addpath('../shared');
 addpath('../02_forward_euler');
 

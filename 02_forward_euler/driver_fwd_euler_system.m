@@ -5,6 +5,7 @@
 % Daniel R. Reynolds
 % Math & Stat @ UMBC
 clear
+addpath('../utilities');
 
 % get problem size from the command line, otherwise set to 5
 N = str2double(input('Enter the problem size N >= 1 [default 5]: ', 's'));

@@ -4,6 +4,7 @@
 % Math & Stat @ UMBC
 %
 clear
+addpath('../utilities');
 t0 = 0.0;
 tf = 1.0;
 

@@ -8,6 +8,7 @@
 % Math & Stat @ UMBC
 
 clear
+addpath('../utilities');
 
 addpath('../shared');
 

@@ -9,6 +9,7 @@
 % Math & Stat @ UMBC
 
 clear
+addpath('../utilities');
 addpath('../shared');
 addpath('../05_implicit_one_step');
 

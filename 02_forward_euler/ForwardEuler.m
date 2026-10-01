@@ -125,8 +125,7 @@ classdef ForwardEuler < handle
             for iout = 2:numel(tspan)
 
                 % determine how many internal steps are required, and the actual step size to use
-                N = max(1, ceil((tspan(iout)-tspan(iout-1)) / self.h));
-                h = (tspan(iout)-tspan(iout-1)) / N;
+                [N, h] = substeps(tspan(iout)-tspan(iout-1), self.h);
 
                 % reset "current" t that will be evolved internally
                 t = tspan(iout - 1);

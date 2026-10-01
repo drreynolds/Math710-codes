@@ -21,6 +21,7 @@
 % Math & Stat @ UMBC
 
 clear
+addpath('../utilities');
 addpath('../04_explicit_one_step');
 
 Tf = 5;

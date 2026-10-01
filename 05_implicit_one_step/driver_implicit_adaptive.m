@@ -4,6 +4,7 @@
 % Math & Stat @ UMBC
 
 clear
+addpath('../utilities');
 addpath('../shared');
 
 % Initial data and tolerances for the stiff Oregonator kinetics test.

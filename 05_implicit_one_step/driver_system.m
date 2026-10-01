@@ -6,6 +6,7 @@
 % Math & Stat @ UMBC
 
 clear
+addpath('../utilities');
 addpath('../shared');
 
 % get problem size from the command line, otherwise set to 5

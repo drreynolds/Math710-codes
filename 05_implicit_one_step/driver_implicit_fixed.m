@@ -7,6 +7,7 @@
 % Math & Stat @ UMBC
 
 clear
+addpath('../utilities');
 addpath('../shared');
 addpath('../03_simple_implicit');
 

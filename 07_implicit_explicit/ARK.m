@@ -203,8 +203,7 @@ classdef ARK < handle
             for iout = 2:nout
 
                 % determine how many internal steps are required, and the actual step size to use
-                N = ceil((tspan(iout)-tspan(iout-1))/self.h);
-                hcur = (tspan(iout)-tspan(iout-1)) / N;
+                [N, hcur] = substeps(tspan(iout)-tspan(iout-1), self.h);
 
                 % reset "current" t that will be evolved internally
                 t = tspan(iout-1);

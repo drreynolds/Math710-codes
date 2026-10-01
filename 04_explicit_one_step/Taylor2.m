@@ -43,15 +43,15 @@ classdef Taylor2 < handle
             if nargin >= 4 && ~isempty(h), self.h = h; end
         end
 
-        function [t, y, success] = Taylor2_step(self, t, y, args)
-            % Usage: t, y, success = Taylor2_step(t, y, args)
+        function [t, y, success] = Taylor2_step(self, t, y, h, args)
+            % Usage: t, y, success = Taylor2_step(t, y, h, args)
             %
             % Utility routine to take a single second-order Taylor method step,
             % where the inputs (t,y) are overwritten by the updated versions.
             % args is used for optional parameters of the RHS and its derivatives.
             % If success==true then the step succeeded; otherwise it failed.
 
-            if nargin < 4
+            if nargin < 5
                 args = {};
             end
             if ~iscell(args)
@@ -65,8 +65,8 @@ classdef Taylor2 < handle
             self.nrhs = self.nrhs + 3;
 
             % Apply y_{n+1} = y_n + h*f + h^2/2*(f_t + f_y*f).
-            y = y(:) + self.h * (self.fn(:) + 0.5*self.h*(self.ft(:) + self.fy*self.fn(:)));
-            t = t + self.h;
+            y = y(:) + h * (self.fn(:) + 0.5*h*(self.ft(:) + self.fy*self.fn(:)));
+            t = t + h;
             self.steps = self.steps + 1;
             success = true;
         end
@@ -126,14 +126,7 @@ classdef Taylor2 < handle
                 error('Taylor2:Evolve called without specifying a nonzero step size');
             end
 
-            % Verify that each output interval can be reached by an integer number of steps.
             tspan = tspan(:);
-            for n = 1:(numel(tspan)-1)
-                hn = tspan(n+1)-tspan(n);
-                if abs(round(hn/self.h) - (hn/self.h)) > 100*sqrt(eps)*abs(self.h)
-                    error('input values in tspan (%e,%e) are not separated by a multiple of h = %e', tspan(n), tspan(n+1), self.h);
-                end
-            end
 
             % Initialize output storage, with the first row holding the initial condition.
             y = y0(:);
@@ -149,13 +142,13 @@ classdef Taylor2 < handle
 
             % iterate over output times, filling the solution history
             for iout = 2:nout
-                % The divisibility check above allows this rounded internal step count.
-                N = round((tspan(iout)-tspan(iout-1))/self.h);
+                % determine how many internal steps are required, and the actual step size to use
+                [N, h] = substeps(tspan(iout)-tspan(iout-1), self.h);
                 t = tspan(iout-1);
 
                 % March internally until the next requested output time is reached.
                 for n = 1:N
-                    [t, y, success] = self.Taylor2_step(t, y, args);
+                    [t, y, success] = self.Taylor2_step(t, y, h, args);
                     if ~success
                         fprintf('Taylor2::Evolve error in time step at t = %g\n', t);
                         return;

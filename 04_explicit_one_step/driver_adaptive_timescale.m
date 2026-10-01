@@ -17,6 +17,7 @@
 % Daniel R. Reynolds
 % Math & Stat @ UMBC
 clear
+addpath('../utilities');
 
 Tf = 5;
 Nt = 500;
