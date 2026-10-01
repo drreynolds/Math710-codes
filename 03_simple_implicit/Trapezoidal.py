@@ -10,6 +10,10 @@
 # Math & Stat @ UMBC
 
 import numpy as np
+import os
+import sys
+sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..'))
+from utilities.substeps import substeps
 import sys
 sys.path.append('..')
 from shared.ImplicitSolver import *
@@ -35,9 +39,9 @@ class Trapezoidal:
         self.steps = 0
         self.fold = 0
 
-    def trapezoidal_step(self, t, y, args=()):
+    def trapezoidal_step(self, t, y, h, args=()):
         """
-        Usage: t, y, success = trapezoidal_step(t, y, args)
+        Usage: t, y, success = trapezoidal_step(t, y, h, args)
 
         Utility routine to take a single trapezoidal time step,
         where the inputs (t,y) are overwritten by the updated versions.
@@ -49,11 +53,11 @@ class Trapezoidal:
         self.fold = self.f(t,y,*args)
 
         # update t for this step
-        t += self.h
+        t += h
 
         # create implicit residual and Jacobian solver for this step
-        F = lambda ynew: ynew - y - 0.5*self.h * self.fold - 0.5*self.h * self.f(t, ynew, *args)
-        self.sol.setup_linear_solver(t, -0.5*self.h, args)
+        F = lambda ynew: ynew - y - 0.5*h * self.fold - 0.5*h * self.f(t, ynew, *args)
+        self.sol.setup_linear_solver(t, -0.5*h, args)
 
         # perform implicit solve, and return on solver failure
         y, iters, success = self.sol.solve(F, y)
@@ -99,12 +103,6 @@ class Trapezoidal:
         if (self.h == 0.0):
             raise ValueError("ERROR: Trapezoidal::Evolve called without specifying a nonzero step size")
 
-        # verify that tspan values are separated by multiples of h
-        for n in range(tspan.size-1):
-            hn = tspan[n+1]-tspan[n]
-            if (abs(round(hn/self.h) - (hn/self.h)) > 100*np.sqrt(np.finfo(h).eps)*abs(self.h)):
-                raise ValueError("input values in tspan (%e,%e) are not separated by a multiple of h = %e" % (tspan[n],tspan[n+1],h))
-
         # initialize output, and set first entry corresponding to initial condition
         y = y0.copy()
         Y = np.zeros((tspan.size,y0.size))
@@ -113,8 +111,8 @@ class Trapezoidal:
         # loop over desired output times
         for iout in range(1,tspan.size):
 
-            # determine how many internal steps are required
-            N = int(round((tspan[iout]-tspan[iout-1])/self.h))
+            # determine how many internal steps are required, and the actual step size to use
+            N, h = substeps(tspan[iout]-tspan[iout-1], self.h)
 
             # reset "current" (t,y) that will be evolved internally
             t = tspan[iout-1]
@@ -123,7 +121,7 @@ class Trapezoidal:
             for n in range(N):
 
                 # perform trapezoidal step
-                t, y, success = self.trapezoidal_step(t, y, args)
+                t, y, success = self.trapezoidal_step(t, y, h, args)
                 if (not success):
                     print("Trapezoidal::Evolve error in time step at t =", t)
                     return Y, False

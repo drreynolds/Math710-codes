@@ -10,6 +10,10 @@
 # Math & Stat @ UMBC
 
 import numpy as np
+import os
+import sys
+sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..'))
+from utilities.substeps import substeps
 
 class Taylor2:
     """
@@ -36,9 +40,9 @@ class Taylor2:
         self.steps = 0
         self.nrhs = 0
 
-    def Taylor2_step(self, t, y, args=()):
+    def Taylor2_step(self, t, y, h, args=()):
         """
-        Usage: t, y, success = Taylor2_step(t, y, args)
+        Usage: t, y, success = Taylor2_step(t, y, h, args)
 
         Utility routine to take a single second-order Taylor method step,
         where the inputs (t,y) are overwritten by the updated versions.
@@ -53,8 +57,8 @@ class Taylor2:
         self.nrhs += 3
 
         # update time step solution and tcur
-        y += self.h * (self.fn + 0.5*self.h*(self.ft + self.fy@self.fn))
-        t += self.h
+        y += h * (self.fn + 0.5*h*(self.ft + self.fy@self.fn))
+        t += h
         self.steps += 1
         return t, y, True
 
@@ -99,12 +103,6 @@ class Taylor2:
         if (self.h == 0.0):
             raise ValueError("ERROR: Taylor2::Evolve called without specifying a nonzero step size")
 
-        # verify that tspan values are separated by multiples of h
-        for n in range(tspan.size-1):
-            hn = tspan[n+1]-tspan[n]
-            if (abs(round(hn/self.h) - (hn/self.h)) > 100*np.sqrt(np.finfo(h).eps)*abs(self.h)):
-                raise ValueError("input values in tspan (%e,%e) are not separated by a multiple of h = %e" % (tspan[n],tspan[n+1],h))
-
         # initialize output, and set first entry corresponding to initial condition
         y = y0.copy()
         Y = np.zeros((tspan.size, y0.size))
@@ -118,8 +116,8 @@ class Taylor2:
         # loop over desired output times
         for iout in range(1,tspan.size):
 
-            # determine how many internal steps are required
-            N = int(round((tspan[iout]-tspan[iout-1])/self.h))
+            # determine how many internal steps are required, and the actual step size to use
+            N, h = substeps(tspan[iout]-tspan[iout-1], self.h)
 
             # reset "current" t that will be evolved internally
             t = tspan[iout-1]
@@ -128,7 +126,7 @@ class Taylor2:
             for n in range(N):
 
                 # perform explicit Runge--Kutta update
-                t, y, success = self.Taylor2_step(t, y, args)
+                t, y, success = self.Taylor2_step(t, y, h, args)
                 if (not success):
                     print("erk error in time step at t =", t)
                     return Y, False

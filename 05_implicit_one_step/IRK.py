@@ -14,6 +14,10 @@
 # Math & Stat @ UMBC
 
 import numpy as np
+import os
+import sys
+sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..'))
+from utilities.substeps import substeps
 import sys
 sys.path.append('..')
 from shared.ImplicitSolver import *
@@ -54,9 +58,9 @@ class IRK:
             (np.size(self.A,1) != self.s)):
             raise ValueError("IRK ERROR: incompatible Butcher table supplied")
 
-    def irk_step(self, t, y, args=()):
+    def irk_step(self, t, y, h, args=()):
         """
-        Usage: t, y, success = irk_step(t, y, args)
+        Usage: t, y, success = irk_step(t, y, h, args)
 
         Utility routine to take a single fully-implicit RK time step,
         where the inputs (t,y) are overwritten by the updated versions.
@@ -79,11 +83,11 @@ class IRK:
                 resid[m*i:m*(i+1)] -= y
             # second portion: -h*sum[Aij*f(t+cj*h,zj)]
             for j in range(s):
-                tj = t + self.c[j] * self.h
+                tj = t + self.c[j] * h
                 zj = np.array(z[m*j:m*(j+1)])
                 self.k[j,:] = self.f(tj, zj, *args)
                 for i in range(s):
-                    resid[m*i:m*(i+1)] -= self.h * self.A[i,j] * self.k[j,:]
+                    resid[m*i:m*(i+1)] -= h * self.A[i,j] * self.k[j,:]
             return resid
 
         # construct Jacobian solver for this stage
@@ -91,11 +95,11 @@ class IRK:
             def J(z):
                 Jac = np.eye(z.size)
                 for j in range(s):
-                    tj = t + self.c[j] * self.h
+                    tj = t + self.c[j] * h
                     zj = np.array(z[m*j:m*(j+1)])
                     Jj = self.sol.f_y(tj, zj, *args)
                     for i in range(s):
-                        Jac[m*i:m*(i+1),m*j:m*(j+1)] -= self.h * self.A[i,j] * Jj
+                        Jac[m*i:m*(i+1),m*j:m*(j+1)] -= h * self.A[i,j] * Jj
                 try:
                     lu, piv = lu_factor(Jac)
                 except:
@@ -106,11 +110,11 @@ class IRK:
             def J(z):
                 Jac = identity(z.size, format='lil')
                 for j in range(s):
-                    tj = t + self.c[j] * self.h
+                    tj = t + self.c[j] * h
                     zj = np.array(z[m*j:m*(j+1)])
                     Jj = self.sol.f_y(tj, zj, *args)
                     for i in range(s):
-                        Jac[m*i:m*(i+1),m*j:m*(j+1)] -= self.h * self.A[i,j] * Jj
+                        Jac[m*i:m*(i+1),m*j:m*(j+1)] -= h * self.A[i,j] * Jj
                 try:
                     Jfactored = factorized(Jac.tocsc())
                 except:
@@ -131,14 +135,14 @@ class IRK:
 
         # evaluate and store RHS values at the converged stage states
         for j in range(s):
-            tj = t + self.c[j] * self.h
+            tj = t + self.c[j] * h
             zj = np.array(self.z[m*j:m*(j+1)])
             self.k[j,:] = self.f(tj, zj, *args)
 
         # compute updated time step solution
         for i in range(s):
-            y += self.h * self.b[i] * self.k[i,:]
-        t += self.h
+            y += h * self.b[i] * self.k[i,:]
+        t += h
         self.steps += 1
         return t, y, True
 
@@ -183,12 +187,6 @@ class IRK:
         if (self.h == 0.0):
             raise ValueError("ERROR: DIRK::Evolve called without specifying a nonzero step size")
 
-        # verify that tspan values are separated by multiples of h
-        for n in range(tspan.size-1):
-            hn = tspan[n+1]-tspan[n]
-            if (abs(round(hn/self.h) - (hn/self.h)) > 100*np.sqrt(np.finfo(h).eps)*abs(self.h)):
-                raise ValueError("input values in tspan (%e,%e) are not separated by a multiple of h = %e" % (tspan[n],tspan[n+1],h))
-
         # initialize output, and set first entry corresponding to initial condition
         y = y0.copy()
         Y = np.zeros((tspan.size,y0.size))
@@ -201,8 +199,8 @@ class IRK:
         # loop over desired output times
         for iout in range(1,tspan.size):
 
-            # determine how many internal steps are required
-            N = int(round((tspan[iout]-tspan[iout-1])/self.h))
+            # determine how many internal steps are required, and the actual step size to use
+            N, h = substeps(tspan[iout]-tspan[iout-1], self.h)
 
             # reset "current" t that will be evolved internally
             t = tspan[iout-1]
@@ -211,7 +209,7 @@ class IRK:
             for n in range(N):
 
                 # perform diagonally-implicit Runge--Kutta update
-                t, y, success = self.irk_step(t, y, args)
+                t, y, success = self.irk_step(t, y, h, args)
                 if (not success):
                     print("IRK::Evolve error in time step at t =", t)
                     return Y, False

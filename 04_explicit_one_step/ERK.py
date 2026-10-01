@@ -12,6 +12,10 @@
 # Math & Stat @ UMBC
 
 import numpy as np
+import os
+import sys
+sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..'))
+from utilities.substeps import substeps
 
 class ERK:
     """
@@ -129,8 +133,7 @@ class ERK:
         for iout in range(1,tspan.size):
 
             # determine how many internal steps are required, and the actual step size to use
-            N = int(np.ceil((tspan[iout]-tspan[iout-1])/self.h))
-            h = (tspan[iout]-tspan[iout-1]) / N
+            N, h = substeps(tspan[iout]-tspan[iout-1], self.h)
 
             # reset "current" t that will be evolved internally
             t = tspan[iout-1]
