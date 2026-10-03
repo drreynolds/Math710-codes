@@ -65,7 +65,7 @@ for lam = [-1.0, -10.0, -50.0]
                 BE.get_num_steps(), BE.sol.get_total_iters(), BE.sol.get_total_setups(), errs(idx));
         end
     end
-    orders = log(errs(1:end-2)./errs(2:end-1)) ./ log(hvals(1:end-2)./hvals(2:end-1));
+    orders = log(errs(1:end-1)./errs(2:end)) ./ log(hvals(1:end-1)./hvals(2:end));
     fprintf('estimated order: max = %.4f, avg = %.4f\n', max(orders), mean(orders));
 
     fprintf('\ntrapezoidal tests:\n');
@@ -87,7 +87,7 @@ for lam = [-1.0, -10.0, -50.0]
                 Tr.get_num_steps(), Tr.sol.get_total_iters(), Tr.sol.get_total_setups(), errs(idx));
         end
     end
-    orders = log(errs(1:end-2)./errs(2:end-1)) ./ log(hvals(1:end-2)./hvals(2:end-1));
+    orders = log(errs(1:end-1)./errs(2:end)) ./ log(hvals(1:end-1)./hvals(2:end));
     fprintf('estimated order: max = %.4f, avg = %.4f\n', max(orders), mean(orders));
 
     fprintf('\nforward Euler tests:\n');
@@ -107,6 +107,6 @@ for lam = [-1.0, -10.0, -50.0]
             fprintf('  overall:  steps = %4d  abserr = %8.2e\n', FE.get_num_steps(), errs(idx));
         end
     end
-    orders = log(errs(1:end-2)./errs(2:end-1)) ./ log(hvals(1:end-2)./hvals(2:end-1));
+    orders = log(errs(1:end-1)./errs(2:end)) ./ log(hvals(1:end-1)./hvals(2:end));
     fprintf('estimated order: max = %.4f, avg = %.4f\n', max(orders), mean(orders));
 end

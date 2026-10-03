@@ -87,6 +87,6 @@ function run_stepper(stepper, hvals, Ytrue, tspan)
             stepper.get_num_steps(), stepper.get_num_rhs(), errs(idx), norm(Yerr./Ytrue, inf));
     end
 
-    orders = log(errs(1:end-2)./errs(2:end-1))./log(hvals(1:end-2)./hvals(2:end-1));
+    orders = log(errs(1:end-1)./errs(2:end))./log(hvals(1:end-1)./hvals(2:end));
     fprintf('estimated order: max = %.4f,  avg = %.4f\n', max(orders), mean(orders));
 end

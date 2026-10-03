@@ -105,7 +105,7 @@ function runFamily(name, Hvals, w, Y0, Ytrue, tvals, buildStepper)
     end
 
     if numel(Hvals) > 2
-        orders = log(errs(1:end-2)./errs(2:end-1))./log(Hvals(1:end-2)./Hvals(2:end-1));
+        orders = log(errs(1:end-1)./errs(2:end))./log(Hvals(1:end-1)./Hvals(2:end));
         fprintf('estimated order:  %.16g\n', mean(orders));
     end
 end

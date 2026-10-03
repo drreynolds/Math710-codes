@@ -61,7 +61,7 @@ for idx = 1:numel(hvals)
     end
     fprintf('  overall:  steps = %5d  abserr = %9.2e\n\n', FE1.get_num_steps(), errs(idx));
 end
-orders = log(errs(1:end-2)./errs(2:end-1))./log(hvals(1:end-2)./hvals(2:end-1));
+orders = log(errs(1:end-1)./errs(2:end))./log(hvals(1:end-1)./hvals(2:end));
 fprintf('estimated order: max = %.4f,  avg = %.4f\n', max(orders), mean(orders));
 
 
@@ -90,6 +90,6 @@ for idx = 1:numel(hvals)
     fprintf('  overall:  steps = %5d  abserr = %9.2e  relerr = %9.2e\n\n', ...
         FE2.get_num_steps(), errs(idx), norm(Yerr./abs(Y2true), inf));
 end
-orders = log(errs(1:end-2)./errs(2:end-1))./log(hvals(1:end-2)./hvals(2:end-1));
+orders = log(errs(1:end-1)./errs(2:end))./log(hvals(1:end-1)./hvals(2:end));
 fprintf('estimated order: max = %.4f,  avg = %.4f\n', max(orders), mean(orders));
 
