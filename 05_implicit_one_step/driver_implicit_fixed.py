@@ -67,7 +67,7 @@ def RunTest(stepper, name):
                 print("  solves = %4i  Niters = %6i  NJevals = %5i  abserr = %8.2e" %
                       (stepper.get_num_solves(), stepper.sol.get_total_iters(),
                        stepper.sol.get_total_setups(), errs[idx]))
-        orders = np.log(errs[0:-2]/errs[1:-1])/np.log(hvals[0:-2]/hvals[1:-1])
+        orders = np.log(errs[:-1]/errs[1:])/np.log(hvals[:-1]/hvals[1:])
         print('    estimated order:  max = %.2f,  avg = %.2f' %
               (np.max(orders), np.average(orders)))
 

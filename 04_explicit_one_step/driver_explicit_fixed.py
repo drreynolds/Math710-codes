@@ -62,7 +62,7 @@ def run_stepper(stepper, hvals, Ytrue, tspan):
             print("    y(%.1f) = %9.6f   |error| = %.2e" % (tspan[i], Y[i,0], Yerr[i,0]))
         print("  overall:  steps = %5i  nrhs = %5i  abserr = %9.2e  relerr = %9.2e\n" %
               (stepper.get_num_steps(), stepper.get_num_rhs(), errs[idx], np.linalg.norm(Yerr/Ytrue,np.inf)))
-    orders = np.log(errs[0:-2]/errs[1:-1])/np.log(hvals[0:-2]/hvals[1:-1])
+    orders = np.log(errs[:-1]/errs[1:])/np.log(hvals[:-1]/hvals[1:])
     print('estimated order: max = ', np.max(orders), ',  avg = ', np.average(orders))
 
 #### ERK1 ####

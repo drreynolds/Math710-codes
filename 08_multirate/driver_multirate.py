@@ -101,7 +101,7 @@ def runFamily(name, Hvals, w, Y0, Ytrue, tvals, buildStepper):
             (stepper.get_num_steps(), fast.get_num_steps(), stepper.get_num_rhs(), fast.get_num_rhs(), errs[idx]))
 
     if (Hvals.size > 2):
-        orders = np.log(errs[0:-2]/errs[1:-1])/np.log(Hvals[0:-2]/Hvals[1:-1])
+        orders = np.log(errs[:-1]/errs[1:])/np.log(Hvals[:-1]/Hvals[1:])
         print('estimated order: ', np.mean(orders))
 
 # Lie-Trotter subcycling evolves slow dynamics once per macro step and

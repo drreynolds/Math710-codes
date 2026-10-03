@@ -80,7 +80,7 @@ for lam in [-1.0, -10.0, -50.0]:
                 print(colored(text, "red"))
             else:
                 print(colored(text, "green"))
-    orders = np.log(errs[0:-2]/errs[1:-1])/np.log(hvals[0:-2]/hvals[1:-1])
+    orders = np.log(errs[:-1]/errs[1:])/np.log(hvals[:-1]/hvals[1:])
     print('estimated order: max = ', np.max(orders), ',  avg = ', np.average(orders))
 
     # trapezoidal tests
@@ -107,7 +107,7 @@ for lam in [-1.0, -10.0, -50.0]:
                 print(colored(text, "red"))
             else:
                 print(colored(text, "green"))
-    orders = np.log(errs[0:-2]/errs[1:-1])/np.log(hvals[0:-2]/hvals[1:-1])
+    orders = np.log(errs[:-1]/errs[1:])/np.log(hvals[:-1]/hvals[1:])
     print('estimated order: max = ', np.max(orders), ',  avg = ', np.average(orders))
 
     # forward Euler tests
@@ -131,5 +131,5 @@ for lam in [-1.0, -10.0, -50.0]:
                 print(colored(text, "red"))
             else:
                 print(colored(text, "green"))
-    orders = np.log(errs[0:-2]/errs[1:-1])/np.log(hvals[0:-2]/hvals[1:-1])
+    orders = np.log(errs[:-1]/errs[1:])/np.log(hvals[:-1]/hvals[1:])
     print('estimated order: max = ', np.max(orders), ',  avg = ', np.average(orders))
