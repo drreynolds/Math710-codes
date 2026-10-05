@@ -207,7 +207,7 @@ classdef AdaptDIRK < handle
                 tdir = -1.0;
             end
 
-            % Reject output times that are not monotone in the direction of integration.
+            % check for legal time span (monotone in the direction of integration)
             for n = 1:N
                 if tdir*(tspan(n+1) - tspan(n)) < 0
                     error('AdaptDIRK:Evolve illegal tspan');

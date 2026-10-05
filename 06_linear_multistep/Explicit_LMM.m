@@ -125,11 +125,14 @@ classdef Explicit_LMM < handle
             %
             % Inputs:  tspan holds the current time interval, [t0, tf], including any
             %              intermediate times when the solution is desired, i.e.
-            %              [t0, t1, ..., tf]
+            %              [t0, t1, ..., tf]; these may decrease (to integrate
+            %              backward in time), but must be monotone
             %          y0 holds the initial conditions [nd-array, shape(k-1,n)],
-            %              sorted as [y0(t0-(k-2)*h), ... y0(t0-h), y0(t0)]
-            %          h optionally holds the requested step size (if it is not
-            %              provided then the stored value will be used)
+            %              sorted as [y0(t0-(k-2)*h), ... y0(t0-h), y0(t0)], where
+            %              h is signed in the direction of integration (h < 0 when
+            %              tspan is decreasing)
+            %          h optionally holds the requested step size magnitude (if it
+            %              is not provided then the stored value will be used)
             %          args holds optional equation parameters used when evaluating
             %              the RHS.
             % Outputs: Y holds the computed solution at all tspan values,
@@ -155,6 +158,19 @@ classdef Explicit_LMM < handle
             if self.h == 0.0
                 error('Explicit_LMM:Evolve called without specifying a nonzero step size');
             end
+
+            % determine the direction of integration from tspan (tdir = 1 forward in
+            % time, tdir = -1 backward), require tspan to be monotone in that
+            % direction, and sign the internal step size to match it
+            if tspan(end) >= tspan(1)
+                tdir = 1.0;
+            else
+                tdir = -1.0;
+            end
+            if any(tdir*diff(tspan) < 0)
+                error('Explicit_LMM:Evolve requires monotone tspan values');
+            end
+            self.h = tdir*abs(self.h);
 
             % Verify that each output interval can be reached by an integer number of steps.
             tspan = tspan(:);

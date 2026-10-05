@@ -186,9 +186,6 @@ classdef DIRK < handle
             % iterate over output times, filling the solution history
             for iout = 2:nout
                 dt = tspan(iout) - tspan(iout-1);
-                if dt < 0
-                    error('DIRK:Evolve requires nondecreasing tspan');
-                end
                 % determine how many internal steps are required, and the actual step size to use
                 [N, hcur] = substeps(dt, self.h);
                 t = tspan(iout-1);
@@ -918,6 +915,31 @@ classdef DIRK < handle
             B.b = [1/6; 0; 2/3; 1/6];
             B.c = [0; 0.5; 0.5; 1];
             B.p = 3;
+        end
+
+        function B = SDIRK2(gamma)
+            % Usage: B = SDIRK2(gamma)
+            %
+            % Utility routine to return the two-stage SDIRK table with parameter
+            % gamma, which is second order for every gamma, L-stable for
+            % gamma = (2 -/+ sqrt(2))/2, and third order for gamma = (3 +/- sqrt(3))/6.
+            %
+            % Reference: Spiteri & Wei, J. Comput. Phys. 476:111900 (2023), eq. (29),
+            %            doi:10.1016/j.jcp.2022.111900.
+            %
+            % Outputs: B.A holds the Runge--Kutta stage coefficients
+            %          B.b holds the Runge--Kutta solution weights
+            %          B.c holds the Runge--Kutta abscissae
+            %          B.p holds the Runge--Kutta method order
+
+            B.A = [gamma, 0.0; ...
+                   1.0-2.0*gamma, gamma];
+            B.b = [0.5; 0.5];
+            B.c = [gamma; 1.0-gamma];
+            B.p = 2;
+            if (min(abs(gamma - (3.0+sqrt(3.0))/6.0), abs(gamma - (3.0-sqrt(3.0))/6.0)) < 1e-14)
+                B.p = 3;
+            end
         end
 
     end

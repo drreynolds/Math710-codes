@@ -17,8 +17,8 @@ function [X, Y, R] = RK_stability(B, box, N)
     %          R(eta) = 1 + eta * dot(b, inv(I-eta*A)*e)
     %
     %        We sample the values in 'box' within the complex plane, plugging
-    %        each value into |R(eta)|, and plot the contour of this function
-    %        having value 1.
+    %        each value into |R(eta)| (using RK_stability_function), and plot
+    %        the contour of this function having value 1.
     %
 % Function to generate the linear stability region for Runge--Kutta methods.
 % See RK_stability_demo.m for a script that uses this function to plot the
@@ -31,24 +31,13 @@ if nargin < 3 || isempty(N)
     N = 1000;
 end
 
-A = B.A;
-b = B.b(:);
-s = numel(b);
-e = ones(s, 1);
-I = eye(s);
-
 % Sample the requested rectangle in the complex eta-plane.
 x = linspace(box(1), box(2), N);
 y = linspace(box(3), box(4), N);
-R = zeros(N, N);
+[Xm, Ym] = meshgrid(x, y);
 
-for j = 1:N
-    for i = 1:N
-        eta = x(i) + 1i*y(j);
-        % Evaluate the RK stability function without explicitly forming an inverse.
-        R(j,i) = abs(1.0 + eta*(b.'*((I - eta*A) \ e)));
-    end
-end
+% evaluate |R(eta)| for each eta in the mesh
+R = abs(RK_stability_function(B, Xm + 1i*Ym));
 
 % Return the longest contour segment satisfying |R(eta)| = 1.
 C = contourc(x, y, R, [1.0, 1.0]);
