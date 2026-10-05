@@ -75,9 +75,10 @@ classdef AdaptEuler < handle
             %
             % Inputs:  tspan holds the current time interval, [t0, tf], including any
             %             intermediate times when the solution is desired, i.e.
-            %              [t0, t1, ..., tf]
+            %              [t0, t1, ..., tf]; these may decrease (to integrate
+            %              backward in time), but must be monotone
             %          y holds the initial condition, y(t0)
-            %          h optionally holds the requested initial step size
+            %          h optionally holds the requested initial step size magnitude
             %          args holds optional equation parameters used when evaluating
             %              the RHS.  This must be a cell array, e.g., {alpha,beta}
             % Outputs: Y holds the computed solution at all tspan values,
@@ -116,6 +117,18 @@ classdef AdaptEuler < handle
                 error('AdaptEuler:Evolve illegal tspan');
             end
 
+            % determine the direction of integration from tspan (tdir = 1 forward in
+            % time, tdir = -1 backward); the internal step size self.h is kept signed
+            % in this direction, so that t + self.h always moves toward tspan(end)
+            if tspan(end) >= tspan(1)
+                tdir = 1.0;
+            else
+                tdir = -1.0;
+            end
+
+            % use the magnitude of any user-supplied step size, signed in direction tdir
+            self.h = tdir*abs(self.h);
+
             % initialize error weight vector
             self.w = self.error_weight(y);
 
@@ -126,14 +139,14 @@ classdef AdaptEuler < handle
 
                 % estimate initial h value via linearization, safety factor
                 self.error_norm = max(norm(fn(:).*self.w, inf), 1e-8);
-                self.h = max(self.hmin, self.safety/self.error_norm);
+                self.h = tdir*max(self.hmin, self.safety/self.error_norm);
             end
 
             % iterate over output times
             for iout = 2:(N+1)
 
                 % loop over internal steps to reach desired output time
-                while (tspan(iout)-t) > sqrt(eps*tspan(iout))
+                while tdir*(tspan(iout)-t) > sqrt(eps*abs(tspan(iout)))
 
                     % enforce maxit -- if we've exceeded attempts, return with failure
                     if (self.steps + self.fails) > self.maxit
@@ -143,7 +156,7 @@ classdef AdaptEuler < handle
                     end
 
                     % bound internal time step to not exceed next output time
-                    self.h = min(abs(self.h), abs(tspan(iout)-t)) * sign(self.h);
+                    self.h = tdir*min(abs(self.h), abs(tspan(iout)-t));
 
                     % initialize two solution approximations to current solution
                     y1 = y;
@@ -182,8 +195,8 @@ classdef AdaptEuler < handle
                         self.fails = self.fails + 1;
 
                         % adjust step size, enforcing minimum and returning with failure if needed
-                        if self.h > self.hmin           % failure, but reduction possible
-                            self.h = max(self.h * eta, self.hmin);
+                        if abs(self.h) > self.hmin      % failure, but reduction possible
+                            self.h = tdir*max(abs(self.h) * eta, self.hmin);
                         else                            % failed with no reduction possible
                             fprintf('AdaptEuler: error test failed at h=hmin, returning with failure\n');
                             success = false;
@@ -260,7 +273,7 @@ classdef AdaptEuler < handle
         end
 
         function out = get_current_step(self)
-            % Returns the current internal step size
+            % Returns the current internal step size (signed, negative when integrating backward)
             out = self.h;
         end
 

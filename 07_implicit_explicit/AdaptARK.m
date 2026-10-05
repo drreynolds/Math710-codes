@@ -188,11 +188,13 @@ classdef AdaptARK < handle
             %
             % Inputs:  tspan holds the current time interval, [t0, tf], including any
             %              intermediate times when the solution is desired, i.e.
-            %              [t0, t1, ..., tf]
+            %              [t0, t1, ..., tf]; these may decrease (to integrate
+            %              backward in time), but must be monotone
             %          y holds the initial condition, y(t0)
-            %          h optionally holds the requested initial step size (if it is
-            %              not provided then an initial step size will be estimated);
-            %              this is limited by the explicit stability step-size limit hE
+            %          h optionally holds the requested initial step size magnitude
+            %              (if it is not provided then an initial step size will be
+            %              estimated); this is limited by the explicit stability
+            %              step-size limit hE
             %          args holds optional equation parameters used when evaluating
             %              the RHS functions.
             % Outputs: Y holds the computed solution at all tspan values,
@@ -210,11 +212,8 @@ classdef AdaptARK < handle
                 error('AdaptARK:Evolve args must be a cell array.');
             end
 
-            % store input step size, limited by the explicit stability limit
+            % store input step size
             self.h = h;
-            if self.h ~= 0.0
-                self.h = min(self.h, self.hE);
-            end
 
             % store sizes
             y = y0(:);
@@ -229,11 +228,26 @@ classdef AdaptARK < handle
             % set current time value
             t = tspan(1);
 
-            % check for legal time span
+            % determine the direction of integration from tspan (tdir = 1 forward in
+            % time, tdir = -1 backward); the internal step size self.h is kept signed
+            % in this direction, so that t + self.h always moves toward tspan(end)
+            if tspan(end) >= tspan(1)
+                tdir = 1.0;
+            else
+                tdir = -1.0;
+            end
+
+            % check for legal time span (monotone in the direction of integration)
             for n = 1:N
-                if tspan(n+1) < tspan(n)
+                if tdir*(tspan(n+1) - tspan(n)) < 0
                     error('AdaptARK:Evolve illegal tspan');
                 end
+            end
+
+            % use the magnitude of any user-supplied step size, limited by the explicit
+            % stability limit, signed in direction tdir
+            if self.h ~= 0.0
+                self.h = tdir*min(abs(self.h), self.hE);
             end
 
             % initialize error weight vector, and check for legal tolerances
@@ -247,14 +261,14 @@ classdef AdaptARK < handle
 
                 % estimate initial h value via linearization, safety factor, and explicit stability limit
                 self.error_norm = max(norm(fn(:).*self.w, inf), 1e-8);
-                self.h = min(max(self.hmin, self.safety / self.error_norm), self.hE);
+                self.h = tdir*min(max(self.hmin, self.safety / self.error_norm), self.hE);
             end
 
             % iterate over output times
             for iout = 2:(N+1)
 
                 % loop over internal steps to reach desired output time
-                while (tspan(iout)-t) > sqrt(eps*tspan(iout))
+                while tdir*(tspan(iout)-t) > sqrt(eps*abs(tspan(iout)))
 
                     % enforce maxit -- if we've exceeded attempts, return with failure
                     if (self.steps + self.fails) > self.maxit
@@ -264,7 +278,7 @@ classdef AdaptARK < handle
                     end
 
                     % bound internal time step to not exceed the explicit stability limit or next output time
-                    self.h = min([self.h, self.hE, tspan(iout)-t]);
+                    self.h = tdir*min([abs(self.h), self.hE, abs(tspan(iout)-t)]);
 
                     % reset temporary solution to current solution, and take ARK step
                     self.yt = y;
@@ -293,14 +307,14 @@ classdef AdaptARK < handle
                         y = self.yt;
                         self.w = self.error_weight(y);
                         self.steps = self.steps + 1;
-                        self.h = min(self.h * eta, self.hE);
+                        self.h = tdir*min(abs(self.h) * eta, self.hE);
 
                     else                              % failed step
                         self.fails = self.fails + 1;
 
                         % adjust step size, enforcing minimum and returning with failure if needed
-                        if self.h > self.hmin                             % failure, but reduction possible
-                            self.h = max(self.h * eta, self.hmin);
+                        if abs(self.h) > self.hmin                        % failure, but reduction possible
+                            self.h = tdir*max(abs(self.h) * eta, self.hmin);
                         else                                              % failed with no reduction possible
                             fprintf('AdaptARK: error test failed at h=hmin, returning with failure\n');
                             success = false;
@@ -418,12 +432,12 @@ classdef AdaptARK < handle
         end
 
         function out = get_current_step(self)
-            % Returns the current internal step size
+            % Returns the current internal step size (signed, negative when integrating backward)
             out = self.h;
         end
 
         function out = get_step_history(self)
-            % Returns the current step size history
+            % Returns the current step size history (step sizes h are signed, negative when integrating backward)
             out = self.step_hist;
         end
 

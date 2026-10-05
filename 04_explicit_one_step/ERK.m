@@ -164,9 +164,6 @@ classdef ERK < handle
             % iterate over output times, filling the solution history
             for iout = 2:nout
                 dt = tspan(iout) - tspan(iout-1);
-                if dt < 0
-                    error('ERK:Evolve requires nondecreasing tspan');
-                end
 
                 % determine how many internal steps are required, and the actual step size to use
                 [N, hcur] = substeps(dt, self.h);
