@@ -139,10 +139,12 @@ class AdaptDIRK:
 
         Inputs:  tspan holds the current time interval, [t0, tf], including any
                      intermediate times when the solution is desired, i.e.
-                     [t0, t1, ..., tf]
+                     [t0, t1, ..., tf]; these may decrease (to integrate
+                     backward in time), but must be monotone
                  y holds the initial condition, y(t0)
-                 h optionally holds the requested step size (if it is not
-                     provided then the stored value will be used)
+                 h optionally holds the requested initial step size magnitude
+                     (if it is not provided then an initial step size will be
+                     estimated)
                  args holds optional equation parameters used when evaluating
                      the RHS.
         Outputs: Y holds the computed solution at all tspan values,
@@ -165,10 +167,21 @@ class AdaptDIRK:
         # set current time value
         t = tspan[0]
 
-        # check for legal time span
+        # determine the direction of integration from tspan (tdir = 1 forward in
+        # time, tdir = -1 backward); the internal step size self.h is kept signed
+        # in this direction, so that t + self.h always moves toward tspan[-1]
+        if (tspan[-1] >= tspan[0]):
+            tdir = 1.0
+        else:
+            tdir = -1.0
+
+        # check for legal time span (monotone in the direction of integration)
         for n in range(N):
-            if (tspan[n+1] < tspan[n]):
+            if (tdir*(tspan[n+1] - tspan[n]) < 0):
                 raise ValueError("AdaptDIRK::Evolve illegal tspan")
+
+        # use the magnitude of any user-supplied step size, signed in direction tdir
+        self.h = tdir*abs(self.h)
 
         # initialize error weight vector, and check for legal tolerances
         self.w = self.error_weight(y, self.w)
@@ -181,13 +194,13 @@ class AdaptDIRK:
 
             # estimate initial h value via linearization, safety factor
             self.error_norm = max(np.linalg.norm(fn*self.w, np.inf), 1.e-8)
-            self.h = max(self.hmin, self.safety / self.error_norm)
+            self.h = tdir*max(self.hmin, self.safety / self.error_norm)
 
         # iterate over output times
         for iout in range(1,N+1):
 
             # loop over internal steps to reach desired output time
-            while ((tspan[iout]-t) > np.sqrt(np.finfo(float).eps*tspan[iout])):
+            while (tdir*(tspan[iout]-t) > np.sqrt(np.finfo(float).eps*abs(tspan[iout]))):
 
                 # enforce maxit -- if we've exceeded attempts, return with failure
                 if (self.steps + self.fails > self.maxit):
@@ -195,7 +208,7 @@ class AdaptDIRK:
                     return Y, False
 
                 # bound internal time step to not exceed next output time
-                self.h = min(self.h, tspan[iout]-t)
+                self.h = tdir*min(abs(self.h), abs(tspan[iout]-t))
 
                 # reset temporary solution to current solution, and take DIRK step
                 self.yt = y.copy()
@@ -228,8 +241,8 @@ class AdaptDIRK:
                     self.fails += 1
 
                     # adjust step size, enforcing minimum and returning with failure if needed
-                    if (self.h > self.hmin):                              # failure, but reduction possible
-                        self.h = max(self.h * eta, self.hmin)
+                    if (abs(self.h) > self.hmin):                         # failure, but reduction possible
+                        self.h = tdir*max(abs(self.h) * eta, self.hmin)
                     else:                                                 # failed with no reduction possible
                         print("AdaptDIRK: error test failed at h=hmin, returning with failure")
                         return Y, False
@@ -297,11 +310,11 @@ class AdaptDIRK:
         return self.nsol
 
     def get_current_step(self):
-        """ Returns the current internal step size """
+        """ Returns the current internal step size (signed, negative when integrating backward) """
         return self.h
 
     def get_step_history(self):
-        """ Returns the current step size history """
+        """ Returns the current step size history (step sizes 'h' are signed, negative when integrating backward) """
         return self.step_hist
 
     def reset(self):
