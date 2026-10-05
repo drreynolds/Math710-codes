@@ -347,7 +347,7 @@ class AdaptARK:
         return self.h
 
     def get_step_history(self):
-        """ Returns the current step size history (step sizes 'h' are signed, negative when integrating backward) """
+        """ Returns the current step size history (step sizes h are signed, negative when integrating backward) """
         return self.step_hist
 
     def reset(self):

@@ -140,10 +140,12 @@ def MRI_order(C, maxorder=4, tol=1e-10, verbose=False):
         Returns the order pbase of the slow base method, and the order p of
         the MRI-GARK method with coupling table C, together with the labels
         of the lowest-order failing GARK conditions.  Only conditions through
-        order maxorder are checked, so if every one of them holds then the
-        method has order AT LEAST maxorder; in that case p = maxorder, and a
-        warning is printed, since a higher maxorder is needed to determine
-        the order exactly.
+        order maxorder (default 4) are checked, so if every one of them holds
+        then the method has order AT LEAST maxorder; in that case
+        p = maxorder, and a warning is printed, since a higher maxorder is
+        needed to determine the order exactly.  tol (default 1e-10) is the
+        tolerance for considering a residual to be zero, and verbose
+        (default False) prints the failing conditions if True.
 
         The fast method is the Gauss--Legendre method with enough stages
         that its own order conditions hold for every fast tree that appears

@@ -34,14 +34,14 @@ def phi_functions(z, n):
     return expm(A)[0,:]
 
 def MRI_stab_region(C, alphas, rho, box, ax):
-    ''' Usage: MRI_stab_region(C, alphas, rho, box, ax)
+    r''' Usage: MRI_stab_region(C, alphas, rho, box, ax)
 
         Computes the slow stability region of an explicit MRI-GARK method
         applied to the scalar, additive test problem,
 
            y'(t) = lF*y + lS*y,
 
-        using slow time step H, where lF,lS in C, and Re(lF) < 0, Re(lS) < 0.
+        using slow time step H, where lF,lS \in \C, and Re(lF) < 0, Re(lS) < 0.
         Defining zF = H*lF and zS = H*lS, each MRI stage solves a linear fast
         IVP with polynomial forcing exactly, and so (see the lecture notes)
 
@@ -54,8 +54,8 @@ def MRI_stab_region(C, alphas, rho, box, ax):
         For a radius rho > 0 (possibly np.inf) and an angle 0 <= alpha < 90
         degrees, the slow stability region is
 
-           S_{rho,alpha} = { zS in C : |R(zF,zS)| <= 1 for all zF in W }, where
-           W = { zF in C : |zF| <= rho, |arg(zF) - pi| <= alpha }.
+           S_{rho,alpha} = { zS \in \C : |R(zF,zS)| <= 1 for all zF in W }, where
+           W = { zF \in \C : |zF| <= rho, |arg(zF) - pi| <= alpha }.
 
         We use two facts to avoid sampling all of the wedge W:
         (a) For fixed zS, R is an analytic and bounded function of zF on W,

@@ -152,8 +152,8 @@ class Implicit_LMM:
         # verify that tspan values are separated by multiples of h
         for n in range(tspan.size-1):
             hn = tspan[n+1]-tspan[n]
-            if (abs(round(hn/self.h) - (hn/self.h)) > 100*np.sqrt(np.finfo(h).eps)*abs(self.h)):
-                raise ValueError("input values in tspan (%e,%e) are not separated by a multiple of h = %e" % (tspan[n],tspan[n+1],h))
+            if (abs(round(hn/self.h) - (hn/self.h)) > 100*np.sqrt(np.finfo(self.h).eps)*abs(self.h)):
+                raise ValueError("input values in tspan (%e,%e) are not separated by a multiple of h = %e" % (tspan[n],tspan[n+1],self.h))
 
         # verify that a sufficient set of initial conditions have been supplied
         if (np.shape(y0)[0] < (self.k-1)):

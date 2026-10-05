@@ -28,9 +28,10 @@ def RK_stability_function(B, z):
         Outputs:
           R is an array of the same shape as z, holding the values of the
             RK stability function
-              R(z) = 1 + z * dot(b, inv(I-z*A)*e)
+              R(z) = 1 + z * b^T inv(I-z*A) e
             at each entry of z.  The linear systems for all entries are
-            solved together, as a "stack" of s x s systems.'''
+            solved together, as a "stack" of s x s systems.  At an entry of
+            z that lies exactly on a pole of R, R is set to infinity.'''
 
     # extract the components of the Butcher table
     A = np.asarray(B['A'], dtype=float)
@@ -40,9 +41,21 @@ def RK_stability_function(B, z):
     # solve (I - z*A) k = e at every entry of z at once
     zv = np.asarray(z, dtype=complex).ravel()
     M = np.eye(s)[None,:,:] - zv[:,None,None]*A[None,:,:]
-    with np.errstate(all='ignore'):   # entries of z may land on a pole
+    pole = np.zeros(zv.size, dtype=bool)
+    try:
         K = np.linalg.solve(M, np.ones((zv.size, s, 1), dtype=complex))[:,:,0]
+    except np.linalg.LinAlgError:
+        # entries of z may land on a pole, where I - z*A is singular; there
+        # we solve the systems one at a time, and mark the poles
+        K = np.zeros((zv.size, s), dtype=complex)
+        for n in range(zv.size):
+            try:
+                K[n,:] = np.linalg.solve(M[n], np.ones(s, dtype=complex))
+            except np.linalg.LinAlgError:
+                pole[n] = True
+    with np.errstate(all='ignore'):   # R may overflow near a pole
         R = 1 + zv*(K @ b)
+    R[pole] = np.inf
     return R.reshape(np.shape(z))
 
 def RK_stability(B, box, N=1000):
