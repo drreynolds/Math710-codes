@@ -15,9 +15,11 @@
 #   G = stiffness at slow time scale (-10)
 #   w = variable time-scale separation factor (100)
 #
-# This script uses Lie-Trotter subcycling methods with components at various
-# orders of accuracy to see if/how that affects accuracy.  It also runs MRI of
-# various orders of accuracy to see how those compare.
+# This script uses Lie-Trotter and Strang-Marchuk subcycling methods, built from
+# the fractional-step stepper in 07_implicit_explicit/FractionalStep.py, with
+# components at various orders of accuracy to see if/how that affects
+# accuracy.  It also runs MRI of various orders of accuracy to see how those
+# compare.
 #
 # Daniel R. Reynolds
 # Math & Stat @ UMBC
@@ -27,8 +29,8 @@ import matplotlib.pyplot as plt
 import sys
 sys.path.append('../04_explicit_one_step')
 from ERK import *
-from LTSubcycling import *
-from SMSubcycling import *
+sys.path.append('../07_implicit_explicit')
+from FractionalStep import *
 from MRI import *
 
 # KPR problem parameters
@@ -84,21 +86,42 @@ def ff(t, y):
                         (-2 + v**2 - s(t)) / (2 * v)])
             + np.array([0, sdot(t) / (2 * v)]))
 
+# utility routines to construct each method from the slow and fast right-hand
+# side functions and Butcher tables, with fast step size h and slow step size
+# H; each returns the stepper, the slow solver, and the fast solver (so that
+# their steps and right-hand side evaluations may be counted separately)
+def LTSubcycling(fs, ff, Bs, Bf, h, H):
+    # Lie-Trotter subcycling: one slow step over [t_n, t_n+H], followed by a
+    # fast solve over the same interval
+    slow = ERK(fs, Bs, H)
+    fast = ERK(ff, Bf, h)
+    return FractionalStep(LieTrotter(), [slow, fast], H), slow, fast
+def SMSubcycling(fs, ff, Bs, Bf, h, H):
+    # Strang-Marchuk subcycling: fast solves over each half of [t_n, t_n+H],
+    # surrounding one slow step over the full interval (so the fast piece is
+    # partition 1, which takes the two half steps)
+    slow = ERK(fs, Bs, H)
+    fast = ERK(ff, Bf, h)
+    return FractionalStep(StrangMarchuk(), [fast, slow], H), slow, fast
+def MRIMethod(Y0, fs, ff, C, Bf, h, H):
+    fast = ERK(ff, Bf, h)
+    stepper = MRI(Y0, fs, ff, C, fast, H)
+    return stepper, stepper, fast
+
 def runFamily(name, Hvals, w, Y0, Ytrue, tvals, buildStepper):
     # store errors for convergence-rate estimates
     errs = np.zeros(Hvals.size)
     print("\n%s:" % (name))
     for idx, H in enumerate(Hvals):
         h = H/w
-        stepper = buildStepper(h, H)
-        fast = stepper.FastSolver
+        stepper, slow, fast = buildStepper(h, H)
         print("  H = %f, h = %f:" % (H, h))
         Y, success = stepper.Evolve(tvals, Y0)
         errs[idx] = np.linalg.norm(np.abs(Y-Ytrue),np.inf)
         if (not success):
             print("  solve failed")
         print("   steps (s,f) = (%i, %i)  nrhs (s,f) = (%i, %i)  err = %.1e" %
-            (stepper.get_num_steps(), fast.get_num_steps(), stepper.get_num_rhs(), fast.get_num_rhs(), errs[idx]))
+            (slow.get_num_steps(), fast.get_num_steps(), slow.get_num_rhs(), fast.get_num_rhs(), errs[idx]))
 
     if (Hvals.size > 2):
         orders = np.log(errs[:-1]/errs[1:])/np.log(Hvals[:-1]/Hvals[1:])
@@ -107,27 +130,27 @@ def runFamily(name, Hvals, w, Y0, Ytrue, tvals, buildStepper):
 # Lie-Trotter subcycling evolves slow dynamics once per macro step and
 # fast dynamics with h = H/w substeps.
 runFamily('Lie-Trotter-Subcycling-1', Hvals, w, Y0, Ytrue, tvals,
-    lambda h, H: LTSubcycling(fs, ERK1(), ERK(ff, ERK1(), h), H))
+    lambda h, H: LTSubcycling(fs, ff, ERK1(), ERK1(), h, H))
 
 runFamily('Lie-Trotter-Subcycling-2', Hvals, w, Y0, Ytrue, tvals,
-    lambda h, H: LTSubcycling(fs, ERK2(), ERK(ff, ERK2(), h), H))
+    lambda h, H: LTSubcycling(fs, ff, ERK2(), ERK2(), h, H))
 
 # Strang-Marchuk variants symmetrize the slow/fast splitting.
 runFamily('Strang-Marchuk-Subcycling-1', Hvals, w, Y0, Ytrue, tvals,
-    lambda h, H: SMSubcycling(fs, ERK1(), ERK(ff, ERK1(), h), H))
+    lambda h, H: SMSubcycling(fs, ff, ERK1(), ERK1(), h, H))
 
 runFamily('Strang-Marchuk-2', Hvals, w, Y0, Ytrue, tvals,
-    lambda h, H: SMSubcycling(fs, ERK2(), ERK(ff, ERK2(), h), H))
+    lambda h, H: SMSubcycling(fs, ff, ERK2(), ERK2(), h, H))
 
 runFamily('Strang-Marchuk-3', Hvals, w, Y0, Ytrue, tvals,
-    lambda h, H: SMSubcycling(fs, ERK3(), ERK(ff, ERK3(), h), H))
+    lambda h, H: SMSubcycling(fs, ff, ERK3(), ERK3(), h, H))
 
 # MRI-GARK methods couple slow stages to a fast IVP solve over each stage interval.
 runFamily('MRI-GARK-ERK22a', Hvals, w, Y0, Ytrue, tvals,
-    lambda h, H: MRI(Y0, fs, ff, MRIGARKERK22a(), ERK(ff, ERK2(), h), H))
+    lambda h, H: MRIMethod(Y0, fs, ff, MRIGARKERK22a(), ERK2(), h, H))
 
 runFamily('MRI-GARK-ERK33a', Hvals, w, Y0, Ytrue, tvals,
-    lambda h, H: MRI(Y0, fs, ff, MRIGARKERK33a(), ERK(ff, ERK3(), h), H))
+    lambda h, H: MRIMethod(Y0, fs, ff, MRIGARKERK33a(), ERK3(), h, H))
 
 runFamily('MRI-GARK-ERK45a', Hvals, w, Y0, Ytrue, tvals,
-    lambda h, H: MRI(Y0, fs, ff, MRIGARKERK45a(), ERK(ff, ERK4(), h), H))
+    lambda h, H: MRIMethod(Y0, fs, ff, MRIGARKERK45a(), ERK4(), h, H))

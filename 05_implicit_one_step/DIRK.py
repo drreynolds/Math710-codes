@@ -1018,3 +1018,32 @@ def ARKCouplingESDIRK3():
     p = 3
     B = {'A': A, 'b': b, 'c': c, 'p': p}
     return B
+
+
+def SDIRK2(gamma):
+    """
+    Usage: B = SDIRK2(gamma)
+
+    Utility routine to return the two-stage SDIRK table with parameter
+    gamma, which is second order for every gamma, L-stable for
+    gamma = (2 -/+ sqrt(2))/2, and third order for gamma = (3 +/- sqrt(3))/6.
+
+    Reference: Spiteri & Wei, J. Comput. Phys. 476:111900 (2023), eq. (29),
+               doi:10.1016/j.jcp.2022.111900.
+
+    Outputs: B['A'] holds the Runge--Kutta stage coefficients
+             B['b'] holds the Runge--Kutta solution weights
+             B['c'] holds the Runge--Kutta abcissae
+             B['p'] holds the Runge--Kutta method order
+    """
+    A = np.array((
+        (gamma, 0.0),
+        (1.0-2.0*gamma, gamma)
+    ), dtype=float)
+    b = np.array((0.5, 0.5))
+    c = np.array((gamma, 1.0-gamma))
+    p = 2
+    if (min(abs(gamma - (3.0+np.sqrt(3.0))/6.0), abs(gamma - (3.0-np.sqrt(3.0))/6.0)) < 1e-14):
+        p = 3
+    B = {'A': A, 'b': b, 'c': c, 'p': p}
+    return B

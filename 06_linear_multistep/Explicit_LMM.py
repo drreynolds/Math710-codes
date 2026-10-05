@@ -105,11 +105,14 @@ class Explicit_LMM:
 
         Inputs:  tspan holds the current time interval, [t0, tf], including any
                      intermediate times when the solution is desired, i.e.
-                     [t0, t1, ..., tf]
+                     [t0, t1, ..., tf]; these may decrease (to integrate
+                     backward in time), but must be monotone
                  y0 holds the initial conditions [nd-array, shape(k-1,n)],
-                     sorted as [y0(t0-(k-2)*h), ... y0(t0-h), y0(t0)]
-                 h optionally holds the requested step size (if it is not
-                     provided then the stored value will be used)
+                     sorted as [y0(t0-(k-2)*h), ... y0(t0-h), y0(t0)], where
+                     h is signed in the direction of integration (h < 0 when
+                     tspan is decreasing)
+                 h optionally holds the requested step size magnitude (if it
+                     is not provided then the stored value will be used)
                  args holds optional equation parameters used when evaluating
                      the RHS.
         Outputs: Y holds the computed solution at all tspan values,
@@ -125,6 +128,17 @@ class Explicit_LMM:
         # raise error if step size was never set
         if (self.h == 0.0):
             raise ValueError("ERROR: Explicit_LMM::Evolve called without specifying a nonzero step size")
+
+        # determine the direction of integration from tspan (tdir = 1 forward in
+        # time, tdir = -1 backward), require tspan to be monotone in that
+        # direction, and sign the internal step size to match it
+        if (tspan[-1] >= tspan[0]):
+            tdir = 1.0
+        else:
+            tdir = -1.0
+        if (np.any(tdir*np.diff(tspan) < 0)):
+            raise ValueError("ERROR: Explicit_LMM::Evolve requires monotone tspan values")
+        self.h = tdir*abs(self.h)
 
         # verify that tspan values are separated by multiples of h
         for n in range(tspan.size-1):

@@ -28,18 +28,27 @@ def ARK_joint_stab_region(BE, BI, thetas, rmax, box, fig):
         region as
 
           Sj(theta) = { zE in C : |R(zE,zI)|<1 forall zI in S(theta) }, where
-          S(theta) = { zI = -a+i*b : a>0, b>=0, and atan(b/a) <= theta }
+          S(theta) = { zI = -a+i*b : a>0, and atan(|b|/a) <= theta }
 
         We note that the sector S(theta) contains infinitely many points:
         (a) it extends arbitrarily far into the complex left half-plane,
             i.e., |zI| < infty, and
-        (b) it contains infinitely many angles 0 <= alpha <= theta.
+        (b) it contains infinitely many angles -theta <= alpha <= theta.
 
-        However, we only test this for the two angles alpha=0 and
-        alpha=theta, using NI points, with distance logarithmically-
-        scaled away from the origin, to a maximum distance of rmax.
-        Similarly, we only test a NE^2 mesh of points zE within the
-        pre-defined "box" in the complex plane.
+        However, we need not test all of them.  Since the implicit table is
+        diagonally implicit, the poles of R in zI are at 1/AI[i,i] > 0,
+        outside of S(theta), and so for fixed zE the maximum of |R| over
+        S(theta) is attained on its boundary (the maximum modulus principle),
+        i.e., on the two rays alpha = -theta and alpha = theta.  Moreover,
+        since the Butcher tables are real, R(conj(zE),conj(zI)) =
+        conj(R(zE,zI)).  We therefore test only zI = 0 and the ray
+        alpha = theta, using NI points, with distance logarithmically-
+        scaled away from the origin, to a maximum distance of rmax, over the
+        full NE^2 mesh of points zE within the pre-defined "box" in the
+        complex plane, and then account for the ray alpha = -theta by
+        reflecting the result across the real axis.  Finally, since
+        I - zE*AE - zI*AI is lower triangular, we evaluate R by forward
+        substitution over the whole zE mesh at once for each zI sample.
 
         The input 'thetas' is array-valued -- we plot the joint stability
         region Sj(theta) for each value in this array, and overlay these plots.
@@ -52,15 +61,14 @@ def ARK_joint_stab_region(BE, BI, thetas, rmax, box, fig):
            rmax   -- maximum distance from the origin for the DIRK sample points
            box    -- [xl, xr, yl, yr] is the bounding box for the sub-region
                      of the complex plane in which to perform the test.  We
-                     assume that yl=-yr, and that the joint stability region
-                     is symmetric across the real axis.
+                     assume that yl=-yr, so that the mesh is symmetric
+                     across the real axis.
            fig    -- matplotlib figure handle to use
     '''
 
     # set general parameters
     NE = 101   # must be odd
     NI = 100
-    Rthresh = 1.25
     CM = plt.get_cmap('tab10')
 
     # check Butcher tables for compatibility
@@ -75,13 +83,9 @@ def ARK_joint_stab_region(BE, BI, thetas, rmax, box, fig):
         raise ValueError('ARK_joint_stab_region: incompatible explicit Butcher table inputs')
     if (AI.shape != (s, s)):
         raise ValueError('ARK_joint_stab_region: incompatible implicit Butcher table inputs')
-
-    # create e, I
-    e = np.ones(s)
-    I = np.eye(s)
-
-    # construct the ARK stability function
-    R = lambda zE, zI: 1 + np.dot(zE*bE + zI*bI, np.linalg.solve(I - zE*AE - zI*AI, e))
+    if ((np.linalg.norm(AE - np.tril(AE,-1), np.inf) > 1e-14) or
+        (np.linalg.norm(AI - np.tril(AI), np.inf) > 1e-14)):
+        raise ValueError('ARK_joint_stab_region: requires an explicit and a diagonally implicit table')
 
     # set mesh of ERK sample points
     xl = box[0]
@@ -90,6 +94,21 @@ def ARK_joint_stab_region(BE, BI, thetas, rmax, box, fig):
     yr = box[3]
     x = np.linspace(xl, xr, NE)
     y = np.linspace(yl, yr, NE)
+    X, Y = np.meshgrid(x, y)
+    ZE = X + Y*1j
+
+    # construct the ARK stability function over the whole zE mesh, for a
+    # single zI value: since I - zE*AE - zI*AI is lower triangular, the stages
+    #    z_i = (1 + sum_{j<i} (zE*AE[i,j] + zI*AI[i,j]) z_j) / (1 - zI*AI[i,i])
+    # follow by forward substitution, and R = 1 + sum_i (zE*bE[i] + zI*bI[i]) z_i
+    def R(ZE, zI):
+        z = []
+        for i in range(s):
+            zi = np.ones_like(ZE)
+            for j in range(i):
+                zi = zi + (ZE*AE[i,j] + zI*AI[i,j])*z[j]
+            z.append(zi/(1 - zI*AI[i,i]))
+        return 1 + sum((ZE*bE[i] + zI*bI[i])*z[i] for i in range(s))
 
     # create new figure window
     ax = fig.gca()
@@ -97,7 +116,6 @@ def ARK_joint_stab_region(BE, BI, thetas, rmax, box, fig):
     ax.plot(np.zeros(10), np.linspace(yl, yr, 10), 'k:')
 
     # loop over theta values, creating contour plot data for each
-    mid = (NE-1)//2
     handles = []
     labels = []
     for itheta in range(len(thetas)):
@@ -106,26 +124,15 @@ def ARK_joint_stab_region(BE, BI, thetas, rmax, box, fig):
         # initialize max|R| over box
         Rmax = np.zeros((NE, NE))
 
-        # set array of DIRK sample points
+        # set array of DIRK sample points: zI = 0, and the upper ray of S(theta)
         r = -np.logspace(-1, np.log10(rmax), NI)
-        zI = np.concatenate(([0], r, r*(np.cos(theta)-np.sin(theta)*1j)))
+        zI = np.concatenate(([0], r*(np.cos(theta)-np.sin(theta)*1j)))
 
-        # loop over zE mesh
-        for j in range(0, mid+1):
-            j1 = mid+j
-            j2 = mid-j
-            for i in range(NE):
-
-                # set zE value
-                zE = x[i] + y[mid+j]*1j
-
-                # loop over zI values, breaking the moment |R(zE,zI)| > Rthresh
-                for k in range(len(zI)):
-                    Rval = abs(R(zE, zI[k]))
-                    Rmax[j1, i] = max(Rmax[j1, i], Rval)
-                    Rmax[j2, i] = max(Rmax[j2, i], Rval)
-                    if (Rval > Rthresh):
-                        break
+        # compute max|R| over the zI samples, for the whole zE mesh at once,
+        # and then reflect across the real axis to account for the lower ray
+        for k in range(len(zI)):
+            Rmax = np.maximum(Rmax, np.abs(R(ZE, zI[k])))
+        Rmax = np.maximum(Rmax, Rmax[::-1,:])
 
         # create contour and add to figure
         eps = np.finfo(float).eps

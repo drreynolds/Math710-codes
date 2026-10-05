@@ -16,6 +16,35 @@ sys.path.append('../05_implicit_one_step')
 from ERK import ERK4
 from DIRK import CrouzeixRaviart3
 
+def RK_stability_function(B, z):
+    ''' Usage: R = RK_stability_function(B, z)
+
+        Inputs:
+          B is a Butcher table, with components:
+             B['A'] -- the Butcher table matrix
+             B['b'] -- the solution coefficients
+          z is an array of points in the complex plane
+
+        Outputs:
+          R is an array of the same shape as z, holding the values of the
+            RK stability function
+              R(z) = 1 + z * dot(b, inv(I-z*A)*e)
+            at each entry of z.  The linear systems for all entries are
+            solved together, as a "stack" of s x s systems.'''
+
+    # extract the components of the Butcher table
+    A = np.asarray(B['A'], dtype=float)
+    b = np.asarray(B['b'], dtype=float)
+    s = b.size
+
+    # solve (I - z*A) k = e at every entry of z at once
+    zv = np.asarray(z, dtype=complex).ravel()
+    M = np.eye(s)[None,:,:] - zv[:,None,None]*A[None,:,:]
+    with np.errstate(all='ignore'):   # entries of z may land on a pole
+        K = np.linalg.solve(M, np.ones((zv.size, s, 1), dtype=complex))[:,:,0]
+        R = 1 + zv*(K @ b)
+    return R.reshape(np.shape(z))
+
 def RK_stability(B, box, N=1000):
     ''' Usage: X,Y = RK_stability(B, box, N)
 
@@ -35,17 +64,10 @@ def RK_stability(B, box, N=1000):
           R(eta) = 1 + eta * dot(b, inv(I-eta*A)*e)
 
         We sample the values in 'box' within the complex plane, plugging
-        each value into |R(eta)|, and plot the contour of this function
-        having value 1.'''
+        each value into |R(eta)| (using RK_stability_function), and plot the
+        contour of this function having value 1.'''
     import matplotlib.pyplot as pyplot
     import numpy as np
-
-    # extract the components of the Butcher table
-    A = B['A']
-    b = B['b']
-    s = len(b)
-    e = np.ones(s)
-    I = np.diag(e)
 
     # set mesh of sample points
     xl = box[0]
@@ -54,13 +76,10 @@ def RK_stability(B, box, N=1000):
     yr = box[3]
     x = np.linspace(xl, xr, N)
     y = np.linspace(yl, yr, N)
+    X, Y = np.meshgrid(x, y)
 
     # evaluate |R(eta)| for each eta in the mesh
-    R = np.empty((N,N))
-    for j in range(N):
-        for i in range(N):
-            eta = x[i] + y[j]*1j;
-            R[j,i] = np.abs(1 + eta*np.dot(b, np.linalg.solve(I - eta*A, e)) )
+    R = np.abs(RK_stability_function(B, X + Y*1j))
 
     # create contour
     eps = np.finfo(float).eps

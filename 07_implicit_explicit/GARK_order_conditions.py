@@ -266,15 +266,25 @@ if __name__ == '__main__':
     RK4 = {'A': sp.Matrix([[0, 0, 0, 0], [R(1,2), 0, 0, 0], [0, R(1,2), 0, 0], [0, 0, 1, 0]]),
            'b': sp.Matrix([R(1,6), R(1,3), R(1,3), R(1,6)])}
 
-    # fractional-step coefficients from the lecture notes
-    LT = [[1], [1]]
-    Strang = [[R(1,2), R(1,2)], [1, 0]]
-    Ruth = [[R(7,24), R(3,4), -R(1,24)], [R(2,3), -R(2,3), 1]]
+    # fractional-step coefficients from the catalogue in FractionalStep.py;
+    # these are stored in floating point, so we recover their exact rational
+    # values with nsimplify, to keep all arithmetic here exact
+    import FractionalStep as fs
+    def exact(S):
+        return [[sp.nsimplify(a) for a in row] for row in S['alpha']]
+    LT = exact(fs.LieTrotter())
+    Strang = exact(fs.StrangMarchuk())
+    Ruth = exact(fs.Ruth())
+    def OS2(mu):
+        return exact(fs.OS2(mu))
 
     tests = [('ARS(2,2,2) in GARK form', ARS222),
              ('Lie-Trotter + forward Euler', FSRK_tableau(LT, [FE, FE])),
              ('Lie-Trotter + RK4', FSRK_tableau(LT, [RK4, RK4])),
              ('Strang + RK4', FSRK_tableau(Strang, [RK4, RK4])),
+             ('OS2(2,2)-1/4 + RK4', FSRK_tableau(OS2(0.25), [RK4, RK4])),
+             ('OS2(2,2)-1/2 + RK4', FSRK_tableau(OS2(0.5), [RK4, RK4])),
+             ('OS2(2,2)-2 + RK4', FSRK_tableau(OS2(2.0), [RK4, RK4])),
              ('Ruth + RK4', FSRK_tableau(Ruth, [RK4, RK4])),
              ('Ruth + Heun', FSRK_tableau(Ruth, [Heun, Heun]))]
     for name, (A, b) in tests:
