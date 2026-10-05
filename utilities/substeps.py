@@ -18,11 +18,13 @@ def substeps(dt, h):
 
     Determines the number of equal internal steps N needed to traverse an
     output interval of length dt without any step exceeding the requested
-    step size h, and the corresponding step size hsub = dt/N <= h.
+    step size h in magnitude, and the corresponding step size hsub = dt/N,
+    with |hsub| <= |h|.  The interval may run backward in time (dt < 0);
+    hsub then has the sign of dt, whatever the sign of h.
 
     The small tolerance keeps roundoff in the output times (e.g., from
-    tspan = h*np.arange(n), where dt/h may be 1 + 1e-16) from adding an
+    tspan = h*np.arange(n), where |dt/h| may be 1 + 1e-16) from adding an
     extra step; max ensures that we always take at least one step.
     """
-    N = max(1, int(np.ceil(dt/h - SUBSTEP_TOL)))
+    N = max(1, int(np.ceil(abs(dt)/abs(h) - SUBSTEP_TOL)))
     return N, dt/N
