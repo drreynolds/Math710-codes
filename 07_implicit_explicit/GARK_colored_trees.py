@@ -8,7 +8,8 @@
 # c^{sigma}, under which the leaves no longer need colors of their own.
 # Includes a simple "main" that uses these functions to print the conditions,
 # and to count the distinct and coupling conditions at each order, both as
-# polynomials in M and for specific values of M.
+# polynomials in M and for specific values of M.  The rooted trees themselves
+# are enumerated by rooted_trees, in utilities/rooted_trees.py.
 #
 # Each vertex of a tree carries a color.  The root, of color sigma,
 # contributes the solution weights b^{sigma}; a vertex of color nu attached to
@@ -27,73 +28,16 @@
 # Math & Stat @ UMBC
 
 # general imports
+import os
+import sys
 from fractions import Fraction
-from functools import lru_cache
-from itertools import combinations_with_replacement
 from math import comb
+sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..'))
+from utilities.rooted_trees import rooted_trees, tree_density
 
 # placeholder color names, in the order that they are assigned to vertices
 text_colors = ['σ', 'ν', 'μ', 'λ', 'κ', 'ρ', 'τ', 'ω']
 latex_colors = ['\\sigma', '\\nu', '\\mu', '\\lambda', '\\kappa', '\\rho', '\\tau', '\\omega']
-
-def partitions(n, maxpart=None):
-    ''' Usage: for part in partitions(n, maxpart):
-
-        Generates the partitions of the integer n into parts no larger than
-        maxpart (default n), as non-increasing tuples.
-    '''
-    if (maxpart is None):
-        maxpart = n
-    if (n == 0):
-        yield ()
-        return
-    for k in range(min(n, maxpart), 0, -1):
-        for rest in partitions(n-k, k):
-            yield (k,) + rest
-
-
-@lru_cache(None)
-def rooted_trees(n):
-    ''' Usage: trees = rooted_trees(n)
-
-        Returns a sorted tuple of the distinct (uncolored) rooted trees with
-        n vertices, each stored as the sorted tuple of its subtrees.
-    '''
-    trees = set()
-    for part in partitions(n-1):
-        # count the number of children of each size
-        sizes = {}
-        for k in part:
-            sizes[k] = sizes.get(k, 0) + 1
-        # form every multiset of subtrees having these sizes
-        childlists = [()]
-        for k, m in sizes.items():
-            childlists = [a + b for a in childlists
-                          for b in combinations_with_replacement(rooted_trees(k), m)]
-        for children in childlists:
-            trees.add(tuple(sorted(children)))
-    return tuple(sorted(trees))
-
-
-def tree_order(t):
-    ''' Usage: n = tree_order(t)
-
-        Returns the number of vertices in the tree t.
-    '''
-    return 1 + sum(tree_order(child) for child in t)
-
-
-def tree_density(t):
-    ''' Usage: gamma = tree_density(t)
-
-        Returns the density gamma(t) of the tree t, so that the order
-        condition for t is Phi(t) = 1/gamma(t).
-    '''
-    gamma = tree_order(t)
-    for child in t:
-        gamma *= tree_density(child)
-    return gamma
-
 
 def condition_label(t, internal=False, latex=False):
     ''' Usage: label = condition_label(t, internal, latex)

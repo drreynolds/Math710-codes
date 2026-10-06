@@ -25,10 +25,13 @@
 
 # general imports
 import numpy as np
+import os
 import sympy as sp
+import sys
 from functools import lru_cache
 from itertools import combinations_with_replacement
-from GARK_colored_trees import partitions
+sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..'))
+from utilities.rooted_trees import partitions
 
 @lru_cache(None)
 def colored_trees(n, M):

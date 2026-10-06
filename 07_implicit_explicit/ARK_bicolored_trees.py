@@ -26,30 +26,17 @@
 # Math & Stat @ UMBC
 
 # general imports
+import os
+import sys
 from fractions import Fraction
 from functools import lru_cache
 from itertools import combinations_with_replacement
-from GARK_colored_trees import rooted_trees
-from GARK_colored_trees import tree_density as rooted_tree_density
+sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..'))
+from utilities.rooted_trees import partitions, rooted_trees
+from utilities.rooted_trees import tree_density as rooted_tree_density
 
 # placeholder color names, in the order that they are assigned to vertices
 placeholders = ['ν', 'μ', 'λ', 'σ', 'κ', 'ρ', 'τ', 'ω']
-
-def partitions(n, maxpart=None):
-    ''' Usage: for part in partitions(n, maxpart):
-
-        Generates the partitions of the integer n into parts no larger than
-        maxpart (default n), as non-increasing tuples.
-    '''
-    if (maxpart is None):
-        maxpart = n
-    if (n == 0):
-        yield ()
-        return
-    for k in range(min(n, maxpart), 0, -1):
-        for rest in partitions(n-k, k):
-            yield (k,) + rest
-
 
 @lru_cache(None)
 def bicolored_trees(n, root=True, sameb=False, samec=False):
