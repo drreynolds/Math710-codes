@@ -1,15 +1,18 @@
-function trees = GARK_rooted_trees(n)
-    % Usage: trees = GARK_rooted_trees(n)
+function trees = rooted_trees(n)
+    % Usage: trees = rooted_trees(n)
     %
     %        Returns a sorted cell array of the distinct (uncolored) rooted
     %        trees with n vertices, each stored as the sorted 1-by-k cell array
-    %        of its subtrees (so that a single vertex is stored as {}).
+    %        of its subtrees (so that a single vertex is stored as {}).  Use
+    %        tree_string to display a tree in bracket notation.
     %
-% Function to enumerate the rooted trees used by GARK_conditions and
-% GARK_colored_trees_demo.  Trees are sorted using a string key in which each
-% vertex is written as '1', followed by the keys of its subtrees, followed by
-% '0'; this orders the trees (and the subtrees of each vertex) exactly as the
-% sorted tuples of GARK_colored_trees.py.
+% Function to enumerate the rooted trees used by GARK_conditions,
+% ARK_condensed_conditions, and GARK_colored_trees_demo.  Each tree mirrors the
+% bracket notation [t_1,...,t_m] of the lecture notes, with the cell array of
+% its subtrees in place of the brackets.  Trees are sorted using a string key
+% in which each vertex is written as '1', followed by the keys of its
+% subtrees, followed by '0'; this orders the trees (and the subtrees of each
+% vertex) exactly as the sorted tuples of utilities/rooted_trees.py.
 %
 % Daniel R. Reynolds
 % Math & Stat @ UMBC
@@ -34,7 +37,7 @@ for p = 1:numel(parts)
     childlists = {{}};
     for k = sizes
         m = sum(part == k);
-        combos = combinations_with_replacement(GARK_rooted_trees(k), m);
+        combos = combinations_with_replacement(rooted_trees(k), m);
         newlists = {};
         for a = 1:numel(childlists)
             for b = 1:numel(combos)
@@ -67,29 +70,6 @@ for k = 1:numel(t)
     key = [key, tree_key(t{k})];
 end
 key = [key, '0'];
-end
-
-
-function parts = partitions(n, maxpart)
-    % Usage: parts = partitions(n, maxpart)
-    %
-    %        Returns a cell array of the partitions of the integer n into parts
-    %        no larger than maxpart (default n), as non-increasing row vectors.
-    %
-if nargin < 2 || isempty(maxpart)
-    maxpart = n;
-end
-if (n == 0)
-    parts = {[]};
-    return
-end
-parts = {};
-for k = min(n, maxpart):-1:1
-    rest = partitions(n-k, k);
-    for j = 1:numel(rest)
-        parts{end+1} = [k, rest{j}];
-    end
-end
 end
 
 

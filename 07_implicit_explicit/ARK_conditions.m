@@ -42,6 +42,9 @@ if nargin < 3 || isempty(samec)
     samec = false;
 end
 
+% partitions is in the utilities folder
+addpath(fullfile(fileparts(fileparts(mfilename('fullpath'))), 'utilities'));
+
 conds = struct('label', {}, 'rhs', {}, 'coupling', {});
 trees = bicolored_trees(order, true, sameb, samec);
 for k = 1:numel(trees)
@@ -53,29 +56,6 @@ end
 conds = conds(idx);
 [~, idx] = sort(arrayfun(@(cond) double(cond.rhs), conds));
 conds = conds(idx);
-end
-
-
-function parts = partitions(n, maxpart)
-    % Usage: parts = partitions(n, maxpart)
-    %
-    %        Returns a cell array of the partitions of the integer n into parts
-    %        no larger than maxpart (default n), as non-increasing row vectors.
-    %
-if nargin < 2 || isempty(maxpart)
-    maxpart = n;
-end
-if (n == 0)
-    parts = {[]};
-    return
-end
-parts = {};
-for k = min(n, maxpart):-1:1
-    rest = partitions(n-k, k);
-    for j = 1:numel(rest)
-        parts{end+1} = [k, rest{j}];
-    end
-end
 end
 
 

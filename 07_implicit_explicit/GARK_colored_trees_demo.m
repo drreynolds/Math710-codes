@@ -7,6 +7,7 @@
 % Math & Stat @ UMBC
 %
 clear
+addpath('../utilities');
 
 % highest order to consider, and specific numbers of partitions to count
 maxorder = 6;
@@ -105,7 +106,7 @@ function [total, coupling] = num_conditions(order, M, internal)
     %
 total = 0;
 coupling = 0;
-trees = GARK_rooted_trees(order);
+trees = rooted_trees(order);
 for k = 1:numel(trees)
     n = num_colorings(trees{k}, M, internal, true);
     total = total + n;

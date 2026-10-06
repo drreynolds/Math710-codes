@@ -35,8 +35,11 @@ if nargin < 3 || isempty(samec)
     samec = false;
 end
 
+% rooted_trees and tree_density are in the utilities folder
+addpath(fullfile(fileparts(fileparts(mfilename('fullpath'))), 'utilities'));
+
 conds = struct('label', {}, 'rhs', {});
-trees = GARK_rooted_trees(order);
+trees = rooted_trees(order);
 for k = 1:numel(trees)
     t = trees{k};
     conds(end+1) = struct('label', condensed_label(t, sameb, samec), 'rhs', sym(1)/tree_density(t));
@@ -48,36 +51,11 @@ conds = conds(idx);
 end
 
 
-function n = tree_order(t)
-    % Usage: n = tree_order(t)
-    %
-    %        Returns the number of vertices in the (uncolored) rooted tree t.
-    %
-n = 1;
-for k = 1:numel(t)
-    n = n + tree_order(t{k});
-end
-end
-
-
-function gamma = tree_density(t)
-    % Usage: gamma = tree_density(t)
-    %
-    %        Returns the density gamma(t) of the (uncolored) rooted tree t, so
-    %        that the order condition for t is Phi(t) = 1/gamma(t).
-    %
-gamma = tree_order(t);
-for k = 1:numel(t)
-    gamma = gamma * tree_density(t{k});
-end
-end
-
-
 function label = condensed_label(t, sameb, samec)
     % Usage: label = condensed_label(t, sameb, samec)
     %
     %        Inputs:
-    %          t is an (uncolored) rooted tree, from GARK_rooted_trees
+    %          t is an (uncolored) rooted tree, from rooted_trees
     %          sameb indicates that bE = bI
     %          samec indicates that cE = cI
     %
