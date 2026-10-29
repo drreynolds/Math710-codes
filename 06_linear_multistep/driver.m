@@ -1,6 +1,6 @@
 % Main routine to test various explicit and implicit linear multistep methods on the
 % scalar-valued ODE problem
-%    y' = lambda*y + (1-lambda)*cos(t) - (1+lambda)*sin(t), t in [0,5],
+%    dy/dt = lambda*y + (1-lambda)*cos(t) - (1+lambda)*sin(t), t in [0,5],
 %    y(0) = 1.
 %
 % Daniel R. Reynolds
@@ -20,9 +20,10 @@ J = @(t, y, lam) lam;
 % The implicit LMM families use the shared Newton solver and the same Jacobian.
 solver = ImplicitSolver(J, 20, 1e-9, 1e-12, 2);
 
-Nout = 6;
 % set output times for the experiment
+Nout = 6;
 tspan = linspace(t0, tf, Nout).';
+
 % compute and store the analytical solution
 Ytrue = zeros(Nout, 1);
 for i = 1:Nout
@@ -31,6 +32,7 @@ end
 
 % set problem parameters for the experiments
 lambdas = [-1.0, -10.0, -50.0, -100.0];
+
 % set requested time step sizes for convergence tests
 hvals = [0.1, 0.05, 0.01, 0.005, 0.001];
 
@@ -60,7 +62,7 @@ RunTest(Implicit_LMM(f, solver, alpha, beta), 1, 'Adams-Moulton-3', true, lambda
 [alpha, beta] = Implicit_LMM.AdamsMoulton4();
 RunTest(Implicit_LMM(f, solver, alpha, beta), 2, 'Adams-Moulton-4', true, lambdas, hvals, Ytrue, tspan, ytrue);
 
-% BDF methods are implicit and use the same test harness as Adams-Moulton.
+% BDF methods are implicit and use the same test setup as Adams-Moulton.
 [alpha, beta] = Implicit_LMM.BDF1();
 RunTest(Implicit_LMM(f, solver, alpha, beta), 0, 'BDF-1', true, lambdas, hvals, Ytrue, tspan, ytrue);
 
@@ -73,6 +75,7 @@ RunTest(Implicit_LMM(f, solver, alpha, beta), 2, 'BDF-3', true, lambdas, hvals, 
 [alpha, beta] = Implicit_LMM.BDF4();
 RunTest(Implicit_LMM(f, solver, alpha, beta), 3, 'BDF-4', true, lambdas, hvals, Ytrue, tspan, ytrue);
 
+% Utility function to perform a convergence test for a given stepper method.
 function RunTest(stepper, prevsteps, name, implicit, lambdas, hvals, Ytrue, tspan, ytrue)
     % store errors for convergence-rate estimates
     errs = zeros(size(hvals));

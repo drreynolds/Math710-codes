@@ -98,9 +98,7 @@ classdef Explicit_LMM < handle
         end
 
         function reset(self)
-            % Resets the accumulated number of steps
-
-            % reset accumulated statistics
+            % Resets the accumulated statistics
             self.steps = 0;
             self.nrhs = 0;
         end
@@ -127,7 +125,7 @@ classdef Explicit_LMM < handle
             %              intermediate times when the solution is desired, i.e.
             %              [t0, t1, ..., tf]; these may decrease (to integrate
             %              backward in time), but must be monotone
-            %          y0 holds the initial conditions [nd-array, shape(k-1,n)],
+            %          y0 holds the initial conditions [matrix of size (k-1,n)],
             %              sorted as [y0(t0-(k-2)*h), ... y0(t0-h), y0(t0)], where
             %              h is signed in the direction of integration (h < 0 when
             %              tspan is decreasing)
@@ -186,6 +184,7 @@ classdef Explicit_LMM < handle
                 error('Explicit_LMM:Evolve received insufficient initial conditions');
             end
 
+            % Initialize the output matrix, and set the first row to the initial condition.
             nout = numel(tspan);
             m = size(y0,2);
             Y = zeros(nout, m);
