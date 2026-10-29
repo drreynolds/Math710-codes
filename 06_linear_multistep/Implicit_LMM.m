@@ -7,28 +7,12 @@ classdef Implicit_LMM < handle
     % of orders 1-4.
     %
     % Class to perform fixed-stepsize time evolution of the IVP
-    %      y' = f(t,y),  t in [t0, Tf],  y(t0) = y0
+    %      dy/dt = f(t,y),  t in [t0, Tf],  y(t0) = y0
     % using an implicit linear multistep (LMM) time stepping method.
     %
     % Daniel R. Reynolds
     % Math & Stat @ UMBC
     %
-    % Fixed stepsize implicit linear multistep class
-    %
-    % The four required arguments when constructing an implicit linear
-    % multistep object are a function for the IVP right-hand side, an
-    % implicit solver to use, and the LMM coefficients:
-    %     f = ODE RHS function with calling syntax f(t,y).
-    %     sol = algebraic solver object to use [ImplicitSolver]
-    %     alpha = LMM coefficients on previous solution values
-    %     beta = LMM coefficients on previous RHS values
-    %     h = (optional) input with stepsize to use for time stepping.
-    %         Note that this MUST be set either here or in the Evolve call.
-    % Note that the LMM has the form:
-    %    \sum_{j=0}^{k-1} \alpha_j y_{n+1-j} = h\sum_{j=0}^{k-1} \beta_j f_{n+1-j},
-    % for computing each internal step, for an ODE IVP of the form
-    %    y' = f(t,y), t in tspan,
-    %    y(t0) = y0.
 
     % Stored problem data, method coefficients, temporary vectors, and run statistics.
     properties
@@ -40,6 +24,21 @@ classdef Implicit_LMM < handle
 
     methods
         function self = Implicit_LMM(f, sol, alpha, beta, h)
+            % The four required arguments when constructing an implicit linear
+            % multistep object are a function for the IVP right-hand side, an
+            % implicit solver to use, and the LMM coefficients:
+            %     f = ODE RHS function with calling syntax f(t,y).
+            %     sol = algebraic solver object to use [ImplicitSolver]
+            %     alpha = LMM coefficients on previous solution values
+            %     beta = LMM coefficients on previous RHS values
+            %     h = (optional) input with stepsize to use for time stepping.
+            %         Note that this MUST be set either here or in the Evolve call.
+            % Note that the LMM has the form:
+            %    \sum_{j=0}^{k-1} \alpha_j y_{n+1-j} = h\sum_{j=0}^{k-1} \beta_j f_{n+1-j},
+            % for computing each internal step, for an ODE IVP of the form
+            %    dy/dt = f(t,y), t in tspan,
+            %    y(t0) = y0.
+            %
             if nargin < 4
                 error('Implicit_LMM requires f, sol, alpha, and beta.');
             end
