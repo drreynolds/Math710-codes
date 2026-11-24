@@ -13,9 +13,9 @@
 %              the splitting error.
 %
 % Both use the explicit and implicit component tables of ARK3(2)4L[2]SA, so
-% that the two sub-solver types can be compared directly.  We only use
-% splittings with nonnegative sub-steps, since a backward-in-time sub-step of
-% the diffusion term would be unstable.
+% that the two sub-solver types can be compared directly.  We include the
+% Ruth method, even though it has negative sub-steps, to show what can go
+% wrong with such methods for this problem.
 %
 % Daniel R. Reynolds
 % Math & Stat @ UMBC
@@ -29,7 +29,8 @@ addpath('../05_implicit_one_step');
 % fractional-step methods to test, from the catalogue in FractionalStep.m
 methods = {'Lie-Trotter', FractionalStep.LieTrotter();
            'Strang-Marchuk', FractionalStep.StrangMarchuk();
-           'OS2(2,2)-1/4', FractionalStep.OS2(0.25)};
+           'OS2(2,2)-1/4', FractionalStep.OS2(0.25);
+           'Ruth', FractionalStep.Ruth()};
 
 % testing data
 ad = LoadProblem('AdvectionDiffusion');
@@ -62,7 +63,7 @@ end
 function solvers = AdaptiveSolvers(ad, BE, BI, y0, rtol, atol)
     solverI = ImplicitSolver(ad.JI, 12, 1e-10, 1e-12, 3);
     solvers = {AdaptERK(ad.fE, y0, BE, rtol, atol), ...
-               AdaptDIRK(ad.fI, y0, solverI, BI, rtol, atol)};
+               AdaptDIRK(ad.fI, y0, solverI, BI, rtol, atol, 5000)};
 end
 
 % test runner function
