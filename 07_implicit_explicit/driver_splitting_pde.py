@@ -15,9 +15,9 @@
 #              the splitting error.
 #
 # Both use the explicit and implicit component tables of ARK3(2)4L[2]SA, so
-# that the two sub-solver types can be compared directly.  We only use
-# splittings with nonnegative sub-steps, since a backward-in-time sub-step of
-# the diffusion term would be unstable.
+# that the two sub-solver types can be compared directly.  We include the
+# Ruth method, even though it has negative sub-steps, to show what can go
+# wrong with such methods for this problem.
 #
 # Daniel R. Reynolds
 # Math & Stat @ UMBC
@@ -40,7 +40,8 @@ from FractionalStep import *
 # fractional-step methods to test, from the catalogue in FractionalStep.py
 methods = [('Lie-Trotter', LieTrotter()),
            ('Strang-Marchuk', StrangMarchuk()),
-           ('OS2(2,2)-1/4', OS2(0.25))]
+           ('OS2(2,2)-1/4', OS2(0.25)),
+           ('Ruth', Ruth())]
 
 # testing data
 Hvals = 0.1 / 2.0**np.arange(5)
@@ -61,7 +62,7 @@ def AdaptiveSolvers():
     solverI = ImplicitSolver(ad.JI, solver_type='sparse', maxiter=12,
                              rtol=1e-10, atol=1e-12, Jfreq=3)
     return [AdaptERK(ad.fE, y0, BE, rtol=rtol, atol=atol),
-            AdaptDIRK(ad.fI, y0, solverI, BI, rtol=rtol, atol=atol)]
+            AdaptDIRK(ad.fI, y0, solverI, BI, rtol=rtol, atol=atol, maxit=5000)]
 
 # test runner function
 def RunTest(name, S, BuildSolvers):
